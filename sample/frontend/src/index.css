@@ -1,0 +1,36 @@
+html {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  height: calc(100 * var(--vh));
+  touch-action: none;
+  -ms-touch-action: none;
+}
+
+/* ダブルクリックなどによるテキスト選択を抑制する */
+.user-select-none {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/*
+RMWCのバグ対応
+cf: https://github.com/NA-PF/coro/issues/320
+*/
+.mdc-dialog .mdc-dialog__title {
+  color: var(--mdc-theme-on-surface);
+}
+
+.mdc-dialog .mdc-dialog__content {
+  color: var(--mdc-theme-text-secondary-on-background);
+}

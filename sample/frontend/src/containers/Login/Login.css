@@ -1,0 +1,6 @@
+.start-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100 * var(--vh));
+}

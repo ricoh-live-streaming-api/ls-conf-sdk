@@ -1,0 +1,19 @@
+h1 {
+  margin: 0;
+}
+
+.join-content {
+  padding: 1rem;
+}
+
+.form-group {
+  margin: 0 0 1rem;
+}
+
+.mdc-card {
+  max-width: 20rem;
+}
+
+.mdc-button.mdco-fullwidth {
+  width: 100%;
+}

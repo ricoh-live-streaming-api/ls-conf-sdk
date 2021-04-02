@@ -1,0 +1,4 @@
+{
+  "port": 4000,
+  "bitrate_reservation_mbps": 25
+}

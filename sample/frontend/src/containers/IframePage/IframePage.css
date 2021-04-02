@@ -1,0 +1,26 @@
+.iframe-container {
+  display: flex;
+  justify-content: center;
+  height: calc(100 * var(--vh));
+  align-items: center;
+
+  /* 以下 mobile 向けの設定
+   cf: https://stackoverflow.com/a/45562779
+  */
+  -webkit-overflow-scrolling: touch;
+  overflow-y: scroll;
+}
+
+/*  mobile 向けの設定
+  cf: https://stackoverflow.com/a/45562779
+*/
+.iframe-container::-webkit-scrollbar {
+  display: none;
+}
+
+.iframe-container iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}

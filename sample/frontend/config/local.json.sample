@@ -1,0 +1,41 @@
+{
+  "apiBase": "http://localhost:3000/api",
+  "clientId": "",
+  "thetaZoomMaxRange": 8,
+  "defaultLayout": "gallery",
+  "isHiddenVideoMenuButton": false,
+  "isHiddenRecordingButton": false,
+  "toolbar": {
+    "isHidden": false,
+    "isHiddenCameraButton": false,
+    "isHiddenMicButton": false,
+    "isHiddenScreenShareButton": false,
+    "isHiddenDeviceSettingButton": false,
+    "isHiddenExitButton": false
+  },
+  "theme": {
+    "primary": "#303030",
+    "background": "#f7f7fa",
+    "surface": "#fff",
+    "onPrimary": "#fff",
+    "onSurface": "rgba(0, 0, 0, 0.87)",
+    "textSecondaryOnBackground": "rgba(0, 0, 0, 0.54)",
+    "components": {
+      "participantsVideoContainer": {
+        "background": "rgba(0, 0, 0, 0.05)"
+      },
+      "toolbar": {
+        "background": "#303030",
+        "iconColor": "#fff"
+      },
+      "video": {
+        "background": "#000",
+        "textColor": "#fff",
+        "textBackgroundColor": "#000",
+        "iconColor": "#fff",
+        "menuBackgroundColor": "#fff",
+        "menuTextColor": "rgba(0, 0, 0, 0.87)"
+      }
+    }
+  }
+}
