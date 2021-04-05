@@ -24,11 +24,16 @@ RICOH Live Streaming Conference は RICOH Live Streaming Service を使った様
 * `README.md`: 本文書
 * `CHANGELOG.md`: LSConfおよびLSConfSDKの変更履歴
 * `SoftwareLicenseAgreement.txt`: ソフトウェア使用許諾契約書
+* `doc/`
+  * `APIReference.md`: LSConfSDKのAPI仕様
 * `src/`
   * `ls-conf-sdk.d.ts`: TypeScriptで必要となる型定義ファイル
   * `ls-conf-sdk.js`: LSConfSDK本体
-* `doc/`
-  * `APIReference.md`: LSConfSDKのAPI仕様
+* `sample/`
+  * `README.md`: LSConfを利用したサンプルアプリの説明
+  * `CHANGELOG.md`: サンプルアプリの変更履歴
+  * `frontend/`: サンプルアプリのfrontend
+  * `backend/`: サンプルアプリのfrontend
 
 ## アプリケーションからの利用例
 

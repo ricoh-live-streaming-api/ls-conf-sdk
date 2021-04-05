@@ -25,7 +25,7 @@
 
 create時に指定する `properties` の一覧を記載する。<br>
 全てのパラメータが `optional` で未指定時は、デフォルトの値に設定される。<br>
-`theme` によるデザインの詳細な仕様については[デザイン仕様](./DesignReference.md)に記載する。
+`theme` によるLSConfのデザインの詳細なカスタマイズ方法については[RICOH Live Streaming Conference デザインカスタマイズガイド](https://api.livestreaming.ricoh/document/ricoh-live-streaming-conference-%e3%83%87%e3%82%b6%e3%82%a4%e3%83%b3%e3%82%ab%e3%82%b9%e3%82%bf%e3%83%9e%e3%82%a4%e3%82%ba%e3%82%ac%e3%82%a4%e3%83%89/)を参照ください。
 
 |Name|Type|Default|説明|
 |:--|:--|:--|:--|

@@ -8,8 +8,10 @@
   - [LSConf] ツールバーの参加者一覧ボタンをデフォルトで非表示に変更
 - Fixed
   - [LSConf] Join時のenableAudio/enableVideoの設定が効かない問題を修正
-  - [LSConf] Webm形式の録画ファイル再生時にシークが遅い問題を修正
+  - [LSConf] WebM形式の録画ファイル再生時にシークが遅い問題を修正
   - [LSConf] 画面共有時にGalleryレイアウトが崩れる問題を修正
+  - [LSConf] THETA映像の表示領域が再描画のたびにリセットされる問題を修正
+  - [LSConf] THETA映像の初期表示領域がブラウザによって異なる問題を修正
 
 ## v1.2.3
 - Fixed
