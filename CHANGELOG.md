@@ -34,6 +34,66 @@
   - [LSConf] カメラミュート時にカメラのアクセスランプが光ったままになる問題を修正
   - [LSConf] 一部のコンポーネントにフォントが適用されない問題を修正
 
+### 破壊的な変更による修正内容
+#### join時の引数の追加
+join時にconnectionIdが必須パラメータとなります。
+
+```ts
+// 2.0.0 以前
+iframe.join({
+  clientId: 'hoge',
+  acccessToken: accessToken,
+  connectOptions: {
+    username: 'huga'
+    enableVideo: true,
+    enableAudio: true,
+  }
+});
+
+// 2.0.0 以降
+iframe.join({
+  clientId: 'hoge',
+  acccessToken: accessToken,
+  connectionId: 'connectionId', // アクセストークンで指定したconnectionIdと同じ値を指定
+  connectOptions: {
+    username: 'huga'
+    enableVideo: true,
+    enableAudio: true,
+  }
+});
+```
+
+#### onShareRequestedの戻り値の追加
+onShareRequestedの戻り値にconnectionIdを加えたScreenShareParametersが必須パラメータとなります。
+
+```ts
+// 2.0.0 以前
+iframe.onShareRequested(() => {
+  let accessToken = null;
+  try {
+    accessToken = await createAccessToken();
+  } catch(error) {
+    console.error('createAccessToken failed: ', error.detail.type);
+  }
+  return accessToken;
+});
+
+// 2.0.0 以降
+iframe.onShareRequested(() => {
+  let accessToken = null;
+  try {
+    accessToken = await createAccessToken();
+  } catch(error) {
+    console.error('createAccessToken failed: ', error.detail.type);
+  }
+  const screenShareParameters = {
+    connectionId: 'screenShareConnectionId', // アクセストークンで指定したconnectionIdと同じ値を指定
+    accessToken: accessToken,
+  };
+  return screenShareParameters;
+});
+```
+
 ## v1.2.5
 - Added
   - [SDK] 視点共有機能を追加
