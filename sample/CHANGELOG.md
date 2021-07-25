@@ -1,5 +1,31 @@
 # 変更履歴
 
+## 1.3.1
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v2.2.1` に更新
+
+## 1.3.0
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v2.2.0` に更新
+
+## 1.2.0
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v2.1.0` に更新
+  - [Frontend] 録画開始/停止のイベントに合わせてローカルの録画通知を表示するように変更
+- Refactored
+  - [Frontend] 依存ライブラリを更新
+  - [Backend] 依存ライブラリを更新
+
+## 1.1.0
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v2.0.0` に更新
+  - [Frontend] connectionIdをUUIDのランダムな値を指定するように変更
+
+## 1.0.4
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v1.2.5` に更新
+  - [Frontend] `isHiddenSharePoVButton` のパラメータを追加
+
 ## 1.0.3
 - Changed
   - [Frontend] `ls-conf-sdk` を `v1.2.4` に更新

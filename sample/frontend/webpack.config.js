@@ -33,6 +33,9 @@ const configSchema = {
     "isHiddenRecordingButton": {
       "type": "boolean",
     },
+    "isHiddenSharePoVButton": {
+      "type": "boolean",
+    },
     "defaultLayout": {
       "type": "string",
       "pattern": "gallery|fullscreen|presentation",
@@ -175,7 +178,7 @@ module.exports = (env, argv) => {
   // production とそれ以外で読み込む JSON を変える
   const configFileName = isProduction ? 'production.json' : 'local.json';
   const configPath = path.resolve(__dirname, `config/${configFileName}`);
-  const { lsConfURL, clientId, apiBase, signalingURL, thetaZoomMaxRange, defaultLayout, isHiddenVideoMenuButton, isHiddenRecordingButton, toolbar, podCoordinates, theme } = validateConfig(configPath);
+  const { lsConfURL, clientId, apiBase, signalingURL, thetaZoomMaxRange, defaultLayout, isHiddenVideoMenuButton, isHiddenRecordingButton, isHiddenSharePoVButton, toolbar, podCoordinates, theme } = validateConfig(configPath);
   return {
     mode: mode,
     entry: path.resolve(__dirname, 'src/index.tsx'),
@@ -213,6 +216,7 @@ module.exports = (env, argv) => {
         'config.DEFAULT_LAYOUT': JSON.stringify(defaultLayout),
         'config.IS_HIDDEN_VIDEO_MENU_BUTTON': JSON.stringify(isHiddenVideoMenuButton),
         'config.IS_HIDDEN_RECORDING_BUTTON': JSON.stringify(isHiddenRecordingButton),
+        'config.IS_HIDDEN_SHARE_POV_BUTTON': JSON.stringify(isHiddenSharePoVButton),
         'config.THETA_ZOOM_MAX_RANGE': JSON.stringify(thetaZoomMaxRange),
         'config.TOOLBAR_CONFIG': JSON.stringify(toolbar),
         'config.POD_COORDINATES': JSON.stringify(podCoordinates),

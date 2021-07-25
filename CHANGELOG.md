@@ -1,5 +1,50 @@
 # CHANGE LOG
 
+## v2.2.1
+- Changed
+  - [LSConf] Videoのアスペクト比をデフォルトで16:9で取得するように変更
+- Fixed
+  - [LSConf] 録画通知の改善
+
+## v2.2.0
+- Added
+  - [LSConf] PresentationLayoutの通常表示領域のレイアウトの切替機能を追加
+- Fixed
+  - [SDK] getSubViews()のレスポンスに自拠点と共有画面のSubViewが含まれない問題を修正
+
+## v2.1.0
+- Added
+  - [SDK] 録画通知機能を追加
+  - [SDK] デバイスの変更機能を追加
+- Changed
+  - [LSConf] デフォルトの背景色を透過に変更
+- Fixed
+  - [LSConf] 画面共有をしている会議に途中参加すると共有画面が表示されない問題を修正
+- Refactored
+  - [LSConf] 依存ライブラリの更新
+
+## v2.0.0
+- Added
+  - [SDK] SubViewの強調表示機能を追加
+- Changed
+  - [SDK] 接続時にconnectionIdを渡すように仕様を変更
+  - [LSConf] 複数拠点を同時にローカル録画できるように変更
+- Fixed
+  - [LSConf] 画面共有時にアクセストークンの取得に失敗した際に状態がおかしくなる問題を修正
+  - [LSConf] カメラミュート時にカメラのアクセスランプが光ったままになる問題を修正
+  - [LSConf] 一部のコンポーネントにフォントが適用されない問題を修正
+
+## v1.2.5
+- Added
+  - [SDK] 視点共有機能を追加
+- Changed
+  - [LSConf] OnTrackTimeout発生時にignoreするように変更
+- Fixed
+  - [SDK] CreateParametersの各パラメータがオプショナル化されていなかったのを修正
+  - [LSConf] SubViewMenu表示時にGalleryレイアウトが崩れることがある問題を修正
+  - [LSConf] Galleryレイアウトの通常表示領域が6拠点以上になると画面が崩れる問題を修正
+  - [LSConf] usernameとconnectionIdが異なる場合にTHETA拠点の映像がリセットされる問題を修正
+
 ## v1.2.4
 - Added
   - [SDK] コンポーネント単位のテーマ変更機能を追加
@@ -95,7 +140,7 @@
   - [LSConf] addRemoteTrackのmediaTypeが未指定時の場合に`'VIDEO_AUDIO'`として扱うように修正
   - [LSConf] Presentation Layout へ切り替える際は mainConnectionIds をクリアするよう修正
   - [LSConf] cappella-web のエラーを error event として通知するように修正する
-  - [LSConf] removeremoteconnection 時の main connection ids の処理を修正する
+  - [LSConf] removeremoteconnection 時の mainConnectionIds の処理を修正する
 - Refactored
   - [LSConf] @types/webrtc パッケージを取り除く
 

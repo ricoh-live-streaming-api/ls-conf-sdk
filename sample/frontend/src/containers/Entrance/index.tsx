@@ -6,23 +6,21 @@ import { useParams } from 'react-router-dom';
 
 import LoginEntranceFormFieldGroup from '@/components/LoginEntranceFormFieldGroup';
 
-const Entrance: React.FC<{}> = () => {
+const Entrance: React.FC<Record<string, never>> = () => {
   const params: { roomId: string } = useParams();
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  const { video_bitrate, share_bitrate, default_layout, use_dummy_device } = qs.parse(window.location.search);
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const { video_bitrate, share_bitrate, default_layout, use_dummy_device, bitrate_reservation_mbps, room_type } = qs.parse(window.location.search);
   const [roomId, setRoomId] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const onSubmitSuccess = (): void => {
-    let uriPath = '';
-    /* eslint-disable @typescript-eslint/camelcase */
-    if (isNaN(Number(video_bitrate)) && isNaN(Number(share_bitrate))) {
-      uriPath = `/room/${roomId}/?username=${username}`;
-    } else if (isNaN(Number(video_bitrate))) {
-      uriPath = `/room/${roomId}/?username=${username}&share_bitrate=${share_bitrate}`;
-    } else if (isNaN(Number(share_bitrate))) {
-      uriPath = `/room/${roomId}/?username=${username}&video_bitrate=${video_bitrate}`;
-    } else {
-      uriPath = `/room/${roomId}/?username=${username}&video_bitrate=${video_bitrate}&share_bitrate=${share_bitrate}`;
+    const encodedUsername = encodeURIComponent(username);
+    let uriPath = `/room/${roomId}/?username=${encodedUsername}`;
+    /* eslint-disable @typescript-eslint/naming-convention */
+    if (video_bitrate && !isNaN(Number(video_bitrate))) {
+      uriPath += `&video_bitrate=${video_bitrate}`;
+    }
+    if (share_bitrate && !isNaN(Number(share_bitrate))) {
+      uriPath += `&share_bitrate=${share_bitrate}`;
     }
     if (default_layout) {
       uriPath += `&default_layout=${default_layout}`;
@@ -30,7 +28,13 @@ const Entrance: React.FC<{}> = () => {
     if (use_dummy_device) {
       uriPath += `&use_dummy_device=${use_dummy_device}`;
     }
-    /* eslint-enable @typescript-eslint/camelcase */
+    if (bitrate_reservation_mbps && !isNaN(Number(bitrate_reservation_mbps))) {
+      uriPath += `&bitrate_reservation_mbps=${bitrate_reservation_mbps}`;
+    }
+    if (room_type) {
+      uriPath += `&room_type=${room_type}`;
+    }
+    /* eslint-enable @typescript-eslint/naming-convention */
     window.open(uriPath);
   };
   useEffect(() => {

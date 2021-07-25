@@ -24,6 +24,7 @@ interface LSConfSampleConfig {
   THETA_ZOOM_MAX_RANGE: number;
   IS_HIDDEN_VIDEO_MENU_BUTTON: boolean;
   IS_HIDDEN_RECORDING_BUTTON: boolean;
+  IS_HIDDEN_SHARE_POV_BUTTON: boolean;
   DEFAULT_LAYOUT: string;
   TOOLBAR_CONFIG: ToolbarConfig;
   POD_COORDINATES?: {

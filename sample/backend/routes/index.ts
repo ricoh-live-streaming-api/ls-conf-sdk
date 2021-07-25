@@ -1,4 +1,4 @@
-/* eslint @typescript-eslint/camelcase: 0 */
+/* eslint @typescript-eslint/naming-convention: 0 */
 import { addMinutes, getUnixTime } from 'date-fns';
 import express, { NextFunction, Request, Response, Router } from 'express';
 import { body, validationResult } from 'express-validator';
@@ -21,13 +21,18 @@ const configPath = path.resolve(__dirname, `../config/${configFileName}`);
 const configJson = require(configPath);
 
 const generateToken = async (secret: string, req: Request): Promise<string> => {
-  const { room_id, connection_id } = req.body;
+  const { room_id, connection_id, bitrate_reservation_mbps, room_type } = req.body;
   const payload = {
     nbf: getUnixTime(new Date()),
     exp: getUnixTime(addMinutes(new Date(), 3)),
     connection_id: connection_id,
     room_id: room_id,
-    room_spec: { type: 'sfu', turn: { use: true }, media_control: { bitrate_reservation_mbps: configJson.bitrate_reservation_mbps } },
+    room_spec: {
+      type: room_type || 'sfu',
+      media_control: {
+        bitrate_reservation_mbps: Number(bitrate_reservation_mbps) || configJson.bitrate_reservation_mbps,
+      },
+    },
   };
   return jwt.sign(payload, secret, { algorithm: 'HS256' });
 };

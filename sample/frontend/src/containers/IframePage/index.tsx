@@ -5,30 +5,46 @@ import format from 'date-fns/format';
 import qs from 'query-string';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { v4 as uuidv4 } from 'uuid';
 
 import { fetchAccessToken } from '@/api';
 import ErrorDialog from '@/components/ErrorDialog';
-import { DEFAULT_LAYOUT, IS_HIDDEN_RECORDING_BUTTON, IS_HIDDEN_VIDEO_MENU_BUTTON, LS_CLIENT_ID, LS_CONF_URL, SIGNALING_URL, THEME_CONFIG, THETA_ZOOM_MAX_RANGE, TOOLBAR_CONFIG } from '@/constants';
-import LSConferenceIframe from '@/lib/ls-conf-sdk';
+import {
+  DEFAULT_LAYOUT,
+  IS_HIDDEN_RECORDING_BUTTON,
+  IS_HIDDEN_SHARE_POV_BUTTON,
+  IS_HIDDEN_VIDEO_MENU_BUTTON,
+  LS_CLIENT_ID,
+  LS_CONF_URL,
+  SIGNALING_URL,
+  THEME_CONFIG,
+  THETA_ZOOM_MAX_RANGE,
+  TOOLBAR_CONFIG,
+} from '@/constants';
+import LSConferenceIframe, { CreateParameters, ScreenShareParameters } from '@/lib/ls-conf-sdk';
 
-const CREATE_PARAMETERS = {
+const CREATE_PARAMETERS: CreateParameters = {
   defaultLayout: (DEFAULT_LAYOUT as 'gallery' | 'presentation' | 'fullscreen') || undefined,
   isHiddenVideoMenuButton: IS_HIDDEN_VIDEO_MENU_BUTTON,
   isHiddenRecordingButton: IS_HIDDEN_RECORDING_BUTTON,
+  isHiddenSharePoVButton: IS_HIDDEN_SHARE_POV_BUTTON,
   toolbar: TOOLBAR_CONFIG,
   thetaZoomMaxRange: THETA_ZOOM_MAX_RANGE,
   lsConfURL: LS_CONF_URL ? LS_CONF_URL : undefined,
   theme: THEME_CONFIG,
 };
 
-const IframePage: React.FC<{}> = () => {
-  // eslint-disable-next-line @typescript-eslint/camelcase
-  const { username, video_bitrate, share_bitrate, default_layout, use_dummy_device } = qs.parse(window.location.search);
+const IframePage: React.FC<Record<string, never>> = () => {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const { username, video_bitrate, share_bitrate, default_layout, use_dummy_device, bitrate_reservation_mbps, room_type } = qs.parse(window.location.search);
   const { roomId } = useParams<{ roomId: string }>();
   const iframeContainerRef = useRef<HTMLDivElement>(null);
   const [lsConfIframe, setLsConfIframe] = useState<LSConferenceIframe | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const showErrorDialog = errorMessage !== null;
+  const connectionId: string = uuidv4();
+  const bitrateReservation = bitrate_reservation_mbps && typeof bitrate_reservation_mbps === 'string' ? bitrate_reservation_mbps : undefined;
+  const roomType = room_type && typeof room_type === 'string' ? room_type : undefined;
   const createAndConnectRoom = async (): Promise<void> => {
     if (!username || !roomId || typeof username !== 'string') {
       // 現在 ls-conf-sdk への対応と同様にエラーをそのまま errorMessage に入れている
@@ -44,9 +60,9 @@ const IframePage: React.FC<{}> = () => {
     }
     let iframe: LSConferenceIframe;
     try {
-      // eslint-disable-next-line @typescript-eslint/camelcase
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       if (default_layout && typeof default_layout === 'string' && ['gallery', 'presentation', 'fullscreen'].includes(default_layout.toLowerCase())) {
-        // eslint-disable-next-line @typescript-eslint/camelcase
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         CREATE_PARAMETERS.defaultLayout = default_layout.toLowerCase() as 'gallery' | 'presentation' | 'fullscreen';
       }
       iframe = await LSConferenceIframe.create(iframeContainerRef.current, CREATE_PARAMETERS);
@@ -56,19 +72,22 @@ const IframePage: React.FC<{}> = () => {
     }
     iframe.onShareRequested(async () => {
       let screenShareAccessToken;
-      const connectionId = username + '_screen';
+      const screenShareConnectionId = uuidv4();
       try {
-        screenShareAccessToken = await fetchAccessToken(roomId, connectionId);
+        screenShareAccessToken = await fetchAccessToken(roomId, screenShareConnectionId, bitrateReservation, roomType);
       } catch (e) {
         setErrorMessage(e.message);
         return;
       }
-      return screenShareAccessToken;
+      const screenShareParameters: ScreenShareParameters = {
+        connectionId: screenShareConnectionId,
+        accessToken: screenShareAccessToken,
+      };
+      return screenShareParameters;
     });
     let accessToken;
-    const connectionId = username;
     try {
-      accessToken = await fetchAccessToken(roomId, connectionId);
+      accessToken = await fetchAccessToken(roomId, connectionId, bitrateReservation, roomType);
     } catch (e) {
       setErrorMessage(e.message);
       return;
@@ -79,7 +98,7 @@ const IframePage: React.FC<{}> = () => {
       enableAudio: true,
       maxVideoBitrate: Number(video_bitrate),
       maxShareBitrate: Number(share_bitrate),
-      // eslint-disable-next-line @typescript-eslint/camelcase
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       useDummyDevice: Boolean(use_dummy_device && typeof use_dummy_device === 'string' && use_dummy_device.toLowerCase() === 'true'),
       signalingURL: SIGNALING_URL,
     };
@@ -90,6 +109,7 @@ const IframePage: React.FC<{}> = () => {
       log += `******************** Error Message ********************\n`;
       log += `${e.message}\n`;
       log += `******************** Environment **********************\n`;
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       log += `LSConfSample Version: v${require('../../../../frontend/package.json').version}\n`;
       log += `LSConfURL: ${LS_CONF_URL || 'default'}\n`;
       log += `LSClientID: ${LS_CLIENT_ID || 'unknown'}\n`;
@@ -134,8 +154,26 @@ const IframePage: React.FC<{}> = () => {
     iframe.addEventListener('disconnected', () => {
       // TODO(ueue): disconnect時の挙動が決まったら実装
     });
+    iframe.addEventListener(
+      'startRecording',
+      (e: CustomEvent) => {
+        const targetSubview = e.detail.subView;
+        console.log(`startRecording: subView: ${JSON.stringify(targetSubview)}`);
+        iframe.addRecordingMember(targetSubview, connectionId);
+      },
+      { once: false }
+    );
+    iframe.addEventListener(
+      'stopRecording',
+      (e: CustomEvent) => {
+        const targetSubview = e.detail.subView;
+        console.log(`stopRecording: subView: ${JSON.stringify(targetSubview)}`);
+        iframe.removeRecordingMember(targetSubview, connectionId);
+      },
+      { once: false }
+    );
     try {
-      await iframe.join(LS_CLIENT_ID, accessToken, connectOptions);
+      await iframe.join(LS_CLIENT_ID, accessToken, connectionId, connectOptions);
     } catch (e) {
       setErrorMessage(e.message);
       return;

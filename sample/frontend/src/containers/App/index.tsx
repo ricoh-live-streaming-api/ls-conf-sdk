@@ -7,7 +7,7 @@ import Entrance from '../Entrance';
 import IframePage from '../IframePage';
 import Login from '../Login';
 
-const App: React.FC<{}> = () => {
+const App: React.FC<Record<string, never>> = () => {
   return (
     <div className="mdc-theme--background">
       <BrowserRouter>

@@ -43,9 +43,6 @@ const validateRoomIdAndUsername = (roomId: string, username: string): Array<{ ke
   if (username.length > USERNAME_CHARACTER_LIMIT.upper) {
     errors.push({ key: 'username', message: `ユーザ名は${USERNAME_CHARACTER_LIMIT.upper}文字以下で入力してください` });
   }
-  if (!validateIDString(username)) {
-    errors.push({ key: 'username', message: '英数字と一部記号（.%+^_"`{|}~<>\\-）以外の文字列は使用できません' });
-  }
   if (roomId === '') {
     errors.push({ key: 'roomId', message: 'ルーム名を入力してください' });
   }

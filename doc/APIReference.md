@@ -41,6 +41,7 @@ create時に指定する `properties` の一覧を記載する。<br>
 | `toolbar.isHiddenExitButton` | boolean | false | ツールバーの退室ボタンを非表示にするかどうか |
 | `isHiddenVideoMenuButton` | boolean | false | SubViewのメニューボタンを非表示にするかどうか |
 | `isHiddenRecordingButton` | boolean | false | 録画開始ボタンを非表示にするかどうか |
+| `isHiddenSharePoVButton` | boolean | true | 視点共有ボタンを非表示にするかどうか |
 | `theme` | Object | | テーマ設定のオブジェクト |
 
 #### join parameters
@@ -49,7 +50,7 @@ join時に指定する `connectOptions` の一覧を記載する。
 
 |Name|Type|区分|Default|説明|
 |:--|:--|:--|:--|:--|
-| `username` | IDString | require | - | 拠点名に表示されるユーザ名 |
+| `username` | string | require | - | 拠点名に表示されるユーザ名 |
 | `enableVideo` | boolean | require | - | 通話開始時にカメラを有効にするかどうか |
 | `enableAudio` | boolean | require | - | 通話開始時にマイクを有効にするかどうか |
 | `maxVideoBitrate` | number | optional | 2000 | カメラ映像の最大送信ビットレート [kbps]<br>(`100`以上`20000`以下) |
@@ -72,7 +73,7 @@ join時に指定する `connectOptions` の一覧を記載する。
 - 返り値
   - 生成成功時: `Promise<LSConferenceIframe>`
   - 生成失敗時: `Promise`
-    - ErrorDetail.error: `'CreateFailed'`
+    - ErrorDetail.error: `'CreateFailed' | 'CreateTimeout' | 'CreateArgsInvalid'`
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -81,23 +82,25 @@ join時に指定する `connectOptions` の一覧を記載する。
 
 ### Instance Methods
 
-#### join(clientId, accessToken, connectOptions)
+#### join(clientId, accessToken, connectionId, connectOptions)
 
 ビデオチャットに参加する。
 
 - 引数
   - clientId
   - accessToken
+  - connectionId
   - connectOptions
 - 返り値
   - 参加成功時: `Promise<void>`
   - 参加失敗時: `Promise`
-    - ErrorDetail.error: `'JoinFailed'`
+    - ErrorDetail.error: `'JoinFailed' | 'JoinArgsInvalid'`
 
 |Name|Type|説明|
 |:--|:--|:--|
 | clientId | string | LS PFを利用するためのClientID |
-| accessToken | string | LS Signalingに接続するためのトークン |
+| accessToken | string | LS Signalingに接続するためのAccessToken |
+| connectionId | IDString | AccessTokenで指定したconnection_id |
 | connectOptions | Object | [`join parameters`](#join-parameters)を設定する |
 
 #### leave()
@@ -113,7 +116,7 @@ join時に指定する `connectOptions` の一覧を記載する。
 
 #### onShareRequested(callback)
 
-画面共有開始時にAccessTokenをreturnするコールバック関数を指定する。
+画面共有開始時にScreenShareParametersをreturnするコールバック関数を指定する。
 
 - 引数
   - callback
@@ -122,7 +125,34 @@ join時に指定する `connectOptions` の一覧を記載する。
 
 |Name|Type|説明|
 |:--|:--|:--|
-| callback | Function | 画面共有開始時にAccessTokenをreturnするコールバック関数 |
+| callback | Function | 画面共有開始時にScreenShareParametersをreturnするコールバック関数 |
+
+```ts
+type ScreenShareParameters = {
+  connectionId: string; // 画面共有接続用のconnectionId
+  accessToken: string;  // 画面共有接続用のaccessToken
+};
+```
+
+#### getMediaDevices()
+接続されているメディアデバイス情報の一覧を取得する。
+- 引数
+  - なし
+- 返り値
+  - 変更成功時: `Promise<DeviceInfo[]>`
+  - 変更失敗時: `Promise`
+    - ErrorDetail.error: `'GetMediaDevicesFailed' | 'GetMediaDevicesError'`
+
+※ `DeviceInfo` は [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo) の各プロパティに準ずる。
+
+```ts
+type DeviceInfo = {
+  deviceId: string;
+  groupId: string;
+  kind: string;
+  label: string;
+};
+```
 
 #### setCameraMute(isEnabled)
 
@@ -139,6 +169,19 @@ join時に指定する `connectOptions` の一覧を記載する。
 |:--|:--|:--|
 | isEnabled | boolean | `true`: カメラミュートが有効<br>`false`: カメラミュートが無効 |
 
+#### setCameraDevice(deviceId: string)
+カメラデバイスを変更する。
+- 引数
+  - deviceId
+- 返り値
+  - 変更成功時: `Promise<void>`
+  - 変更失敗時: `Promise`
+    - ErrorDetail.error: `'setCameraDeviceFailed'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| deviceId | string | `getMediaDevices()`で取得した`type: 'videoinput'`のdeviceId |
+
 #### setMicMute(isEnabled)
 
 マイクミュートの有効/無効を変更する。
@@ -154,6 +197,19 @@ join時に指定する `connectOptions` の一覧を記載する。
 |:--|:--|:--|
 | isEnabled | boolean | `true`: マイクミュートが有効<br>`false`: マイクミュートが無効 |
 
+#### setMicDevice(deviceId: string)
+マイクデバイスを変更する。
+- 引数
+  - deviceId
+- 返り値
+  - 変更成功時: `Promise<void>`
+  - 変更失敗時: `Promise`
+    - ErrorDetail.error: `'setMicDeviceFailed'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| deviceId | string | `getMediaDevices()`で取得した`type: 'audioinput'`のdeviceId |
+
 #### getVideoAudioLog()
 
 映像/音声での接続のクライアントログを取得する。
@@ -163,7 +219,7 @@ join時に指定する `connectOptions` の一覧を記載する。
 - 返り値
   - 変更成功時: `Promise<string>`
   - 変更失敗時: `Promise`
-    - ErrorDetail.error: `'GetReportFailed'`
+    - ErrorDetail.error: `'GetReportFailed' | 'GetReportError'`
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -178,7 +234,7 @@ join時に指定する `connectOptions` の一覧を記載する。
 - 返り値
   - 変更成功時: `Promise<string>`
   - 変更失敗時: `Promise`
-    - ErrorDetail.error: `'GetReportFailed'`
+    - ErrorDetail.error: `'GetReportFailed' | 'GetReportError'`
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -193,7 +249,7 @@ join時に指定する `connectOptions` の一覧を記載する。
 - 返り値
   - 変更成功時: `Promise<string>`
   - 変更失敗時: `Promise`
-    - ErrorDetail.error: `'GetReportFailed'`
+    - ErrorDetail.error: `'GetReportFailed' | 'GetReportError'`
 
 #### getScreenShareStats()
 
@@ -204,7 +260,7 @@ join時に指定する `connectOptions` の一覧を記載する。
 - 返り値
   - 変更成功時: `Promise<string>`
   - 変更失敗時: `Promise`
-    - ErrorDetail.error: `'GetReportFailed'`
+    - ErrorDetail.error: `'GetReportFailed' | 'GetReportError'`
 
 #### changeLayout(layout)
 
@@ -220,6 +276,111 @@ join時に指定する `connectOptions` の一覧を記載する。
 |Name|Type|説明|
 |:--|:--|:--|
 | layout | string | `"gallery" \| "presentation" \| "fullscreen"`
+
+#### getSubViews()
+
+SubViewの一覧を取得する。
+
+- 引数
+  - なし
+- 返り値
+  - 取得成功時: `Promise<SubView[]>`
+  - 取得失敗時: `Promise`
+    - ErrorDetail.error: `'GetSubViewsFailed' | 'GetSubViewsError'`
+
+#### highlight(subView)
+
+指定されたSubViewを一定時間強調表示する。
+
+- 引数
+  - subView
+- 返り値
+  - 設定成功時: `Promise<void>`
+  - 設定失敗時: `Promise`
+    - ErrorDetail.error: `'HighlightFailed' | 'HighlightError' | 'HighlightArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 対象となるSubView |
+
+#### onSharePoV(callback)
+
+視点共有ボタンを押下したときにアプリに視点情報を渡すイベント通知を受け取るためのコールバック関数を指定する。
+
+- 引数
+  - callback
+- 返り値
+  - なし
+
+|Name|Type|説明|
+|:--|:--|:--|
+| callback | Function | 視点共有ボタンを押下したときにアプリに視点情報を渡すイベント通知を受け取るためのコールバック関数 |
+
+#### getPoV(subView)
+
+視点情報を取得する。
+
+- 引数
+  - subView
+- 返り値
+  - 取得成功時: `Promise<PoV>`
+  - 取得失敗時: `Promise`
+    - ErrorDetail.error: `'GetPoVFailed' | 'GetPoVError' | 'GetPoVArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 対象となるSubView<br>360映像のSubViewのみ指定可能 |
+
+#### setPoV(subView, poV)
+
+視点情報を反映する。
+
+- 引数
+  - subView
+  - poV
+- 返り値
+  - 設定成功時: `Promise<void>`
+  - 設定失敗時: `Promise`
+    - ErrorDetail.error: `'SetPoVFailed' | 'SetPoVError' | 'SetPoVArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 対象となるSubView<br>360映像のSubViewのみ指定可能 |
+| poV | PoV | 反映する視点情報 |
+
+#### addRecordingMember(subView, connectionId)
+
+録画通知を追加する。
+
+- 引数
+  - subView
+  - connectionId
+- 返り値
+  - 設定成功時: `Promise<void>`
+  - 設定失敗時: `Promise`
+    - ErrorDetail.error: `'AddRecordingMemberFailed' | 'AddRecordingMemberError' | 'AddRecordingMemberArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 録画対象のSubView |
+| connectionId | IDString | 録画を行った拠点のconnection_id |
+
+#### removeRecordingMember(subView, connectionId)
+
+録画通知を削除する。
+
+- 引数
+  - subView
+  - connectionId
+- 返り値
+  - 設定成功時: `Promise<void>`
+  - 設定失敗時: `Promise`
+    - ErrorDetail.error: `'RemoveRecordingMemberFailed' | 'RemoveRecordingMemberError' | 'RemoveRecordingMemberArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 録画対象のSubView |
+| connectionId | IDString | 録画を行った拠点のconnection_id |
 
 #### iframe()
 
@@ -307,16 +468,35 @@ join時に指定する `connectOptions` の一覧を記載する。
 }
 ```
 
-#### shareRequested
+#### startRecording
 
-ユーザ操作で画面共有の開始ボタンが押された。<br>
-このイベント発火時に画面共有用のAccessTokenをbackendから発行し、コールバック関数内でreturnする必要がある。
+録画が開始された。
 
-```js
-{
-  action: 'shareRequested'
-}
-```
+- イベント名
+  - startRecording
+- インターフェース
+  - CustomEvent
+    - detail
+      - subView
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 録画対象のSubView |
+
+#### stopRecording
+
+録画が停止された。
+
+- イベント名
+  - stopRecording
+- インターフェース
+  - CustomEvent
+    - detail
+      - subView
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 録画対象のSubView |
 
 #### error
 

@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 1.2.4
+ * @version: 2.2.1
  **/
 
 (function (global, factory) {
@@ -11,7 +11,7 @@
 }(this, (function () { 'use strict';
 
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '1.2.4';
+  const LS_CONF_SDK_VERSION = '2.2.1';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
@@ -36,6 +36,11 @@
           code: 4040,
           type: 'RequestError',
           error: 'CreateFailed',
+      },
+      CreateTimeout: {
+          code: 4041,
+          type: 'RequestError',
+          error: 'CreateTimeout',
       },
       JoinFailed: {
           code: 4050,
@@ -67,6 +72,11 @@
           type: 'RequestError',
           error: 'GetReportFailed',
       },
+      GetReportError: {
+          code: 4101,
+          type: 'RequestError',
+          error: 'GetReportError',
+      },
       ChangeLayoutFailed: {
           code: 4110,
           type: 'RequestError',
@@ -77,12 +87,127 @@
           type: 'RequestError',
           error: 'GetDeviceFailed',
       },
+      GetSubViewsFailed: {
+          code: 4130,
+          type: 'RequestError',
+          error: 'GetSubViewsFailed',
+      },
+      GetSubViewsError: {
+          code: 4131,
+          type: 'RequestError',
+          error: 'GetSubViewsError',
+      },
+      GetPoVFailed: {
+          code: 4140,
+          type: 'RequestError',
+          error: 'GetPoVFailed',
+      },
+      GetPoVError: {
+          code: 4141,
+          type: 'RequestError',
+          error: 'GetPoVError',
+      },
+      GetPoVArgsInvalid: {
+          code: 4150,
+          type: 'RequestError',
+          error: 'GetPoVArgsInvalid',
+      },
+      SetPoVFailed: {
+          code: 4160,
+          type: 'RequestError',
+          error: 'SetPoVFailed',
+      },
+      SetPoVError: {
+          code: 4161,
+          type: 'RequestError',
+          error: 'SetPoVError',
+      },
+      SetPoVArgsInvalid: {
+          code: 4170,
+          type: 'RequestError',
+          error: 'SetPoVArgsInvalid',
+      },
+      ShareRequestArgsInvalid: {
+          code: 4180,
+          type: 'RequestError',
+          error: 'ShareRequestArgsInvalid',
+      },
+      HighlightArgsInvalid: {
+          code: 4190,
+          type: 'RequestError',
+          error: 'HighlightArgsInvalid',
+      },
+      HighlightFailed: {
+          code: 4200,
+          type: 'RequestError',
+          error: 'HighlightFailed',
+      },
+      HighlightError: {
+          code: 4210,
+          type: 'RequestError',
+          error: 'HighlightError',
+      },
+      AddRecordingMemberArgsInvalid: {
+          code: 4220,
+          type: 'RequestError',
+          error: 'AddRecordingMemberArgsInvalid',
+      },
+      AddRecordingMemberFailed: {
+          code: 4230,
+          type: 'RequestError',
+          error: 'AddRecordingMemberFailed',
+      },
+      AddRecordingMemberError: {
+          code: 4240,
+          type: 'RequestError',
+          error: 'AddRecordingMemberError',
+      },
+      RemoveRecordingMemberArgsInvalid: {
+          code: 4250,
+          type: 'RequestError',
+          error: 'RemoveRecordingMemberArgsInvalid',
+      },
+      RemoveRecordingMemberFailed: {
+          code: 4260,
+          type: 'RequestError',
+          error: 'RemoveRecordingMemberFailed',
+      },
+      RemoveRecordingMemberError: {
+          code: 4270,
+          type: 'RequestError',
+          error: 'RemoveRecordingMemberError',
+      },
+      SetCameraDeviceFailed: {
+          code: 4280,
+          type: 'RequestError',
+          error: 'SetCameraDeviceFailed',
+      },
+      SetMicDeviceFailed: {
+          code: 4290,
+          type: 'RequestError',
+          error: 'SetMicDeviceFailed',
+      },
+      GetMediaDevicesFailed: {
+          code: 4300,
+          type: 'RequestError',
+          error: 'GetMediaDevicesFailed',
+      },
+      GetMediaDevicesError: {
+          code: 4310,
+          type: 'RequestError',
+          error: 'GetMediaDevicesError',
+      },
   };
   const INTERNAL_ERRORS = {
       InternalError5001: {
           code: 5001,
           type: 'InternalError',
           error: 'InternalError5001',
+      },
+      InternalError5002: {
+          code: 5002,
+          type: 'InternalError',
+          error: 'InternalError5002',
       },
   };
   class LSConferenceIframeError extends Error {
@@ -101,6 +226,14 @@
           this.clientId = null;
           this.connectOptions = null;
           this.shareRequestedCallback = () => { };
+          this.sharePoVCallback = () => { };
+          this.getSubViewsCallback = { success: () => { }, error: () => { } };
+          this.highlightCallback = { success: () => { }, error: () => { } };
+          this.getPoVCallback = { success: () => { }, error: () => { } };
+          this.setPoVCallback = { success: () => { }, error: () => { } };
+          this.addRecordingMemberCallback = { success: () => { }, error: () => { } };
+          this.removeRecordingMemberCallback = { success: () => { }, error: () => { } };
+          this.getMediaDevicesCallback = { success: () => { }, error: () => { } };
           this.eventListeners = new Map();
       }
       setWindowMessageCallback() {
@@ -111,12 +244,24 @@
                   throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
               }
               if (data.type === 'shareRequest' && this.connectOptions) {
-                  const accessToken = await this.shareRequestedCallback();
+                  let shareParams = undefined;
+                  try {
+                      shareParams = await this.shareRequestedCallback();
+                  }
+                  catch (e) {
+                      console.warn('Exception occurred in onShareRequested.', e);
+                  }
+                  if (!shareParams || !this.validateScreenShareParameters(shareParams)) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['ShareRequestArgsInvalid']);
+                      this.dispatchEvent(new ErrorEvent('error', error));
+                      throw error;
+                  }
                   // screen share の role, mediaType は固定
                   const postMessageParameters = {
                       type: 'connectShare',
                       clientId: this.clientId,
-                      accessToken: accessToken,
+                      accessToken: shareParams.accessToken,
+                      connectionId: shareParams.connectionId,
                       role: 'sendonly',
                       mediaType: 'screenshare',
                       connectOptions: this.connectOptions,
@@ -137,7 +282,7 @@
                   const callback = this.logCallbacks.get(data.logType);
                   if (callback) {
                       if (data.error) {
-                          const error = new LSConferenceIframeError(REQUEST_ERRORS['GetReportFailed']);
+                          const error = new LSConferenceIframeError(REQUEST_ERRORS['GetReportError']);
                           callback.error(error);
                       }
                       else {
@@ -148,7 +293,31 @@
               }
               else if (data.type === 'recording') {
                   if (data.error) {
-                      throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+                      throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5002']);
+                  }
+              }
+              else if (data.type === 'startRecording') {
+                  this.dispatchEvent(new CustomEvent('startRecording', { detail: { subView: data.subView } }));
+              }
+              else if (data.type === 'stopRecording') {
+                  this.dispatchEvent(new CustomEvent('stopRecording', { detail: { subView: data.subView } }));
+              }
+              else if (data.type === 'addRecordingMember') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['AddRecordingMemberError']);
+                      this.addRecordingMemberCallback.error(error);
+                  }
+                  else {
+                      this.addRecordingMemberCallback.success();
+                  }
+              }
+              else if (data.type === 'removeRecordingMember') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['RemoveRecordingMemberError']);
+                      this.removeRecordingMemberCallback.error(error);
+                  }
+                  else {
+                      this.removeRecordingMemberCallback.success();
                   }
               }
               else if (data.type === 'disconnected') {
@@ -160,6 +329,54 @@
               else if (data.type === 'getDeviceFailed') {
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['GetDeviceFailed']);
                   this.dispatchEvent(new ErrorEvent('error', error));
+              }
+              else if (data.type === 'getSubViews') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['GetSubViewsError']);
+                      this.getSubViewsCallback.error(error);
+                  }
+                  else {
+                      this.getSubViewsCallback.success(data.subViews);
+                  }
+              }
+              else if (data.type === 'highlight') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['HighlightError']);
+                      this.highlightCallback.error(error);
+                  }
+                  else {
+                      this.highlightCallback.success();
+                  }
+              }
+              else if (data.type === 'sharePoV') {
+                  this.sharePoVCallback(data.subView, data.poV);
+              }
+              else if (data.type === 'getPoV') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['GetPoVError']);
+                      this.getPoVCallback.error(error);
+                  }
+                  else {
+                      this.getPoVCallback.success(data.poV);
+                  }
+              }
+              else if (data.type === 'setPoV') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['SetPoVError']);
+                      this.setPoVCallback.error(error);
+                  }
+                  else {
+                      this.setPoVCallback.success();
+                  }
+              }
+              else if (data.type === 'getMediaDevices') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['GetMediaDevicesError']);
+                      this.getMediaDevicesCallback.error(error);
+                  }
+                  else {
+                      this.getMediaDevicesCallback.success(data.devices);
+                  }
               }
               else if (data.type === 'error' && data.error) {
                   const eventInitDict = {
@@ -201,6 +418,9 @@
               return false;
           }
           if (parameters.isHiddenRecordingButton !== undefined && typeof parameters.isHiddenRecordingButton !== 'boolean') {
+              return false;
+          }
+          if (parameters.isHiddenSharePoVButton !== undefined && typeof parameters.isHiddenSharePoVButton !== 'boolean') {
               return false;
           }
           if (parameters.podCoordinates !== undefined && parameters.podCoordinates.upperLeft !== undefined && !Array.isArray(parameters.podCoordinates.upperLeft)) {
@@ -269,16 +489,25 @@
                       if (parameters.theme.components.video.menuBackgroundColor !== undefined && typeof parameters.theme.components.video.menuBackgroundColor !== 'string') {
                           return false;
                       }
+                      if (parameters.theme.components.video.highlightBorderColor !== undefined && typeof parameters.theme.components.video.highlightBorderColor !== 'string') {
+                          return false;
+                      }
+                      if (parameters.theme.components.video.highlightShadowColor !== undefined && typeof parameters.theme.components.video.highlightShadowColor !== 'string') {
+                          return false;
+                      }
                   }
               }
           }
           return true;
       }
-      validateJoinParameters(clientId, accessToken, connectOptions) {
+      validateJoinParameters(clientId, accessToken, connectionId, connectOptions) {
           if (typeof clientId !== 'string') {
               return false;
           }
           if (typeof accessToken !== 'string') {
+              return false;
+          }
+          if (typeof connectionId !== 'string') {
               return false;
           }
           if (typeof connectOptions.username !== 'string') {
@@ -321,6 +550,39 @@
           }
           return true;
       }
+      validateScreenShareParameters(param) {
+          if (typeof param.accessToken !== 'string') {
+              return false;
+          }
+          if (typeof param.connectionId !== 'string') {
+              return false;
+          }
+          return true;
+      }
+      validateSubViewType(subView) {
+          if (subView.connectionId !== undefined && typeof subView.connectionId !== 'string') {
+              return false;
+          }
+          if (subView.isTheta !== undefined && typeof subView.isTheta !== 'boolean') {
+              return false;
+          }
+          if (subView.type !== undefined && subView.type !== 'VIDEO_AUDIO' && subView.type !== 'SCREEN_SHARE') {
+              return false;
+          }
+          return true;
+      }
+      validatePoVType(poV) {
+          if (poV.pan !== undefined && typeof poV.pan !== 'number') {
+              return false;
+          }
+          if (poV.tilt !== undefined && typeof poV.tilt !== 'number') {
+              return false;
+          }
+          if (poV.fov !== undefined && typeof poV.fov !== 'number') {
+              return false;
+          }
+          return true;
+      }
       __create(parameters) {
           return new Promise((resolve, reject) => {
               if (parameters.lsConfURL) {
@@ -329,7 +591,7 @@
               }
               const loadTimer = setTimeout(() => {
                   // 5000 ms の間に iframe onload が発火しない場合は reject する
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateFailed']);
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTimeout']);
                   this.dispatchEvent(new ErrorEvent('error', error));
                   return reject(error);
               }, 5000);
@@ -351,6 +613,7 @@
                               defaultLayout: parameters.defaultLayout,
                               isHiddenVideoMenuButton: parameters.isHiddenVideoMenuButton,
                               isHiddenRecordingButton: parameters.isHiddenRecordingButton,
+                              isHiddenSharePoVButton: parameters.isHiddenSharePoVButton,
                               toolbar: parameters.toolbar,
                               podCoordinates: parameters.podCoordinates,
                               thetaZoomMaxRange: parameters.thetaZoomMaxRange,
@@ -397,11 +660,11 @@
               });
           });
       }
-      async join(clientId, accessToken, connectOptions) {
+      async join(clientId, accessToken, connectionId, connectOptions) {
           if (!this.iframeElement.contentWindow) {
               throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
           }
-          if (!this.validateJoinParameters(clientId, accessToken, connectOptions)) {
+          if (!this.validateJoinParameters(clientId, accessToken, connectionId, connectOptions)) {
               const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinArgsInvalid']);
               this.dispatchEvent(new ErrorEvent('error', error));
               throw error;
@@ -416,6 +679,7 @@
               type: 'connect',
               clientId: clientId,
               accessToken: accessToken,
+              connectionId: connectionId,
               role: 'sendrecv',
               mediaType: 'videoaudio',
               connectOptions: connectOptions,
@@ -456,6 +720,126 @@
           }
           this.shareRequestedCallback = callback;
       }
+      getSubViews() {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+              }
+              const postMessageParameters = {
+                  type: 'getSubViews',
+              };
+              this.getSubViewsCallback = { success: (subViews) => resolve(subViews), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetSubViewsFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
+      highlight(subView) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              if (!this.validateSubViewType(subView)) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['HighlightArgsInvalid']));
+              }
+              const postMessageParameters = {
+                  type: 'highlight',
+                  subView: subView,
+              };
+              this.highlightCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['HighlightFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
+      onSharePoV(callback) {
+          if (typeof callback !== 'function') {
+              throw new TypeError(`Failed to execute 'onSharePoV' on '${this.constructor.name}': The callback provided as parameter 1 is not an object.`);
+          }
+          this.sharePoVCallback = callback;
+      }
+      getPoV(subView) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              if (!this.validateSubViewType(subView)) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetPoVArgsInvalid']));
+              }
+              if (!subView.isTheta) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetPoVArgsInvalid']));
+              }
+              const postMessageParameters = {
+                  type: 'getPoV',
+                  subView: subView,
+              };
+              this.getPoVCallback = { success: (poV) => resolve(poV), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetPoVFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
+      setPoV(subView, poV) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              if (!this.validateSubViewType(subView) || !this.validatePoVType(poV)) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['SetPoVArgsInvalid']));
+              }
+              if (!subView.isTheta) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['SetPoVArgsInvalid']));
+              }
+              const postMessageParameters = {
+                  type: 'setPoV',
+                  subView: subView,
+                  poV: poV,
+              };
+              this.setPoVCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['SetPoVFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
+      getMediaDevices() {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              const postMessageParameters = {
+                  type: 'getMediaDevices',
+              };
+              this.getMediaDevicesCallback = { success: (devices) => resolve(devices), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetMediaDevicesFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
       setCameraMute(isEnabled) {
           console.log('setCameraMute', isEnabled);
           return new Promise((resolve, reject) => {
@@ -477,6 +861,27 @@
               return resolve();
           });
       }
+      setCameraDevice(deviceId) {
+          console.log('setCameraDevice', deviceId);
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              const postMessageParameters = {
+                  type: 'setCameraDevice',
+                  deviceId: deviceId,
+              };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['SetCameraDeviceFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+              return resolve();
+          });
+      }
       setMicMute(isEnabled) {
           console.log('setMicMute', isEnabled);
           return new Promise((resolve, reject) => {
@@ -492,6 +897,27 @@
               }
               catch (e) {
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['MicMuteFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+              return resolve();
+          });
+      }
+      setMicDevice(deviceId) {
+          console.log('setMicDevice', deviceId);
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              const postMessageParameters = {
+                  type: 'setMicDevice',
+                  deviceId: deviceId,
+              };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['SetMicDeviceFailed']);
                   this.dispatchEvent(new ErrorEvent('error', error));
                   return reject(error);
               }
@@ -549,6 +975,54 @@
                   return reject(error);
               }
               return resolve();
+          });
+      }
+      addRecordingMember(subView, connectionId) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              if (!this.validateSubViewType(subView)) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['AddRecordingMemberArgsInvalid']));
+              }
+              const postMessageParameters = {
+                  type: 'addRecordingMember',
+                  subView,
+                  connectionId,
+              };
+              this.addRecordingMemberCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['AddRecordingMemberFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
+      removeRecordingMember(subView, connectionId) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              if (!this.validateSubViewType(subView)) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['RemoveRecordingMemberArgsInvalid']));
+              }
+              const postMessageParameters = {
+                  type: 'removeRecordingMember',
+                  subView,
+                  connectionId,
+              };
+              this.removeRecordingMemberCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['RemoveRecordingMemberFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
           });
       }
       iframe() {

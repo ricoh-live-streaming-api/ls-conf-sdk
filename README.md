@@ -60,6 +60,7 @@ async function createAndJoin() {
         },
         isHiddenVideoMenuButton: false,
         isHiddenRecordingButton: false,
+        isHiddenSharePoVButton: true,
         theme: {
           primary: '#303030',
           background: '#f7f7fa',
@@ -83,13 +84,12 @@ async function createAndJoin() {
       accessToken = await createAccessToken();
     } catch(error) {
       console.error('createAccessToken failed: ', error.detail.type);
-      return;
     }
-    return accessToken;
-  });
-
-  frame.addEventListener('shareRequested', () => {
-    console.log('Share button pushed');
+    const screenShareParameters = {
+      connectionId: 'screenShareConnectionId',
+      accessToken: accessToken,
+    };
+    return screenShareParameters;
   });
 
   let accessToken = null;
@@ -104,6 +104,7 @@ async function createAndJoin() {
     await frame.join({
       clientId: 'hoge',
       acccessToken: accessToken,
+      connectionId: 'connectionId',
       connectOptions: {
         username: 'huga'
         enableVideo: true,
