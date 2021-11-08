@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 2.2.1
+ * @version: 2.2.4
  **/
 
 (function (global, factory) {
@@ -11,7 +11,7 @@
 }(this, (function () { 'use strict';
 
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '2.2.1';
+  const LS_CONF_SDK_VERSION = '2.2.4';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
@@ -197,6 +197,11 @@
           type: 'RequestError',
           error: 'GetMediaDevicesError',
       },
+      StartRecordingFailed: {
+          code: 4350,
+          type: 'RequestError',
+          error: 'StartRecordingFailed',
+      },
   };
   const INTERNAL_ERRORS = {
       InternalError5001: {
@@ -227,6 +232,7 @@
           this.connectOptions = null;
           this.shareRequestedCallback = () => { };
           this.sharePoVCallback = () => { };
+          this.joinCallback = { success: () => { }, error: () => { } };
           this.getSubViewsCallback = { success: () => { }, error: () => { } };
           this.highlightCallback = { success: () => { }, error: () => { } };
           this.getPoVCallback = { success: () => { }, error: () => { } };
@@ -297,7 +303,17 @@
                   }
               }
               else if (data.type === 'startRecording') {
-                  this.dispatchEvent(new CustomEvent('startRecording', { detail: { subView: data.subView } }));
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['StartRecordingFailed']);
+                      const eventInitDict = {
+                          error: error,
+                          message: `code: ${error.detail.code}, type: ${error.detail.type}, error: ${error.detail.error}, description: ${data.error}`,
+                      };
+                      this.dispatchEvent(new ErrorEvent('error', eventInitDict));
+                  }
+                  else {
+                      this.dispatchEvent(new CustomEvent('startRecording', { detail: { subView: data.subView } }));
+                  }
               }
               else if (data.type === 'stopRecording') {
                   this.dispatchEvent(new CustomEvent('stopRecording', { detail: { subView: data.subView } }));
@@ -318,6 +334,15 @@
                   }
                   else {
                       this.removeRecordingMemberCallback.success();
+                  }
+              }
+              else if (data.type === 'connected') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']);
+                      this.joinCallback.error(error);
+                  }
+                  else {
+                      this.joinCallback.success();
                   }
               }
               else if (data.type === 'disconnected') {
@@ -661,39 +686,42 @@
           });
       }
       async join(clientId, accessToken, connectionId, connectOptions) {
-          if (!this.iframeElement.contentWindow) {
-              throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
-          }
-          if (!this.validateJoinParameters(clientId, accessToken, connectionId, connectOptions)) {
-              const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinArgsInvalid']);
-              this.dispatchEvent(new ErrorEvent('error', error));
-              throw error;
-          }
-          // optionalパラメータのデフォルト値の設定
-          connectOptions.signalingURL = connectOptions.signalingURL || DEFAULT_SIGNALING_URL;
-          connectOptions.maxVideoBitrate = connectOptions.maxVideoBitrate || DEFAULT_MAX_BITRATE;
-          connectOptions.maxShareBitrate = connectOptions.maxShareBitrate || DEFAULT_MAX_BITRATE;
-          connectOptions.useDummyDevice = connectOptions.useDummyDevice || DEFAULT_USE_DUMMY_DEVICE;
-          // video audio の role, mediaType は固定
-          const postMessageParameters = {
-              type: 'connect',
-              clientId: clientId,
-              accessToken: accessToken,
-              connectionId: connectionId,
-              role: 'sendrecv',
-              mediaType: 'videoaudio',
-              connectOptions: connectOptions,
-          };
-          try {
-              this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
-          }
-          catch (e) {
-              const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']);
-              this.dispatchEvent(new ErrorEvent('error', error));
-              throw error;
-          }
-          this.clientId = clientId;
-          this.connectOptions = connectOptions;
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+              }
+              if (!this.validateJoinParameters(clientId, accessToken, connectionId, connectOptions)) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinArgsInvalid']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+              // optionalパラメータのデフォルト値の設定
+              connectOptions.signalingURL = connectOptions.signalingURL || DEFAULT_SIGNALING_URL;
+              connectOptions.maxVideoBitrate = connectOptions.maxVideoBitrate || DEFAULT_MAX_BITRATE;
+              connectOptions.maxShareBitrate = connectOptions.maxShareBitrate || DEFAULT_MAX_BITRATE;
+              connectOptions.useDummyDevice = connectOptions.useDummyDevice || DEFAULT_USE_DUMMY_DEVICE;
+              // video audio の role, mediaType は固定
+              const postMessageParameters = {
+                  type: 'connect',
+                  clientId: clientId,
+                  accessToken: accessToken,
+                  connectionId: connectionId,
+                  role: 'sendrecv',
+                  mediaType: 'videoaudio',
+                  connectOptions: connectOptions,
+              };
+              this.joinCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+              this.clientId = clientId;
+              this.connectOptions = connectOptions;
+          });
       }
       leave() {
           return new Promise((resolve, reject) => {

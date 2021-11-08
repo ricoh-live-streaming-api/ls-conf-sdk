@@ -60,7 +60,7 @@ join時に指定する `connectOptions` の一覧を記載する。
 
 ### Factory Methods
 
-#### create(parentEl?, properties?)
+#### create(parentElement, parameters)
 
 カスタマイズされたiframeを生成する。
 
@@ -77,8 +77,8 @@ join時に指定する `connectOptions` の一覧を記載する。
 
 |Name|Type|説明|
 |:--|:--|:--|
-|parentEl|Element|指定された場合はそのElementの子として追加される<br>指定がない場合はdocument.bodyの子として追加される|
-|properties|Object|[`create parameters`](#create-parameters)を設定する|
+|parentElement|HTMLElement|iframeが指定されたElementの子として追加される|
+|parameters|`Partial<CreateParameters>`|[`create parameters`](#create-parameters)を設定する|
 
 ### Instance Methods
 
@@ -101,7 +101,7 @@ join時に指定する `connectOptions` の一覧を記載する。
 | clientId | string | LS PFを利用するためのClientID |
 | accessToken | string | LS Signalingに接続するためのAccessToken |
 | connectionId | IDString | AccessTokenで指定したconnection_id |
-| connectOptions | Object | [`join parameters`](#join-parameters)を設定する |
+| connectOptions | ConnectOptions | [`join parameters`](#join-parameters)を設定する |
 
 #### leave()
 
@@ -176,7 +176,7 @@ type DeviceInfo = {
 - 返り値
   - 変更成功時: `Promise<void>`
   - 変更失敗時: `Promise`
-    - ErrorDetail.error: `'setCameraDeviceFailed'`
+    - ErrorDetail.error: `'SetCameraDeviceFailed'`
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -204,7 +204,7 @@ type DeviceInfo = {
 - 返り値
   - 変更成功時: `Promise<void>`
   - 変更失敗時: `Promise`
-    - ErrorDetail.error: `'setMicDeviceFailed'`
+    - ErrorDetail.error: `'SetMicDeviceFailed'`
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -410,6 +410,8 @@ SubViewの一覧を取得する。
 | callback | Function | 指定された型のイベントが発生するときに通知を受け取るオブジェクト |
 | options | AddEventListenerOptions | [EventTarget.addEventListener()](https://developer.mozilla.org/ja/docs/Web/API/EventTarget/addEventListener)のoptionsを参照 |
 
+※ disconnect後に再接続を行う場合などに、前回のイベントリスナーが残ったまま重複して登録することのないようご注意ください
+
 #### removeEventListener(type, callback, _options?)
 
 イベントリスナーを削除する。
@@ -462,9 +464,7 @@ SubViewの一覧を取得する。
 
 ```js
 {
-  action: 'remoteTrackAdded',
-  connectionId: string,
-  type: MediaTypes
+  action: 'remoteTrackAdded'
 }
 ```
 

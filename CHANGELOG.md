@@ -1,5 +1,37 @@
 # CHANGE LOG
 
+## v2.2.4
+- Changed
+  - [LSConf] `ricoh-ls-sdk` を `v1.1.1` に更新
+- Fixed
+  - [LSConf] iOSとiPadOSで ダミーデバイス有効 または カメラマイクOFF で会議開始時に相手からの音声が再生されない問題を修正
+  - [SDK/LSConf] 入室直後にカメラやマイクのミュート/アンミュートを行うとエラーが発生する問題を修正
+
+## v2.2.3
+- Added
+  - [SDK] 録画できない条件で録画を開始した場合、録画開始失敗のエラーを追加
+- Changed
+  - [LSConf] デバイス設定ダイアログを表示している間はカメラ/マイクがミュートになるように変更
+  - [LSConf] 録画機能を Windows, Mac かつ Chrome, Edge のみに制限
+- Fixed
+  - [LSConf] 録画停止ボタン以外での録画停止時に stopRecording のイベントが発火しない問題を修正
+  - [LSConf] Androidの特定の機種 でデバイス設定からカメラデバイスが変更できない問題を修正
+  - [LSConf] PresentationLayout で共通画面が勝手に拡大表示領域に表示されることがある問題を修正
+  - [LSConf] デバイス設定からスピーカーデバイスの変更を行なっても指定したスピーカーから音が出ない問題を修正
+  - [LSConf] カメラ/マイクのOFF時にデバイス設定の変更が反映されない問題を修正
+  - [LSConf] 自拠点の画面共有の録画中に画面共有が終了した場合に録画が自動停止しない問題を修正
+  - [LSConf] Safari で 録画ファイルが 0KB になってしまう問題を修正
+  - [LSConf] iOS で デバイス設定からデバイス変更後に適用やキャンセルボタンが反応しないことがある問題を修正
+  - [LSConf] Firefox で カメラOFFの状態で入室後にカメラONにして相手に映像が届かない問題を修正
+  - [LSConf] Firefox で カメラOFFの状態で入室後にマイクデバイスの変更が反映されない問題を修正
+  - [LSConf] Firefox で GalleryLayout の表示が崩れる問題を修正
+  - [LSConf] iOS/iPadOS でデバイス設定ダイアログを閉じた後にマイクから音が出ないことがある問題を修正
+  - [LSConf] changeLayout で指定以外の文字列が入った場合に GalleryLayout に切り替わる問題を修正
+
+## v2.2.2
+- Fixed
+  - [LSConf] Chrome 92 のWebMediaPlayersの上限設定によりレンダリング時にSubView内の映像や音声が再生されなくなる問題を修正
+
 ## v2.2.1
 - Changed
   - [LSConf] Videoのアスペクト比をデフォルトで16:9で取得するように変更

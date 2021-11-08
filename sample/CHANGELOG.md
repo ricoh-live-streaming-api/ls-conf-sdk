@@ -1,5 +1,18 @@
 # 変更履歴
 
+## 1.3.4
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v2.2.4` に更新
+
+## 1.3.3
+- Changed
+  - [Frontend] enableVideo, enableAudioのクエリパラメータを追加
+  - [Frontend] `ls-conf-sdk` を `v2.2.3` に更新
+
+## 1.3.2
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v2.2.2` に更新
+
 ## 1.3.1
 - Changed
   - [Frontend] `ls-conf-sdk` を `v2.2.1` に更新

@@ -87,6 +87,7 @@ declare class LSConferenceIframe {
     }[]>;
     private shareRequestedCallback;
     private sharePoVCallback;
+    private joinCallback;
     private getSubViewsCallback;
     private highlightCallback;
     private getPoVCallback;

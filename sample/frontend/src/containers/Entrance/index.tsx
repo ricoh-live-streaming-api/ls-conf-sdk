@@ -9,7 +9,7 @@ import LoginEntranceFormFieldGroup from '@/components/LoginEntranceFormFieldGrou
 const Entrance: React.FC<Record<string, never>> = () => {
   const params: { roomId: string } = useParams();
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { video_bitrate, share_bitrate, default_layout, use_dummy_device, bitrate_reservation_mbps, room_type } = qs.parse(window.location.search);
+  const { video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, use_dummy_device, bitrate_reservation_mbps, room_type } = qs.parse(window.location.search);
   const [roomId, setRoomId] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const onSubmitSuccess = (): void => {
@@ -24,6 +24,12 @@ const Entrance: React.FC<Record<string, never>> = () => {
     }
     if (default_layout) {
       uriPath += `&default_layout=${default_layout}`;
+    }
+    if (enable_video) {
+      uriPath += `&enable_video=${enable_video}`;
+    }
+    if (enable_audio) {
+      uriPath += `&enable_audio=${enable_audio}`;
     }
     if (use_dummy_device) {
       uriPath += `&use_dummy_device=${use_dummy_device}`;

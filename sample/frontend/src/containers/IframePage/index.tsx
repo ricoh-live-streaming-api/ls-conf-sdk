@@ -36,7 +36,7 @@ const CREATE_PARAMETERS: CreateParameters = {
 
 const IframePage: React.FC<Record<string, never>> = () => {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { username, video_bitrate, share_bitrate, default_layout, use_dummy_device, bitrate_reservation_mbps, room_type } = qs.parse(window.location.search);
+  const { username, video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, use_dummy_device, bitrate_reservation_mbps, room_type } = qs.parse(window.location.search);
   const { roomId } = useParams<{ roomId: string }>();
   const iframeContainerRef = useRef<HTMLDivElement>(null);
   const [lsConfIframe, setLsConfIframe] = useState<LSConferenceIframe | null>(null);
@@ -94,63 +94,67 @@ const IframePage: React.FC<Record<string, never>> = () => {
     }
     const connectOptions = {
       username: username,
-      enableVideo: false,
-      enableAudio: true,
+      enableVideo: !enable_video ? false : Boolean(typeof enable_video === 'string' && enable_video.toLowerCase() === 'true'),
+      enableAudio: !enable_audio ? true : Boolean(typeof enable_audio === 'string' && enable_audio.toLowerCase() === 'true'),
       maxVideoBitrate: Number(video_bitrate),
       maxShareBitrate: Number(share_bitrate),
       // eslint-disable-next-line @typescript-eslint/naming-convention
       useDummyDevice: Boolean(use_dummy_device && typeof use_dummy_device === 'string' && use_dummy_device.toLowerCase() === 'true'),
       signalingURL: SIGNALING_URL,
     };
-    iframe.addEventListener('error', async (e: ErrorEvent) => {
-      setErrorMessage(e.message);
+    iframe.addEventListener(
+      'error',
+      async (e: ErrorEvent) => {
+        setErrorMessage(e.message);
 
-      let log = 'LSConfSample Log\n\n';
-      log += `******************** Error Message ********************\n`;
-      log += `${e.message}\n`;
-      log += `******************** Environment **********************\n`;
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      log += `LSConfSample Version: v${require('../../../../frontend/package.json').version}\n`;
-      log += `LSConfURL: ${LS_CONF_URL || 'default'}\n`;
-      log += `LSClientID: ${LS_CLIENT_ID || 'unknown'}\n`;
-      log += `SignalingURL: ${SIGNALING_URL || 'default'}\n`;
-      log += `UserAgent: ${window.navigator.userAgent}\n`;
-      log += `******************** VideoAudioLog ********************\n`;
-      try {
-        log += await iframe.getVideoAudioLog();
-      } catch {
-        // ログ取得失敗時は出力ファイルに追記しない
-      }
-      log += `******************** ScreenShareLog *******************\n`;
-      try {
-        log += await iframe.getScreenShareLog();
-      } catch {
-        // ログ取得失敗時は出力ファイルに追記しない
-      }
-      log += `******************** VideoAudioStats ******************\n`;
-      try {
-        log += await iframe.getVideoAudioStats();
-      } catch {
-        // ログ取得失敗時は出力ファイルに追記しない
-      }
-      log += `******************** ScreenShareStats *****************\n`;
-      try {
-        log += await iframe.getScreenShareStats();
-      } catch {
-        // ログ取得失敗時は出力ファイルに追記しない
-      }
-      if (e.error.toReportString) {
-        log += `******************** toReportString *******************\n`;
-        log += `${e.error.toReportString}`;
-      }
+        let log = 'LSConfSample Log\n\n';
+        log += `******************** Error Message ********************\n`;
+        log += `${e.message}\n`;
+        log += `******************** Environment **********************\n`;
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        log += `LSConfSample Version: v${require('../../../../frontend/package.json').version}\n`;
+        log += `LSConfURL: ${LS_CONF_URL || 'default'}\n`;
+        log += `LSClientID: ${LS_CLIENT_ID || 'unknown'}\n`;
+        log += `SignalingURL: ${SIGNALING_URL || 'default'}\n`;
+        log += `UserAgent: ${window.navigator.userAgent}\n`;
+        log += `******************** VideoAudioLog ********************\n`;
+        try {
+          log += await iframe.getVideoAudioLog();
+        } catch {
+          // ログ取得失敗時は出力ファイルに追記しない
+        }
+        log += `******************** ScreenShareLog *******************\n`;
+        try {
+          log += await iframe.getScreenShareLog();
+        } catch {
+          // ログ取得失敗時は出力ファイルに追記しない
+        }
+        log += `******************** VideoAudioStats ******************\n`;
+        try {
+          log += await iframe.getVideoAudioStats();
+        } catch {
+          // ログ取得失敗時は出力ファイルに追記しない
+        }
+        log += `******************** ScreenShareStats *****************\n`;
+        try {
+          log += await iframe.getScreenShareStats();
+        } catch {
+          // ログ取得失敗時は出力ファイルに追記しない
+        }
+        if (e.error.toReportString) {
+          log += `******************** toReportString *******************\n`;
+          log += `${e.error.toReportString}`;
+        }
 
-      const fileName = `ls-conf-sample_${format(new Date(), 'yyyyMMdd_HHmmss')}.log`;
-      const downLoadLink = document.createElement('a');
-      downLoadLink.download = fileName;
-      downLoadLink.href = URL.createObjectURL(new Blob([log], { type: 'text.plain' }));
-      downLoadLink.dataset.downloadurl = ['text/plain', downLoadLink.download, downLoadLink.href].join(':');
-      downLoadLink.click();
-    });
+        const fileName = `ls-conf-sample_${format(new Date(), 'yyyyMMdd_HHmmss')}.log`;
+        const downLoadLink = document.createElement('a');
+        downLoadLink.download = fileName;
+        downLoadLink.href = URL.createObjectURL(new Blob([log], { type: 'text.plain' }));
+        downLoadLink.dataset.downloadurl = ['text/plain', downLoadLink.download, downLoadLink.href].join(':');
+        downLoadLink.click();
+      },
+      { once: false }
+    );
     iframe.addEventListener('disconnected', () => {
       // TODO(ueue): disconnect時の挙動が決まったら実装
     });
