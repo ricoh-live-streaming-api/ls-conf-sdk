@@ -29,6 +29,7 @@ RICOH Live Streaming Conference は RICOH Live Streaming Service を使った様
 * `src/`
   * `ls-conf-sdk.d.ts`: TypeScriptで必要となる型定義ファイル
   * `ls-conf-sdk.js`: LSConfSDK本体
+  * `lang/`: 言語設定（本ディレクトリを `ls-conf-sdk.js` と同じ場所に配置してください）
 * `sample/`
   * `README.md`: LSConfを利用したサンプルアプリの説明
   * `CHANGELOG.md`: サンプルアプリの変更履歴

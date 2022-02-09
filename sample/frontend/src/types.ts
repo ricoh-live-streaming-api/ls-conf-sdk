@@ -7,6 +7,12 @@ export interface RootState {}
 // 非同期 Action の型定義
 // XXX(kdxu): thunk 定義をslice ごとに切り分けられたらそうするのが良さそう
 export type RootThunk = ThunkAction<void, RootState, unknown, Action<string>>;
+
+interface ToolbarItem {
+  type: string;
+  iconName: string;
+}
+
 interface ToolbarConfig {
   isHidden: boolean;
   isHiddenCameraButton: boolean;
@@ -15,6 +21,7 @@ interface ToolbarConfig {
   isHiddenParticipantsButton: boolean;
   isHiddenDeviceSettingButton: boolean;
   isHiddenExitButton: boolean;
+  toolbarItems: ToolbarItem[];
 }
 interface LSConfSampleConfig {
   BACKEND_API_BASE: string;

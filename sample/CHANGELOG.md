@@ -1,5 +1,18 @@
 # 変更履歴
 
+## 1.4.1
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v2.4.0` に更新
+
+## 1.4.0
+- Added
+  - [Frontend] Entrance時の `video_codec` のクエリパラメータ指定を追加
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v2.3.0` に更新
+- Refactored
+  - [Frontend] 依存ライブラリを更新
+  - [Backend] 依存ライブラリを更新
+
 ## 1.3.4
 - Changed
   - [Frontend] `ls-conf-sdk` を `v2.2.4` に更新

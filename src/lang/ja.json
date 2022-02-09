@@ -1,0 +1,42 @@
+{
+  "deviceSettingsDialog": {
+    "title": "デバイス設定",
+    "camera": "カメラ",
+    "mic": "マイク",
+    "speaker": "スピーカー",
+    "notUsed": "使用しない",
+    "apply": "適用",
+    "cancel": "キャンセル"
+  },
+  "recordingNotification": {
+    "recording": "録画中: ",
+    "noName": "No Name"
+  },
+  "recordingSettingsDialog": {
+    "title": "録画設定",
+    "mimeType": "MIME Type",
+    "audioMixing": "Audio Mixing",
+    "mixAll": "Mix All",
+    "targetOnly": "Target Only",
+    "audioBitrate": "Audio Bitrate",
+    "videoBitrate": "Video Bitrate",
+    "start": "開始する",
+    "cancel": "キャンセル"
+  },
+  "subView": {
+    "noName": "No Name"
+  },
+  "subViewMenu": {
+    "presentation": "拡大表示",
+    "gallery": "一覧表示",
+    "fullscreen": "全画面表示",
+    "exitFullscreen": "全画面解除",
+    "sharePoV": "視点共有",
+    "startRecording": "録画開始",
+    "stopRecording": "録画停止"
+  },
+  "presentationLayout": {
+    "horizontalButtonTips": "横並びに切替",
+    "verticalButtonTips": "縦並びに切替"
+  }
+}

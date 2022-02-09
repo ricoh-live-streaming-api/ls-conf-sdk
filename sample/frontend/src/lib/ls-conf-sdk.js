@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 2.2.4
+ * @version: 2.4.0
  **/
 
 (function (global, factory) {
@@ -11,11 +11,13 @@
 }(this, (function () { 'use strict';
 
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '2.2.4';
+  const LS_CONF_SDK_VERSION = '2.4.0';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
   const DEFAULT_USE_DUMMY_DEVICE = false;
+  const DEFAULT_VIDEO_CODEC = 'h264';
+  const DEFAULT_TIMEOUT_MSEC = 10000;
   const REQUEST_ERRORS = {
       CreateArgsInvalid: {
           code: 4010,
@@ -46,6 +48,11 @@
           code: 4050,
           type: 'RequestError',
           error: 'JoinFailed',
+      },
+      JoinFailedTimeout: {
+          code: 4051,
+          type: 'RequestError',
+          error: 'JoinFailedTimeout',
       },
       CloseFailed: {
           code: 4060,
@@ -197,6 +204,26 @@
           type: 'RequestError',
           error: 'GetMediaDevicesError',
       },
+      GetCaptureImageFailed: {
+          code: 4320,
+          type: 'RequestError',
+          error: 'GetCaptureImageFailed',
+      },
+      GetCaptureImageError: {
+          code: 4330,
+          type: 'RequestError',
+          error: 'GetCaptureImageError',
+      },
+      GetCaptureImageErrorCameraMuted: {
+          code: 4331,
+          type: 'RequestError',
+          error: 'GetCaptureImageErrorCameraMuted',
+      },
+      GetCaptureImageArgsInvalid: {
+          code: 4340,
+          type: 'RequestError',
+          error: 'GetCaptureImageArgsInvalid',
+      },
       StartRecordingFailed: {
           code: 4350,
           type: 'RequestError',
@@ -240,7 +267,9 @@
           this.addRecordingMemberCallback = { success: () => { }, error: () => { } };
           this.removeRecordingMemberCallback = { success: () => { }, error: () => { } };
           this.getMediaDevicesCallback = { success: () => { }, error: () => { } };
+          this.getCaptureImageCallback = { success: () => { }, error: () => { } };
           this.eventListeners = new Map();
+          this.applicationEventListeners = new Map();
       }
       setWindowMessageCallback() {
           window.addEventListener('message', async (event) => {
@@ -344,12 +373,47 @@
                   else {
                       this.joinCallback.success();
                   }
+                  this.dispatchEvent(new Event('connected'));
               }
               else if (data.type === 'disconnected') {
                   this.dispatchEvent(new Event('disconnected'));
               }
+              else if (data.type === 'screenShareConnected') {
+                  this.dispatchEvent(new Event('screenShareConnected'));
+              }
+              else if (data.type === 'screenShareDisconnected') {
+                  this.dispatchEvent(new Event('screenShareDisconnected'));
+              }
+              else if (data.type === 'remoteConnectionAdded') {
+                  const event = new CustomEvent('remoteConnectionAdded', {
+                      detail: {
+                          connectionId: data.connectionId,
+                          username: data.username,
+                          mediaType: data.mediaType,
+                          parentConnectionId: data.parentConnectionId,
+                      },
+                  });
+                  this.dispatchEvent(event);
+              }
+              else if (data.type === 'remoteConnectionRemoved') {
+                  const event = new CustomEvent('remoteConnectionRemoved', {
+                      detail: {
+                          connectionId: data.connectionId,
+                          username: data.username,
+                          mediaType: data.mediaType,
+                          parentConnectionId: data.parentConnectionId,
+                      },
+                  });
+                  this.dispatchEvent(event);
+              }
               else if (data.type === 'remoteTrackAdded') {
-                  this.dispatchEvent(new Event('remoteTrackAdded'));
+                  const event = new CustomEvent('remoteTrackAdded', {
+                      detail: {
+                          subView: data.subView,
+                          kind: data.kind,
+                      },
+                  });
+                  this.dispatchEvent(event);
               }
               else if (data.type === 'getDeviceFailed') {
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['GetDeviceFailed']);
@@ -402,6 +466,24 @@
                   else {
                       this.getMediaDevicesCallback.success(data.devices);
                   }
+              }
+              else if (data.type === 'getCaptureImage') {
+                  if (data.error) {
+                      if (data.errorType === 'GetCaptureImageErrorCameraMuted') {
+                          const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageErrorCameraMuted']);
+                          this.getCaptureImageCallback.error(error);
+                      }
+                      else {
+                          const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageError']);
+                          this.getCaptureImageCallback.error(error);
+                      }
+                  }
+                  else {
+                      this.getCaptureImageCallback.success(data.blob);
+                  }
+              }
+              else if (data.type === 'applicationEvent') {
+                  this.dispatchApplicationEvent(new CustomEvent(data.eventId, { detail: data.args }));
               }
               else if (data.type === 'error' && data.error) {
                   const eventInitDict = {
@@ -573,6 +655,18 @@
                   return false;
               }
           }
+          if (connectOptions.videoCodec !== undefined) {
+              if (typeof connectOptions.videoCodec !== 'string') {
+                  return false;
+              }
+              if (connectOptions.videoCodec !== 'h264' &&
+                  connectOptions.videoCodec !== 'vp8' &&
+                  connectOptions.videoCodec !== 'vp9' &&
+                  connectOptions.videoCodec !== 'h265' &&
+                  connectOptions.videoCodec !== 'av1') {
+                  return false;
+              }
+          }
           return true;
       }
       validateScreenShareParameters(param) {
@@ -607,6 +701,22 @@
               return false;
           }
           return true;
+      }
+      validateCaptureImageOptionsType(options) {
+          if (options.mimeType !== undefined && typeof options.mimeType !== 'string') {
+              return false;
+          }
+          if (options.qualityArgument !== undefined && typeof options.qualityArgument !== 'number') {
+              return false;
+          }
+          return true;
+      }
+      setRequestTimer(reject, error) {
+          return window.setTimeout(() => {
+              // 10000 ms の間に 処理が完了しない場合は reject する
+              this.dispatchEvent(new ErrorEvent('error', error));
+              reject(error);
+          }, DEFAULT_TIMEOUT_MSEC);
       }
       __create(parameters) {
           return new Promise((resolve, reject) => {
@@ -643,6 +753,7 @@
                               podCoordinates: parameters.podCoordinates,
                               thetaZoomMaxRange: parameters.thetaZoomMaxRange,
                               theme: parameters.theme,
+                              locales: parameters.locales,
                           },
                       };
                       try {
@@ -674,8 +785,19 @@
                   instance.dispatchEvent(new ErrorEvent('error', error));
                   return reject(error);
               }
+              let extParam = parameters;
+              try {
+                  // eslint-disable-next-line @typescript-eslint/no-var-requires
+                  const enJson = require('./lang/en.json');
+                  // eslint-disable-next-line @typescript-eslint/no-var-requires
+                  const jaJson = require('./lang/ja.json');
+                  extParam = { ...parameters, locales: { ja: jaJson, en: enJson } };
+              }
+              catch (e) {
+                  console.warn(`Language file could not be read : ${e.message}`);
+              }
               instance
-                  .__create(parameters)
+                  .__create(extParam)
                   .then(() => {
                   resolve(instance);
               })
@@ -687,12 +809,15 @@
       }
       async join(clientId, accessToken, connectionId, connectOptions) {
           return new Promise((resolve, reject) => {
+              const joinTimeoutID = this.setRequestTimer(reject, new LSConferenceIframeError(REQUEST_ERRORS['JoinFailedTimeout']));
               if (!this.iframeElement.contentWindow) {
+                  clearTimeout(joinTimeoutID);
                   throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
               }
               if (!this.validateJoinParameters(clientId, accessToken, connectionId, connectOptions)) {
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinArgsInvalid']);
                   this.dispatchEvent(new ErrorEvent('error', error));
+                  clearTimeout(joinTimeoutID);
                   return reject(error);
               }
               // optionalパラメータのデフォルト値の設定
@@ -700,6 +825,7 @@
               connectOptions.maxVideoBitrate = connectOptions.maxVideoBitrate || DEFAULT_MAX_BITRATE;
               connectOptions.maxShareBitrate = connectOptions.maxShareBitrate || DEFAULT_MAX_BITRATE;
               connectOptions.useDummyDevice = connectOptions.useDummyDevice || DEFAULT_USE_DUMMY_DEVICE;
+              connectOptions.videoCodec = connectOptions.videoCodec || DEFAULT_VIDEO_CODEC;
               // video audio の role, mediaType は固定
               const postMessageParameters = {
                   type: 'connect',
@@ -710,13 +836,23 @@
                   mediaType: 'videoaudio',
                   connectOptions: connectOptions,
               };
-              this.joinCallback = { success: () => resolve(), error: (err) => reject(err) };
+              this.joinCallback = {
+                  success: () => {
+                      clearTimeout(joinTimeoutID);
+                      resolve();
+                  },
+                  error: (err) => {
+                      clearTimeout(joinTimeoutID);
+                      reject(err);
+                  },
+              };
               try {
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']);
                   this.dispatchEvent(new ErrorEvent('error', error));
+                  clearTimeout(joinTimeoutID);
                   return reject(error);
               }
               this.clientId = clientId;
@@ -1053,6 +1189,33 @@
               }
           });
       }
+      getCaptureImage(subView, options) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              if (!this.validateSubViewType(subView)) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageArgsInvalid']));
+              }
+              if (!this.validateCaptureImageOptionsType(options)) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageArgsInvalid']));
+              }
+              const postMessageParameters = {
+                  type: 'getCaptureImage',
+                  subView,
+                  options,
+              };
+              this.getCaptureImageCallback = { success: (blob) => resolve(blob), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
       iframe() {
           return this.iframeElement;
       }
@@ -1092,6 +1255,45 @@
                   if (options && !options.once)
                       return;
                   this.removeEventListener(event.type, listener, options);
+              });
+          }
+      }
+      addApplicationEventListener(type, callback, options) {
+          if (arguments.length < 2) {
+              throw new TypeError(`Failed to execute 'addApplicationEventListener' on '${this.constructor.name}': 2 arguments required, but only ${arguments.length} present.`);
+          }
+          if (typeof callback !== 'function' && typeof callback !== 'object') {
+              throw new TypeError(`Failed to execute 'addApplicationEventListener' on '${this.constructor.name}': The callback provided as parameter 2 is not an object.`);
+          }
+          const listeners = this.applicationEventListeners.get(type) || [];
+          listeners.push({ listener: callback, options: options });
+          this.applicationEventListeners.set(type, listeners);
+      }
+      removeApplicationEventListener(type, callback, _options) {
+          // window.removeEventListener の options 相当の実装はしない
+          if (arguments.length < 2) {
+              throw new TypeError(`Failed to execute 'removeApplicationEventListener' on '${this.constructor.name}': 2 arguments required, but only ${arguments.length} present.`);
+          }
+          if (typeof callback !== 'function' && typeof callback !== 'object') {
+              throw new TypeError(`Failed to execute 'removeApplicationEventListener' on '${this.constructor.name}': The callback provided as parameter 2 is not an object.`);
+          }
+          const listeners = this.applicationEventListeners.get(type) || [];
+          const removedListeners = listeners.filter(({ listener }) => listener !== callback);
+          this.applicationEventListeners.set(type, removedListeners);
+      }
+      dispatchApplicationEvent(event) {
+          // eventListeners の options 相当の実装はしない
+          if (!(event instanceof Event)) {
+              throw new TypeError(`Failed to execute 'dispatchApplicationEvent' on '${this.constructor.name}': parameter 1 is not of type 'Event'.`);
+          }
+          const type = event.type;
+          const listeners = this.applicationEventListeners.get(type);
+          if (listeners) {
+              listeners.forEach(({ listener, options }) => {
+                  listener.call(this, event);
+                  if (options && !options.once)
+                      return;
+                  this.removeApplicationEventListener(event.type, listener, options);
               });
           }
       }

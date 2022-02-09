@@ -21,7 +21,7 @@ import {
   THETA_ZOOM_MAX_RANGE,
   TOOLBAR_CONFIG,
 } from '@/constants';
-import LSConferenceIframe, { CreateParameters, ScreenShareParameters } from '@/lib/ls-conf-sdk';
+import LSConferenceIframe, { ConnectOptions, CreateParameters, ScreenShareParameters } from '@/lib/ls-conf-sdk';
 
 const CREATE_PARAMETERS: CreateParameters = {
   defaultLayout: (DEFAULT_LAYOUT as 'gallery' | 'presentation' | 'fullscreen') || undefined,
@@ -36,7 +36,9 @@ const CREATE_PARAMETERS: CreateParameters = {
 
 const IframePage: React.FC<Record<string, never>> = () => {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { username, video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, use_dummy_device, bitrate_reservation_mbps, room_type } = qs.parse(window.location.search);
+  const { username, video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, use_dummy_device, bitrate_reservation_mbps, room_type, video_codec, is_debug } = qs.parse(
+    window.location.search
+  );
   const { roomId } = useParams<{ roomId: string }>();
   const iframeContainerRef = useRef<HTMLDivElement>(null);
   const [lsConfIframe, setLsConfIframe] = useState<LSConferenceIframe | null>(null);
@@ -45,6 +47,8 @@ const IframePage: React.FC<Record<string, never>> = () => {
   const connectionId: string = uuidv4();
   const bitrateReservation = bitrate_reservation_mbps && typeof bitrate_reservation_mbps === 'string' ? bitrate_reservation_mbps : undefined;
   const roomType = room_type && typeof room_type === 'string' ? room_type : undefined;
+  const videoCodec = video_codec && (video_codec === 'h264' || video_codec === 'vp8' || video_codec === 'vp9' || video_codec === 'h265' || video_codec === 'av1') ? video_codec : undefined;
+  const isDebug = Boolean(is_debug && typeof is_debug === 'string' && is_debug.toLowerCase() === 'true');
   const createAndConnectRoom = async (): Promise<void> => {
     if (!username || !roomId || typeof username !== 'string') {
       // 現在 ls-conf-sdk への対応と同様にエラーをそのまま errorMessage に入れている
@@ -92,7 +96,7 @@ const IframePage: React.FC<Record<string, never>> = () => {
       setErrorMessage(e.message);
       return;
     }
-    const connectOptions = {
+    const connectOptions: ConnectOptions = {
       username: username,
       enableVideo: !enable_video ? false : Boolean(typeof enable_video === 'string' && enable_video.toLowerCase() === 'true'),
       enableAudio: !enable_audio ? true : Boolean(typeof enable_audio === 'string' && enable_audio.toLowerCase() === 'true'),
@@ -101,6 +105,7 @@ const IframePage: React.FC<Record<string, never>> = () => {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       useDummyDevice: Boolean(use_dummy_device && typeof use_dummy_device === 'string' && use_dummy_device.toLowerCase() === 'true'),
       signalingURL: SIGNALING_URL,
+      videoCodec: videoCodec,
     };
     iframe.addEventListener(
       'error',
@@ -155,8 +160,11 @@ const IframePage: React.FC<Record<string, never>> = () => {
       },
       { once: false }
     );
+    iframe.addEventListener('connected', () => {
+      console.log('connected event occurred');
+    });
     iframe.addEventListener('disconnected', () => {
-      // TODO(ueue): disconnect時の挙動が決まったら実装
+      console.log('disconnected event occurred');
     });
     iframe.addEventListener(
       'startRecording',
@@ -179,7 +187,11 @@ const IframePage: React.FC<Record<string, never>> = () => {
     try {
       await iframe.join(LS_CLIENT_ID, accessToken, connectionId, connectOptions);
     } catch (e) {
-      setErrorMessage(e.message);
+      if (isDebug) {
+        setErrorMessage(e.message);
+        return;
+      }
+      window.close();
       return;
     }
     setLsConfIframe(iframe);

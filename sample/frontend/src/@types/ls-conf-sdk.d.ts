@@ -1,3 +1,7 @@
+export declare type ToolbarItem = {
+    type: string;
+    iconName: string;
+};
 export declare type CreateParameters = {
     thetaZoomMaxRange?: number;
     defaultLayout?: 'gallery' | 'presentation' | 'fullscreen';
@@ -8,6 +12,7 @@ export declare type CreateParameters = {
         isHiddenScreenShareButton?: boolean;
         isHiddenParticipantsButton?: boolean;
         isHiddenDeviceSettingButton?: boolean;
+        toolbarItems: ToolbarItem[];
     };
     isHiddenVideoMenuButton?: boolean;
     isHiddenRecordingButton?: boolean;
@@ -44,7 +49,12 @@ export declare type CreateParameters = {
             };
         };
     };
+    locales?: {
+        ja?: unknown;
+        en?: unknown;
+    };
 };
+export declare type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
 export declare type ConnectOptions = {
     username: string;
     enableVideo: boolean;
@@ -53,6 +63,9 @@ export declare type ConnectOptions = {
     maxShareBitrate?: number;
     useDummyDevice?: boolean;
     signalingURL?: string;
+    videoCodec?: VideoCodecType;
+    videoAudioConstraints?: MediaStreamConstraints;
+    screenShareConstraints?: MediaStreamConstraints;
 };
 export declare type ScreenShareParameters = {
     connectionId: string;
@@ -75,6 +88,10 @@ export declare type PoV = {
     tilt: number;
     fov: number;
 };
+export declare type CaptureImageOptions = {
+    mimeType?: 'image/png' | 'image/jpeg';
+    qualityArgument?: number;
+};
 declare class LSConferenceIframe {
     parentElement: HTMLElement;
     iframeElement: HTMLIFrameElement;
@@ -82,6 +99,10 @@ declare class LSConferenceIframe {
     clientId: string | null;
     connectOptions: ConnectOptions | null;
     eventListeners: Map<string, {
+        listener: Function;
+        options: AddEventListenerOptions | undefined;
+    }[]>;
+    applicationEventListeners: Map<string, {
         listener: Function;
         options: AddEventListenerOptions | undefined;
     }[]>;
@@ -96,6 +117,7 @@ declare class LSConferenceIframe {
     private removeRecordingMemberCallback;
     private logCallbacks;
     private getMediaDevicesCallback;
+    private getCaptureImageCallback;
     constructor(parentElement: HTMLElement);
     private setWindowMessageCallback;
     private validateCreateParameters;
@@ -103,6 +125,8 @@ declare class LSConferenceIframe {
     private validateScreenShareParameters;
     private validateSubViewType;
     private validatePoVType;
+    private validateCaptureImageOptionsType;
+    private setRequestTimer;
     private __create;
     static create(parentElement: HTMLElement, parameters: Partial<CreateParameters>): Promise<LSConferenceIframe>;
     join(clientId: string, accessToken: string, connectionId: string, connectOptions: ConnectOptions): Promise<void>;
@@ -126,9 +150,13 @@ declare class LSConferenceIframe {
     changeLayout(layout: 'gallery' | 'presentation' | 'fullscreen'): Promise<void>;
     addRecordingMember(subView: SubView, connectionId: string): Promise<void>;
     removeRecordingMember(subView: SubView, connectionId: string): Promise<void>;
+    getCaptureImage(subView: SubView, options: CaptureImageOptions): Promise<Blob>;
     iframe(): HTMLIFrameElement;
     addEventListener(type: string, callback: Function, options?: AddEventListenerOptions): void;
     removeEventListener(type: string, callback: Function, _options?: boolean | EventListenerOptions): void;
     dispatchEvent(event: Event): void;
+    addApplicationEventListener(type: string, callback: Function, options?: AddEventListenerOptions): void;
+    removeApplicationEventListener(type: string, callback: Function, _options?: boolean | EventListenerOptions): void;
+    private dispatchApplicationEvent;
 }
 export default LSConferenceIframe;

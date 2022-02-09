@@ -1,9 +1,9 @@
 {
   "name": "ls-conf-sample-backend",
-  "version": "1.3.4",
+  "version": "1.4.1",
   "private": true,
   "scripts": {
-    "start": "$(npm bin)/ts-node --project ./tsconfig.json ./app.ts"
+    "start": "npx ts-node --project ./tsconfig.json ./app.ts"
   },
   "dependencies": {
     "date-fns": "^2.16.1",

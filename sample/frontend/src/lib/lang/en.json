@@ -1,0 +1,42 @@
+{
+  "deviceSettingsDialog": {
+    "title": "Device Settings",
+    "camera": "Camera",
+    "mic": "Mic",
+    "speaker": "Speaker",
+    "notUsed": "Not used",
+    "apply": "Apply",
+    "cancel": "Cancel"
+  },
+  "recordingNotification": {
+    "recording": "Recording: ",
+    "noName": "No Name"
+  },
+  "recordingSettingsDialog": {
+    "title": "Recording Settings",
+    "mimeType": "MIME Type",
+    "audioMixing": "Audio Mixing",
+    "mixAll": "Mix All",
+    "targetOnly": "Target Only",
+    "audioBitrate": "Audio Bitrate",
+    "videoBitrate": "Video Bitrate",
+    "start": "Start",
+    "cancel": "Cancel"
+  },
+  "subView": {
+    "noName": "No Name"
+  },
+  "subViewMenu": {
+    "presentation": "Presentation",
+    "gallery": "Gallery",
+    "fullscreen": "FullScreen",
+    "exitFullscreen": "Exit FullScreen",
+    "sharePoV": "Share PoV",
+    "startRecording": "Start Recording",
+    "stopRecording": "Stop Recording"
+  },
+  "presentationLayout": {
+    "horizontalButtonTips": "Switch to Horizontal",
+    "verticalButtonTips": "Switch to Vertical"
+  }
+}

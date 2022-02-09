@@ -1,5 +1,77 @@
 # CHANGE LOG
 
+## v2.4.0
+- Added
+  - [SDK] 接続, 切断系のイベントを追加
+  - [SDK] Join時のconnectOptionsにvideoAudioConstraints, screenShareConstraintsを追加
+  - [SDK] ツールバーに任意のボタンを追加する機能を追加
+- Changed
+  - [SDK] join時に一定時間で接続されない場合にタイムアウトのエラーが発生するように変更
+  - [LSConf] `getDisplayMedia()`に非対応のブラウザではツールバーの画面共有ボタンが非表示になるように変更
+  - [LSConf] スピーカーのデバイス変更に非対応のブラウザではデバイス設定ダイアログのスピーカーの項目がグレーアウトするように変更
+  - [LSConf] iframeのwidthが900px以下の場合、PresentationLayoutの通常表示領域を非表示にするように変更
+  - [LSConf] PCでSubView内にマウスカーソルがある場合にのみSubViewMenuのアイコンを表示するように変更
+  - [LSConf] PresentationLayout で通常表示領域が非表示の場合にSubViewが大きく表示されるように変更
+- Fixed
+  - [LSConf] leave実行後に再度同じiframeでjoinするとイベントが受け取れなくなる問題を修正
+  - [LSConf] join前にデバイス変更のAPIを実行すると、変更が反映されない問題を修正
+  - [LSConf] join前にデバイス情報の取得APIを実行すると、デバイス情報が取得できない問題を修正
+  - [LSConf] Firefoxで360映像の拡大/縮小ボタンが反応しないことがある問題を修正
+  - [LSConf] Firefoxで setMicDevice の実行時にマイクが切り替わらない問題を修正
+  - [LSConf] 特定の環境で PresentationLayout の通常表示領域のスクロールバーが常に表示される問題を修正
+  - [LSConf] 360映像のSubViewでウィンドウサイズ変更時にエラーが起きる問題を修正
+  - [LSConf] usernameが長い場合にSubViewのレイアウトが崩れる問題を修正
+  - [LSConf] 自拠点映像の録画中にマイクミュートを行うと再度アンミュートしても録画ファイルにミュート後の音声が含まれない問題を修正
+  - [LSConf] 自拠点映像の録画中にマイク/カメラを両方とも一度でもミュート状態にすると録画が停止される問題を修正
+  - [LSConf] 会議中にカメラやマイクが切断された時に画面が固まる問題を修正
+
+#### ツールバーに任意のボタンを追加する方法
+1. create時のオプションで `toolbarItems` の配列に追加したいボタンを指定してください
+  ~~~ts
+  // チャットアイコンを指定する例
+  {
+    ...,
+    "createParameters": {
+      ...,
+      "toolbar": {
+        "toolbarItems": [{ "type": "chat", "iconName": "chat" }]
+      },
+      ...
+    }
+  }
+  ~~~
+2. 指定したtypeに対応するコールバックを `addApplicationEventListener` で登録してください
+  ~~~ts
+  iframe.addApplicationEventListener('chat', () => {
+    console.log('Chat button pushed');
+  });
+  ~~~
+3. ツールバーでチャットアイコン押下時に指定したコールバックが実行されます
+
+## v2.3.0
+- Added
+  - [SDK] Join時のconnectOptionsにvideoCodecを追加
+  - [SDK] ブラウザの言語設定による言語切替（日英）および文言のカスタマイズ機能を追加
+  - [SDK] 静止画取得機能を追加
+  - [LSConf] ローカル録画の設定ダイアログに全拠点の音声をMIXするオプションを追加
+- Changed
+  - [LSConf] setPoVの実行時にイージング処理によるアニメーションを追加
+  - [LSConf] iframeのwidthが600px未満の時にPresentationLayoutの通常表示領域を非表示にするように変更
+- Refactored
+  - [LSConf] 依存ライブラリの更新
+
+#### 言語ファイルの設置および文言の変更方法
+1. 配布パッケージ内の `src/lang/` のディレクトリをアプリケーション内で `ls-conf-sdk.js` と同じディレクトリにディレクトリごと配置してください
+  ~~~
+  {配置先}/
+     ├ ls-conf-sdk.js
+     └ lang/
+        ├ en.json
+        └ ja.json
+  ~~~
+2. `{配置先}/lang/` 以下の各言語ファイル内の文言を必要に応じて変更し、保存してください
+    - どの文言を変更するとどこに反映されるかの詳細は文言カスタマイズガイドを参照ください
+
 ## v2.2.4
 - Changed
   - [LSConf] `ricoh-ls-sdk` を `v1.1.1` に更新
@@ -42,7 +114,7 @@
 - Added
   - [LSConf] PresentationLayoutの通常表示領域のレイアウトの切替機能を追加
 - Fixed
-  - [SDK] getSubViews()のレスポンスに自拠点と共有画面のSubViewが含まれない問題を修正
+  - [SDK] getSubViewsのレスポンスに自拠点と共有画面のSubViewが含まれない問題を修正
 
 ## v2.1.0
 - Added

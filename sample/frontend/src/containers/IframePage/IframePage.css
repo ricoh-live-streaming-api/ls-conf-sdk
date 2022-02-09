@@ -8,7 +8,7 @@
    cf: https://stackoverflow.com/a/45562779
   */
   -webkit-overflow-scrolling: touch;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 /*  mobile 向けの設定

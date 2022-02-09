@@ -11,7 +11,8 @@
     "isHiddenMicButton": false,
     "isHiddenScreenShareButton": false,
     "isHiddenDeviceSettingButton": false,
-    "isHiddenExitButton": false
+    "isHiddenExitButton": false,
+    "toolbarItems": []
   },
   "theme": {
     "primary": "#303030",
