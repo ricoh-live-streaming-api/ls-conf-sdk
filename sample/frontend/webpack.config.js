@@ -101,10 +101,10 @@ const configSchema = {
         "onPrimary": {
           "type": "string",
         },
-        "onSurface": {
+        "primaryTextColor": {
           "type": "string",
         },
-        "textSecondaryOnBackground": {
+        "secondaryTextColor": {
           "type": "string",
         },
         "components": {
@@ -148,6 +148,14 @@ const configSchema = {
                   "type": "string",
                 },
                 "menuTextColor": {
+                  "type": "string",
+                },
+              }
+            },
+            "dialog": {
+              "type": "object",
+              "properties": {
+                "inputFocusColor": {
                   "type": "string",
                 },
               }

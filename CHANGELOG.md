@@ -1,5 +1,34 @@
 # CHANGE LOG
 
+## v2.5.0
+- Added
+  - [SDK] 映像の受信停止/開始の機能を追加
+  - [SDK] LSConfのログ取得機能を追加 (※1)
+- Changed
+  - [LSConf] UIコンポーネントライブラリをRMWCからMaterial-UIに変更 (※2)
+  - [LSConf] Material-UIの仕様に合わせて一部デザインのカスタマイズパラメータを追加および変更 (※3)
+- Fixed
+  - [LSConf] Firefox で360映像の描画が遅くなる問題を修正
+  - [LSConf] join時に他のエラーが発生した場合にJoinFailedTimeoutエラーが重複して発生する問題を修正
+  - [LSConf] JoinFailedTimeout発生後にデバイスアクセスを許可した場合にLSに接続される問題を修正
+  - [LSConf] Mobile Safari で特定の操作後にマイクの音声が自分のスピーカーから聞こえる問題を修正
+  - [LSConf] Mobile Safari でデバイスアクセス確認ダイアログで許可しなかった場合にデバイス設定ダイアログで意図しない表示になる問題を修正
+  - [LSConf] 画面共有の終了後にログを取得しようとするとエラーになる問題を修正
+- Refactored
+  - [LSConf] `ricoh-ls-sdk` を `v1.2.0` に更新
+  - [SDK, LSConf] 依存ライブラリの更新
+
+(※1) この対応により以下のメソッドの利用が非推奨となります。問い合わせ時のログ取得には新たに追加された `getLSConfLog()` をご利用ください。
+  - `getVideoAudioLog()`
+  - `getScreenShareLog()`
+
+(※2) この対応により、一部コンポーネントのデザインが変更となります。
+
+(※3) `Theme` の以下のパラメータが追加/変更となります。詳細はデザインカスタマイズガイドをご覧ください。
+  - [追加] `theme.components.dialog.inputFocusColor`
+  - [変更] `theme.onSurface` → `theme.primaryTextColor`
+  - [変更] `theme.textSecondaryOnBackground` → `theme.secondaryTextColor`
+
 ## v2.4.0
 - Added
   - [SDK] 接続, 切断系のイベントを追加

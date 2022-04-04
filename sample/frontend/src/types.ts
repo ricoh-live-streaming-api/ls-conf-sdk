@@ -43,8 +43,8 @@ interface LSConfSampleConfig {
     background: string;
     surface: string;
     onPrimary: string;
-    onSurface: string;
-    textSecondaryOnBackground: string;
+    primaryTextColor: string;
+    secondaryTextColor: string;
     components: {
       participantsVideoContainer: {
         background: string;
@@ -60,6 +60,9 @@ interface LSConfSampleConfig {
         iconColor: string;
         menuBackgroundColor: string;
         menuTextColor: string;
+      };
+      dialog: {
+        inputFocusColor: string;
       };
     };
   };

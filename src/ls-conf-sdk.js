@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 2.4.0
+ * @version: 2.5.0
  **/
 
 (function (global, factory) {
@@ -11,7 +11,7 @@
 }(this, (function () { 'use strict';
 
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '2.4.0';
+  const LS_CONF_SDK_VERSION = '2.5.0';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
@@ -229,6 +229,46 @@
           type: 'RequestError',
           error: 'StartRecordingFailed',
       },
+      StartReceiveVideoFailed: {
+          code: 4360,
+          type: 'RequestError',
+          error: 'StartReceiveVideoFailed',
+      },
+      StartReceiveVideoError: {
+          code: 4370,
+          type: 'RequestError',
+          error: 'StartReceiveVideoError',
+      },
+      StartReceiveVideoArgsInvalid: {
+          code: 4380,
+          type: 'RequestError',
+          error: 'StartReceiveVideoArgsInvalid',
+      },
+      StopReceiveVideoFailed: {
+          code: 4390,
+          type: 'RequestError',
+          error: 'StopReceiveVideoFailed',
+      },
+      StopReceiveVideoError: {
+          code: 4400,
+          type: 'RequestError',
+          error: 'StopReceiveVideoError',
+      },
+      StopReceiveVideoArgsInvalid: {
+          code: 4410,
+          type: 'RequestError',
+          error: 'StopReceiveVideoArgsInvalid',
+      },
+      GetLSConfLogFailed: {
+          code: 4420,
+          type: 'RequestError',
+          error: 'GetLSConfLogFailed',
+      },
+      GetLSConfLogError: {
+          code: 4430,
+          type: 'RequestError',
+          error: 'GetLSConfLogError',
+      },
   };
   const INTERNAL_ERRORS = {
       InternalError5001: {
@@ -257,6 +297,7 @@
           this.iframeElement.src = DEFAULT_LS_CONF_URL;
           this.clientId = null;
           this.connectOptions = null;
+          this.state = 'idle';
           this.shareRequestedCallback = () => { };
           this.sharePoVCallback = () => { };
           this.joinCallback = { success: () => { }, error: () => { } };
@@ -268,6 +309,9 @@
           this.removeRecordingMemberCallback = { success: () => { }, error: () => { } };
           this.getMediaDevicesCallback = { success: () => { }, error: () => { } };
           this.getCaptureImageCallback = { success: () => { }, error: () => { } };
+          this.getLSConfLogCallback = { success: () => { }, error: () => { } };
+          this.startReceiveVideoCallback = { success: () => { }, error: () => { } };
+          this.stopReceiveVideoCallback = { success: () => { }, error: () => { } };
           this.eventListeners = new Map();
           this.applicationEventListeners = new Map();
       }
@@ -367,15 +411,21 @@
               }
               else if (data.type === 'connected') {
                   if (data.error) {
+                      this.state = 'created';
                       const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']);
                       this.joinCallback.error(error);
                   }
                   else {
+                      this.state = 'open';
                       this.joinCallback.success();
                   }
                   this.dispatchEvent(new Event('connected'));
               }
+              else if (data.type === 'connectCanceled') {
+                  this.state = 'created';
+              }
               else if (data.type === 'disconnected') {
+                  this.state = 'created';
                   this.dispatchEvent(new Event('disconnected'));
               }
               else if (data.type === 'screenShareConnected') {
@@ -485,11 +535,42 @@
               else if (data.type === 'applicationEvent') {
                   this.dispatchApplicationEvent(new CustomEvent(data.eventId, { detail: data.args }));
               }
+              else if (data.type === 'getLSConfLog') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['GetLSConfLogError']);
+                      this.getLSConfLogCallback.error(error);
+                  }
+                  else {
+                      this.getLSConfLogCallback.success(data.lsConfLog);
+                  }
+              }
+              else if (data.type === 'startReceiveVideo') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['StartReceiveVideoError']);
+                      this.startReceiveVideoCallback.error(error);
+                  }
+                  else {
+                      this.startReceiveVideoCallback.success();
+                  }
+              }
+              else if (data.type === 'stopReceiveVideo') {
+                  if (data.error) {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['StopReceiveVideoError']);
+                      this.stopReceiveVideoCallback.error(error);
+                  }
+                  else {
+                      this.stopReceiveVideoCallback.success();
+                  }
+              }
               else if (data.type === 'error' && data.error) {
                   const eventInitDict = {
                       error: data.error,
                       message: `code: ${data.error.detail.code}, type: ${data.error.detail.type}, error: ${data.error.detail.error}`,
                   };
+                  if (this.state === 'connecting') {
+                      this.state = 'created';
+                      this.joinCallback.error(new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']));
+                  }
                   this.dispatchEvent(new ErrorEvent('error', eventInitDict));
               }
           });
@@ -557,10 +638,10 @@
               if (parameters.theme.onPrimary !== undefined && typeof parameters.theme.onPrimary !== 'string') {
                   return false;
               }
-              if (parameters.theme.onSurface !== undefined && typeof parameters.theme.onSurface !== 'string') {
+              if (parameters.theme.primaryTextColor !== undefined && typeof parameters.theme.primaryTextColor !== 'string') {
                   return false;
               }
-              if (parameters.theme.textSecondaryOnBackground !== undefined && typeof parameters.theme.textSecondaryOnBackground !== 'string') {
+              if (parameters.theme.secondaryTextColor !== undefined && typeof parameters.theme.secondaryTextColor !== 'string') {
                   return false;
               }
               if (parameters.theme.components !== undefined) {
@@ -600,6 +681,11 @@
                           return false;
                       }
                       if (parameters.theme.components.video.highlightShadowColor !== undefined && typeof parameters.theme.components.video.highlightShadowColor !== 'string') {
+                          return false;
+                      }
+                  }
+                  if (parameters.theme.components.dialog !== undefined) {
+                      if (parameters.theme.components.dialog.inputFocusColor !== undefined && typeof parameters.theme.components.dialog.inputFocusColor !== 'string') {
                           return false;
                       }
                   }
@@ -715,16 +801,23 @@
           return window.setTimeout(() => {
               // 10000 ms の間に 処理が完了しない場合は reject する
               this.dispatchEvent(new ErrorEvent('error', error));
+              if (this.iframeElement.contentWindow) {
+                  this.iframeElement.contentWindow.postMessage({
+                      type: 'connectCancel',
+                  }, this.lsConfURL);
+              }
               reject(error);
           }, DEFAULT_TIMEOUT_MSEC);
       }
       __create(parameters) {
           return new Promise((resolve, reject) => {
+              this.state = 'creating';
               if (parameters.lsConfURL) {
                   this.lsConfURL = parameters.lsConfURL;
                   this.iframeElement.src = this.lsConfURL;
               }
               const loadTimer = setTimeout(() => {
+                  this.state = 'idle';
                   // 5000 ms の間に iframe onload が発火しない場合は reject する
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTimeout']);
                   this.dispatchEvent(new ErrorEvent('error', error));
@@ -739,6 +832,7 @@
                   // Safari では onload 時に即時に postMessage することができないため、500 ms 遅延させて postMessage を実行する
                   setTimeout(() => {
                       if (!this.iframeElement.contentWindow) {
+                          this.state = 'idle';
                           throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
                       }
                       const postMessageParameters = {
@@ -752,6 +846,7 @@
                               toolbar: parameters.toolbar,
                               podCoordinates: parameters.podCoordinates,
                               thetaZoomMaxRange: parameters.thetaZoomMaxRange,
+                              subView: parameters.subView,
                               theme: parameters.theme,
                               locales: parameters.locales,
                           },
@@ -760,12 +855,14 @@
                           this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
                       }
                       catch (e) {
+                          this.state = 'idle';
                           const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateFailed']);
                           this.dispatchEvent(new ErrorEvent('error', error));
                           return reject(error);
                       }
                       this.setWindowMessageCallback();
                       clearTimeout(loadTimer);
+                      this.state = 'created';
                       return resolve();
                   }, 500);
               };
@@ -809,12 +906,15 @@
       }
       async join(clientId, accessToken, connectionId, connectOptions) {
           return new Promise((resolve, reject) => {
+              this.state = 'connecting';
               const joinTimeoutID = this.setRequestTimer(reject, new LSConferenceIframeError(REQUEST_ERRORS['JoinFailedTimeout']));
               if (!this.iframeElement.contentWindow) {
                   clearTimeout(joinTimeoutID);
+                  this.state = 'created';
                   throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
               }
               if (!this.validateJoinParameters(clientId, accessToken, connectionId, connectOptions)) {
+                  this.state = 'created';
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinArgsInvalid']);
                   this.dispatchEvent(new ErrorEvent('error', error));
                   clearTimeout(joinTimeoutID);
@@ -850,6 +950,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
+                  this.state = 'created';
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']);
                   this.dispatchEvent(new ErrorEvent('error', error));
                   clearTimeout(joinTimeoutID);
@@ -861,7 +962,9 @@
       }
       leave() {
           return new Promise((resolve, reject) => {
+              this.state = 'closing';
               if (!this.iframeElement.contentWindow) {
+                  this.state = 'open';
                   throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
               }
               const postMessageParameters = {
@@ -871,6 +974,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
+                  this.state = 'open';
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['CloseFailed']);
                   this.dispatchEvent(new ErrorEvent('error', error));
                   return reject(error);
@@ -1109,10 +1213,40 @@
               }
           });
       }
+      getLSConfLog() {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              const postMessageParameters = {
+                  type: 'getLSConfLog',
+              };
+              this.getLSConfLogCallback = {
+                  success: async (lsConfLog) => resolve(lsConfLog),
+                  error: (err) => reject(err),
+              };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetLSConfLogFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
+      /**
+       * @deprecated The method should not be used
+       */
       getVideoAudioLog(filterOption) {
+          console.warn('getVideoAudioLog() is deprecated. Use getLSConfLog() instead.');
           return this.getReport('VideoAudioLog', filterOption);
       }
+      /**
+       * @deprecated The method should not be used
+       */
       getScreenShareLog(filterOption) {
+          console.warn('getScreenShareLog() is deprecated. Use getLSConfLog() instead.');
           return this.getReport('ScreenShareLog', filterOption);
       }
       getVideoAudioStats() {
@@ -1211,6 +1345,52 @@
               }
               catch (e) {
                   const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
+      startReceiveVideo(subView) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              if (!this.validateSubViewType(subView)) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['StartReceiveVideoArgsInvalid']));
+              }
+              const postMessageParameters = {
+                  type: 'startReceiveVideo',
+                  subView,
+              };
+              this.startReceiveVideoCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['StartReceiveVideoFailed']);
+                  this.dispatchEvent(new ErrorEvent('error', error));
+                  return reject(error);
+              }
+          });
+      }
+      stopReceiveVideo(subView) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+              }
+              if (!this.validateSubViewType(subView)) {
+                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['StopReceiveVideoArgsInvalid']));
+              }
+              const postMessageParameters = {
+                  type: 'stopReceiveVideo',
+                  subView,
+              };
+              this.stopReceiveVideoCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConferenceIframeError(REQUEST_ERRORS['StopReceiveVideoFailed']);
                   this.dispatchEvent(new ErrorEvent('error', error));
                   return reject(error);
               }

@@ -280,6 +280,7 @@ join前に実行しても値は反映されない。<br>
 #### getVideoAudioLog()
 
 映像/音声での接続のクライアントログを取得する。
+この関数は非推奨です。代わりに getLSConfLog() を使用してください。
 
 - 引数
   - filterOption
@@ -295,6 +296,7 @@ join前に実行しても値は反映されない。<br>
 #### getScreenShareLog()
 
 画面共有での接続のクライアントログを取得する。
+この関数は非推奨です。代わりに getLSConfLog() を使用してください。
 
 - 引数
   - filterOption
@@ -328,6 +330,17 @@ join前に実行しても値は反映されない。<br>
   - 変更成功時: `Promise<string>`
   - 変更失敗時: `Promise`
     - ErrorDetail.error: `'GetReportFailed' | 'GetReportError'`
+
+#### getLSConfLog()
+
+LSConfの問い合わせ用のログ情報を取得する。
+
+- 引数
+  - なし
+- 返り値
+  - 変更成功時: `Promise<string>`
+  - 変更失敗時: `Promise`
+    - ErrorDetail.error: `'GetLSConfLogFailed' | 'GetLSConfLogError'`
 
 #### changeLayout(layout)
 
@@ -574,6 +587,36 @@ LSConf既定のイベントをディスパッチする。
 | type | string | create時に追加したカスタムボタンのtype |
 | callback | Function | 指定されたtypeのイベントが発生したときに通知を受け取るオブジェクト |
 | options | AddEventListenerOptions | [EventTarget.addEventListener()](https://developer.mozilla.org/ja/docs/Web/API/EventTarget/addEventListener)のoptionsを参照 |
+
+#### stopReceiveVideo(subView)
+
+指定したSubViewの映像受信を停止する。
+
+- 引数
+  - subView
+- 返り値
+  - 取得成功時: `Promise<void>`
+  - 取得失敗時: `Promise`
+    - ErrorDetail.error: `'StopReceiveVideoFailed' | 'StopReceiveVideoError' | 'StopReceiveVideoArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 映像受信を停止する対象のSubView |
+
+#### startReceiveVideo(subView)
+
+指定したSubViewの映像受信を開始する。
+
+- 引数
+  - subView
+- 返り値
+  - 取得成功時: `Promise<void>`
+  - 取得失敗時: `Promise`
+    - ErrorDetail.error: `'StartReceiveVideoFailed' | 'StartReceiveVideoError' | 'StartReceiveVideoArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 映像受信を開始する対象のSubView |
 
 ### Events
 

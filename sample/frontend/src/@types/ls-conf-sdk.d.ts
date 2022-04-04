@@ -21,14 +21,19 @@ export declare type CreateParameters = {
         upperLeft?: number[];
         lowerRight?: number[];
     };
+    subView?: {
+        theta?: {
+            isHiddenFramerate: boolean;
+        };
+    };
     lsConfURL?: string;
     theme?: {
         primary?: string;
         background?: string;
         surface?: string;
         onPrimary?: string;
-        onSurface?: string;
-        textSecondaryOnBackground?: string;
+        primaryTextColor?: string;
+        secondaryTextColor?: string;
         components?: {
             participantsVideoContainer?: {
                 background?: string;
@@ -46,6 +51,9 @@ export declare type CreateParameters = {
                 menuTextColor?: string;
                 highlightBorderColor?: string;
                 highlightShadowColor?: string;
+            };
+            dialog?: {
+                inputFocusColor?: string;
             };
         };
     };
@@ -106,6 +114,7 @@ declare class LSConferenceIframe {
         listener: Function;
         options: AddEventListenerOptions | undefined;
     }[]>;
+    private state;
     private shareRequestedCallback;
     private sharePoVCallback;
     private joinCallback;
@@ -118,6 +127,9 @@ declare class LSConferenceIframe {
     private logCallbacks;
     private getMediaDevicesCallback;
     private getCaptureImageCallback;
+    private getLSConfLogCallback;
+    private startReceiveVideoCallback;
+    private stopReceiveVideoCallback;
     constructor(parentElement: HTMLElement);
     private setWindowMessageCallback;
     private validateCreateParameters;
@@ -143,7 +155,14 @@ declare class LSConferenceIframe {
     setMicMute(isEnabled: boolean): Promise<void>;
     setMicDevice(deviceId: string): Promise<void>;
     private getReport;
+    getLSConfLog(): Promise<string>;
+    /**
+     * @deprecated The method should not be used
+     */
     getVideoAudioLog(filterOption?: 'head' | 'tail'): Promise<string>;
+    /**
+     * @deprecated The method should not be used
+     */
     getScreenShareLog(filterOption?: 'head' | 'tail'): Promise<string>;
     getVideoAudioStats(): Promise<string>;
     getScreenShareStats(): Promise<string>;
@@ -151,6 +170,8 @@ declare class LSConferenceIframe {
     addRecordingMember(subView: SubView, connectionId: string): Promise<void>;
     removeRecordingMember(subView: SubView, connectionId: string): Promise<void>;
     getCaptureImage(subView: SubView, options: CaptureImageOptions): Promise<Blob>;
+    startReceiveVideo(subView: SubView): Promise<void>;
+    stopReceiveVideo(subView: SubView): Promise<void>;
     iframe(): HTMLIFrameElement;
     addEventListener(type: string, callback: Function, options?: AddEventListenerOptions): void;
     removeEventListener(type: string, callback: Function, _options?: boolean | EventListenerOptions): void;

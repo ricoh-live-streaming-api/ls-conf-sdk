@@ -1,5 +1,13 @@
 # 変更履歴
 
+## 1.4.2
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v2.5.0` に更新
+  - [Frontend] `ls-conf-sdk` のインタフェース変更に対応
+- Refactored
+  - [Frontend] 依存ライブラリを更新
+  - [Backend] 依存ライブラリを更新
+
 ## 1.4.1
 - Changed
   - [Frontend] `ls-conf-sdk` を `v2.4.0` に更新

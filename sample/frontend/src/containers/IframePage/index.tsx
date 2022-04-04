@@ -115,34 +115,16 @@ const IframePage: React.FC<Record<string, never>> = () => {
         let log = 'LSConfSample Log\n\n';
         log += `******************** Error Message ********************\n`;
         log += `${e.message}\n`;
-        log += `******************** Environment **********************\n`;
+        log += `******************** ApplicationLog *******************\n`;
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         log += `LSConfSample Version: v${require('../../../../frontend/package.json').version}\n`;
         log += `LSConfURL: ${LS_CONF_URL || 'default'}\n`;
         log += `LSClientID: ${LS_CLIENT_ID || 'unknown'}\n`;
         log += `SignalingURL: ${SIGNALING_URL || 'default'}\n`;
         log += `UserAgent: ${window.navigator.userAgent}\n`;
-        log += `******************** VideoAudioLog ********************\n`;
+        log += `******************** LSConfLog ++++********************\n`;
         try {
-          log += await iframe.getVideoAudioLog();
-        } catch {
-          // ログ取得失敗時は出力ファイルに追記しない
-        }
-        log += `******************** ScreenShareLog *******************\n`;
-        try {
-          log += await iframe.getScreenShareLog();
-        } catch {
-          // ログ取得失敗時は出力ファイルに追記しない
-        }
-        log += `******************** VideoAudioStats ******************\n`;
-        try {
-          log += await iframe.getVideoAudioStats();
-        } catch {
-          // ログ取得失敗時は出力ファイルに追記しない
-        }
-        log += `******************** ScreenShareStats *****************\n`;
-        try {
-          log += await iframe.getScreenShareStats();
+          log += await iframe.getLSConfLog();
         } catch {
           // ログ取得失敗時は出力ファイルに追記しない
         }

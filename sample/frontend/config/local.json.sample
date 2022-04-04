@@ -19,8 +19,8 @@
     "background": "#f7f7fa",
     "surface": "#fff",
     "onPrimary": "#fff",
-    "onSurface": "rgba(0, 0, 0, 0.87)",
-    "textSecondaryOnBackground": "rgba(0, 0, 0, 0.54)",
+    "primaryTextColor": "rgba(0, 0, 0, 0.87)",
+    "secondaryTextColor": "rgba(0, 0, 0, 0.54)",
     "components": {
       "participantsVideoContainer": {
         "background": "rgba(0, 0, 0, 0.05)"
@@ -36,6 +36,9 @@
         "iconColor": "#fff",
         "menuBackgroundColor": "#fff",
         "menuTextColor": "rgba(0, 0, 0, 0.87)"
+      },
+      "dialog": {
+        "inputFocusColor": "#303030"
       }
     }
   }
