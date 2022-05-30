@@ -21,7 +21,7 @@ interface ToolbarConfig {
   isHiddenParticipantsButton: boolean;
   isHiddenDeviceSettingButton: boolean;
   isHiddenExitButton: boolean;
-  toolbarItems: ToolbarItem[];
+  customItems: ToolbarItem[];
 }
 interface LSConfSampleConfig {
   BACKEND_API_BASE: string;
@@ -29,11 +29,16 @@ interface LSConfSampleConfig {
   LS_CONF_URL?: string;
   LS_SIGNALING_URL: string;
   THETA_ZOOM_MAX_RANGE: number;
-  IS_HIDDEN_VIDEO_MENU_BUTTON: boolean;
-  IS_HIDDEN_RECORDING_BUTTON: boolean;
-  IS_HIDDEN_SHARE_POV_BUTTON: boolean;
   DEFAULT_LAYOUT: string;
   TOOLBAR_CONFIG: ToolbarConfig;
+  SUBVIEW_CONFIG: {
+    enableAutoVideoReceiving: boolean;
+    menu: {
+      isHidden: boolean;
+      isHiddenRecordingButton: boolean;
+      isHiddenSharePoVButton: boolean;
+    };
+  };
   POD_COORDINATES?: {
     upperLeft: number[];
     lowerRight: number[];
@@ -48,6 +53,8 @@ interface LSConfSampleConfig {
     components: {
       participantsVideoContainer: {
         background: string;
+        subViewSwitchBackgroundColor: string;
+        subViewSwitchIconColor: string;
       };
       toolbar: {
         background: string;
@@ -60,11 +67,16 @@ interface LSConfSampleConfig {
         iconColor: string;
         menuBackgroundColor: string;
         menuTextColor: string;
+        highlightBorderColor: string;
+        highlightShadowColor: string;
       };
       dialog: {
         inputFocusColor: string;
       };
     };
+  };
+  ROOM_CONFIG: {
+    entranceScreen: string;
   };
 }
 

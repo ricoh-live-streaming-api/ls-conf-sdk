@@ -59,14 +59,18 @@ async function createAndJoin() {
           isHiddenDeviceSettingButton: false,
           isHiddenExitButton: false
         },
-        isHiddenVideoMenuButton: false,
-        isHiddenRecordingButton: false,
-        isHiddenSharePoVButton: true,
         theme: {
           primary: '#303030',
           background: '#f7f7fa',
           surface: '#fff',
           onPrimary: '#fff'
+        },
+        subView: {
+          menu: {
+            isHidden: false,
+            isHiddenRecordingButton: false,
+            isHiddenSharePoVButton: true,
+          }
         }
       }
     );

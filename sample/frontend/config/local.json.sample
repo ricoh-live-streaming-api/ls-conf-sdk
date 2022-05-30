@@ -3,8 +3,9 @@
   "clientId": "",
   "thetaZoomMaxRange": 8,
   "defaultLayout": "gallery",
-  "isHiddenVideoMenuButton": false,
-  "isHiddenRecordingButton": false,
+  "room": {
+    "entranceScreen": "none"
+  },
   "toolbar": {
     "isHidden": false,
     "isHiddenCameraButton": false,
@@ -12,7 +13,15 @@
     "isHiddenScreenShareButton": false,
     "isHiddenDeviceSettingButton": false,
     "isHiddenExitButton": false,
-    "toolbarItems": []
+    "customItems": []
+  },
+  "subView": {
+    "enableAutoVideoReceiving": true,
+    "menu": {
+      "isHidden": false,
+      "isHiddenRecordingButton": false,
+      "isHiddenSharePoVButton": true
+    }
   },
   "theme": {
     "primary": "#303030",
@@ -23,7 +32,9 @@
     "secondaryTextColor": "rgba(0, 0, 0, 0.54)",
     "components": {
       "participantsVideoContainer": {
-        "background": "rgba(0, 0, 0, 0.05)"
+        "background": "rgba(0, 0, 0, 0.05)",
+        "subViewSwitchBackgroundColor" : "#fff",
+        "subViewSwitchIconColor" : "rgba(0, 0, 0, 0.87)"
       },
       "toolbar": {
         "background": "#303030",
@@ -35,7 +46,9 @@
         "textBackgroundColor": "#000",
         "iconColor": "#fff",
         "menuBackgroundColor": "#fff",
-        "menuTextColor": "rgba(0, 0, 0, 0.87)"
+        "menuTextColor": "rgba(0, 0, 0, 0.87)",
+        "highlightBorderColor": "#661fff",
+        "highlightShadowColor": "#661fff"
       },
       "dialog": {
         "inputFocusColor": "#303030"

@@ -5,6 +5,9 @@ export declare type ToolbarItem = {
 export declare type CreateParameters = {
     thetaZoomMaxRange?: number;
     defaultLayout?: 'gallery' | 'presentation' | 'fullscreen';
+    room?: {
+        entranceScreen?: 'none' | 'click';
+    };
     toolbar?: {
         isHidden?: boolean;
         isHiddenCameraButton?: boolean;
@@ -12,11 +15,9 @@ export declare type CreateParameters = {
         isHiddenScreenShareButton?: boolean;
         isHiddenParticipantsButton?: boolean;
         isHiddenDeviceSettingButton?: boolean;
-        toolbarItems: ToolbarItem[];
+        isHiddenExitButton?: boolean;
+        customItems: ToolbarItem[];
     };
-    isHiddenVideoMenuButton?: boolean;
-    isHiddenRecordingButton?: boolean;
-    isHiddenSharePoVButton?: boolean;
     podCoordinates?: {
         upperLeft?: number[];
         lowerRight?: number[];
@@ -24,6 +25,12 @@ export declare type CreateParameters = {
     subView?: {
         theta?: {
             isHiddenFramerate: boolean;
+        };
+        enableAutoVideoReceiving?: boolean;
+        menu?: {
+            isHidden?: boolean;
+            isHiddenRecordingButton?: boolean;
+            isHiddenSharePoVButton?: boolean;
         };
     };
     lsConfURL?: string;
@@ -37,6 +44,8 @@ export declare type CreateParameters = {
         components?: {
             participantsVideoContainer?: {
                 background?: string;
+                subViewSwitchBackgroundColor?: string;
+                subViewSwitchIconColor?: string;
             };
             toolbar?: {
                 background?: string;
@@ -63,10 +72,12 @@ export declare type CreateParameters = {
     };
 };
 export declare type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
+export declare type ModeType = 'normal' | 'viewer';
 export declare type ConnectOptions = {
     username: string;
     enableVideo: boolean;
     enableAudio: boolean;
+    mode?: ModeType;
     maxVideoBitrate?: number;
     maxShareBitrate?: number;
     useDummyDevice?: boolean;
@@ -100,13 +111,14 @@ export declare type CaptureImageOptions = {
     mimeType?: 'image/png' | 'image/jpeg';
     qualityArgument?: number;
 };
+export declare type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'error';
 declare class LSConferenceIframe {
     parentElement: HTMLElement;
     iframeElement: HTMLIFrameElement;
     lsConfURL: string;
     clientId: string | null;
     connectOptions: ConnectOptions | null;
-    eventListeners: Map<string, {
+    eventListeners: Map<EventType, {
         listener: Function;
         options: AddEventListenerOptions | undefined;
     }[]>;
@@ -116,7 +128,6 @@ declare class LSConferenceIframe {
     }[]>;
     private state;
     private shareRequestedCallback;
-    private sharePoVCallback;
     private joinCallback;
     private getSubViewsCallback;
     private highlightCallback;
@@ -126,6 +137,7 @@ declare class LSConferenceIframe {
     private removeRecordingMemberCallback;
     private logCallbacks;
     private getMediaDevicesCallback;
+    private updatePointerCallback;
     private getCaptureImageCallback;
     private getLSConfLogCallback;
     private startReceiveVideoCallback;
@@ -137,6 +149,7 @@ declare class LSConferenceIframe {
     private validateScreenShareParameters;
     private validateSubViewType;
     private validatePoVType;
+    private validateLayoutType;
     private validateCaptureImageOptionsType;
     private setRequestTimer;
     private __create;
@@ -146,7 +159,6 @@ declare class LSConferenceIframe {
     onShareRequested(callback: Function): void;
     getSubViews(): Promise<SubView[]>;
     highlight(subView: SubView): Promise<void>;
-    onSharePoV(callback: Function): void;
     getPoV(subView: SubView): Promise<PoV>;
     setPoV(subView: SubView, poV: PoV): Promise<void>;
     getMediaDevices(): Promise<DeviceInfo[]>;
@@ -154,28 +166,22 @@ declare class LSConferenceIframe {
     setCameraDevice(deviceId: string): Promise<void>;
     setMicMute(isEnabled: boolean): Promise<void>;
     setMicDevice(deviceId: string): Promise<void>;
+    enablePointer(isEnabled: boolean): Promise<void>;
+    updatePointer(subView: SubView, connectionId: string, poV: PoV | null, username?: string, color?: string): Promise<void>;
     private getReport;
     getLSConfLog(): Promise<string>;
-    /**
-     * @deprecated The method should not be used
-     */
-    getVideoAudioLog(filterOption?: 'head' | 'tail'): Promise<string>;
-    /**
-     * @deprecated The method should not be used
-     */
-    getScreenShareLog(filterOption?: 'head' | 'tail'): Promise<string>;
     getVideoAudioStats(): Promise<string>;
     getScreenShareStats(): Promise<string>;
-    changeLayout(layout: 'gallery' | 'presentation' | 'fullscreen'): Promise<void>;
+    changeLayout(layout: 'gallery' | 'presentation' | 'fullscreen', subViews?: SubView[]): Promise<void>;
     addRecordingMember(subView: SubView, connectionId: string): Promise<void>;
     removeRecordingMember(subView: SubView, connectionId: string): Promise<void>;
     getCaptureImage(subView: SubView, options: CaptureImageOptions): Promise<Blob>;
     startReceiveVideo(subView: SubView): Promise<void>;
     stopReceiveVideo(subView: SubView): Promise<void>;
     iframe(): HTMLIFrameElement;
-    addEventListener(type: string, callback: Function, options?: AddEventListenerOptions): void;
-    removeEventListener(type: string, callback: Function, _options?: boolean | EventListenerOptions): void;
-    dispatchEvent(event: Event): void;
+    addEventListener(type: EventType, callback: Function, options?: AddEventListenerOptions): void;
+    removeEventListener(type: EventType, callback: Function, _options?: boolean | EventListenerOptions): void;
+    private dispatchEvent;
     addApplicationEventListener(type: string, callback: Function, options?: AddEventListenerOptions): void;
     removeApplicationEventListener(type: string, callback: Function, _options?: boolean | EventListenerOptions): void;
     private dispatchApplicationEvent;

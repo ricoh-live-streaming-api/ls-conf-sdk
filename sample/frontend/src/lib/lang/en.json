@@ -38,5 +38,8 @@
   "presentationLayout": {
     "horizontalButtonTips": "Switch to Horizontal",
     "verticalButtonTips": "Switch to Vertical"
+  },
+  "entranceScreen": {
+    "click": "Click to start"
   }
 }

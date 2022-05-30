@@ -27,15 +27,6 @@ const configSchema = {
     "thetaZoomMaxRange": {
       "type": "number", "minimum": 1
     },
-    "isHiddenVideoMenuButton": {
-      "type": "boolean",
-    },
-    "isHiddenRecordingButton": {
-      "type": "boolean",
-    },
-    "isHiddenSharePoVButton": {
-      "type": "boolean",
-    },
     "defaultLayout": {
       "type": "string",
       "pattern": "gallery|fullscreen|presentation",
@@ -63,6 +54,15 @@ const configSchema = {
         }
       }
     },
+    "room": {
+      "type": "object",
+      "properties": {
+        "entranceScreen": {
+          "type": "string",
+          "pattern": "none|click",
+        }
+      }
+    },
     "toolbar": {
       "type": "object",
       "properties": {
@@ -83,7 +83,43 @@ const configSchema = {
         },
         "isHiddenExitButton": {
           "type": "boolean",
-        }
+        },
+        "customItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": { 
+              "itemId": {
+                "type": "string",
+              },
+              "iconName": {
+                "type": "string",
+              },
+            },
+          },
+        },
+      }
+    },
+    "subView": {
+      "type": "object",
+      "properties": {
+        "enableAutoVideoReceiving": {
+          "type": "boolean"
+        },
+        "menu": {
+          "type": "object",
+          "properties": { 
+            "isHidden": {
+              "type": "boolean",
+            },
+            "isHiddenRecordingButton": {
+              "type": "boolean",
+            },
+            "isHiddenSharePoVButton": {
+              "type": "boolean",
+            },
+          }
+        },
       }
     },
     "theme": {
@@ -114,6 +150,12 @@ const configSchema = {
               "type": "object",
               "properties": {
                 "background": {
+                  "type": "string",
+                },
+                "subViewSwitchBackgroundColor": {
+                  "type": "string",
+                },
+                "subViewSwitchIconColor": {
                   "type": "string",
                 },
               }
@@ -148,6 +190,12 @@ const configSchema = {
                   "type": "string",
                 },
                 "menuTextColor": {
+                  "type": "string",
+                },
+                "highlightBorderColor": {
+                  "type": "string",
+                },
+                "highlightShadowColor": {
                   "type": "string",
                 },
               }
@@ -186,7 +234,7 @@ module.exports = (env, argv) => {
   // production とそれ以外で読み込む JSON を変える
   const configFileName = isProduction ? 'production.json' : 'local.json';
   const configPath = path.resolve(__dirname, `config/${configFileName}`);
-  const { lsConfURL, clientId, apiBase, signalingURL, thetaZoomMaxRange, defaultLayout, isHiddenVideoMenuButton, isHiddenRecordingButton, isHiddenSharePoVButton, toolbar, podCoordinates, theme } = validateConfig(configPath);
+  const { lsConfURL, clientId, apiBase, signalingURL, thetaZoomMaxRange, defaultLayout, toolbar, podCoordinates, theme, subView, room } = validateConfig(configPath);
   return {
     mode: mode,
     entry: path.resolve(__dirname, 'src/index.tsx'),
@@ -222,12 +270,11 @@ module.exports = (env, argv) => {
         'config.LS_CLIENT_ID': JSON.stringify(clientId),
         'config.LS_SIGNALING_URL': JSON.stringify(signalingURL),
         'config.DEFAULT_LAYOUT': JSON.stringify(defaultLayout),
-        'config.IS_HIDDEN_VIDEO_MENU_BUTTON': JSON.stringify(isHiddenVideoMenuButton),
-        'config.IS_HIDDEN_RECORDING_BUTTON': JSON.stringify(isHiddenRecordingButton),
-        'config.IS_HIDDEN_SHARE_POV_BUTTON': JSON.stringify(isHiddenSharePoVButton),
         'config.THETA_ZOOM_MAX_RANGE': JSON.stringify(thetaZoomMaxRange),
+        'config.ROOM_CONFIG': JSON.stringify(room),
         'config.TOOLBAR_CONFIG': JSON.stringify(toolbar),
         'config.POD_COORDINATES': JSON.stringify(podCoordinates),
+        'config.SUBVIEW_CONFIG': JSON.stringify(subView),
         'config.THEME_CONFIG': JSON.stringify(theme),
       }),
       new MiniCssExtractPlugin({

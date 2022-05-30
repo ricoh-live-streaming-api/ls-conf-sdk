@@ -38,5 +38,8 @@
   "presentationLayout": {
     "horizontalButtonTips": "横並びに切替",
     "verticalButtonTips": "縦並びに切替"
+  },
+  "entranceScreen": {
+    "click": "クリックして開始"
   }
 }

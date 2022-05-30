@@ -9,28 +9,18 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { fetchAccessToken } from '@/api';
 import ErrorDialog from '@/components/ErrorDialog';
-import {
-  DEFAULT_LAYOUT,
-  IS_HIDDEN_RECORDING_BUTTON,
-  IS_HIDDEN_SHARE_POV_BUTTON,
-  IS_HIDDEN_VIDEO_MENU_BUTTON,
-  LS_CLIENT_ID,
-  LS_CONF_URL,
-  SIGNALING_URL,
-  THEME_CONFIG,
-  THETA_ZOOM_MAX_RANGE,
-  TOOLBAR_CONFIG,
-} from '@/constants';
+import { DEFAULT_LAYOUT, LS_CLIENT_ID, LS_CONF_URL, ROOM_CONFIG, SIGNALING_URL, SUBVIEW_CONFIG, THEME_CONFIG, THETA_ZOOM_MAX_RANGE, TOOLBAR_CONFIG } from '@/constants';
 import LSConferenceIframe, { ConnectOptions, CreateParameters, ScreenShareParameters } from '@/lib/ls-conf-sdk';
 
 const CREATE_PARAMETERS: CreateParameters = {
   defaultLayout: (DEFAULT_LAYOUT as 'gallery' | 'presentation' | 'fullscreen') || undefined,
-  isHiddenVideoMenuButton: IS_HIDDEN_VIDEO_MENU_BUTTON,
-  isHiddenRecordingButton: IS_HIDDEN_RECORDING_BUTTON,
-  isHiddenSharePoVButton: IS_HIDDEN_SHARE_POV_BUTTON,
+  room: ROOM_CONFIG as {
+    entranceScreen?: 'none' | 'click';
+  },
   toolbar: TOOLBAR_CONFIG,
   thetaZoomMaxRange: THETA_ZOOM_MAX_RANGE,
   lsConfURL: LS_CONF_URL ? LS_CONF_URL : undefined,
+  subView: SUBVIEW_CONFIG,
   theme: THEME_CONFIG,
 };
 
@@ -128,7 +118,7 @@ const IframePage: React.FC<Record<string, never>> = () => {
         } catch {
           // ログ取得失敗時は出力ファイルに追記しない
         }
-        if (e.error.toReportString) {
+        if (e.error && e.error.toReportString) {
           log += `******************** toReportString *******************\n`;
           log += `${e.error.toReportString}`;
         }
@@ -150,19 +140,27 @@ const IframePage: React.FC<Record<string, never>> = () => {
     });
     iframe.addEventListener(
       'startRecording',
-      (e: CustomEvent) => {
+      async (e: CustomEvent) => {
         const targetSubview = e.detail.subView;
         console.log(`startRecording: subView: ${JSON.stringify(targetSubview)}`);
-        iframe.addRecordingMember(targetSubview, connectionId);
+        try {
+          await iframe.addRecordingMember(targetSubview, connectionId);
+        } catch (e) {
+          console.warn(`Failed to addRecordingMember in startRecording event. Detail: ${JSON.stringify(e.detail)}`);
+        }
       },
       { once: false }
     );
     iframe.addEventListener(
       'stopRecording',
-      (e: CustomEvent) => {
+      async (e: CustomEvent) => {
         const targetSubview = e.detail.subView;
         console.log(`stopRecording: subView: ${JSON.stringify(targetSubview)}`);
-        iframe.removeRecordingMember(targetSubview, connectionId);
+        try {
+          await iframe.removeRecordingMember(targetSubview, connectionId);
+        } catch (e) {
+          console.warn(`Failed to removeRecordingMember in stopRecording event. Detail: ${JSON.stringify(e.detail)}`);
+        }
       },
       { once: false }
     );

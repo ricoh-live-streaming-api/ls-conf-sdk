@@ -1,5 +1,102 @@
 # CHANGE LOG
 
+## v3.0.1
+- Fixed
+  - [LSConf] 多拠点参加時に自拠点の画面共有を開始するとブラウザのタブがクラッシュする問題を修正
+
+## v3.0.0
+- Added
+  - [SDK] join時に受信専用のモード設定機能(β, ※1)を追加
+  - [SDK] 360映像にポインタを表示する機能(β)を追加
+  - [SDK] SubViewの非表示/表示時に映像を自動的に受信停止/再開する処理の有効/無効を切り替える機能を追加
+  - [SDK] CreateParametersに入室画面の設定オプションを追加
+- Changed
+  - [SDK] create時の一部カスタマイズパラメータを変更
+  - [SDK] create時のタイムアウト時間を5秒から15秒に変更
+  - [SDK] `changeLayout` にSubViewを指定できるように変更
+  - [SDK] `onSharePoV` を addEventListener で登録する仕様に変更
+  - [SDK] ログ取得関連の非推奨のメソッドを削除
+  - [SDK] `addEventListener` にLSConf固有のイベントしか登録できない仕様に変更
+  - [SDK] `dispatchEvent` を廃止
+  - [LSConf] SubViewの非表示/表示時に映像を自動的に受信停止/再開するように変更
+  - [LSConf] SubViewの最小幅を定義し、それを下回る場合は画面スクロールが発生するように変更
+  - [LSConf] 360映像がPresentationレイアウトの通常表示領域にある場合、拡大/縮小ボタンが非表示になるように変更
+- Fixed
+  - [LSConf] 特定の環境で通話開始時に相手からの音声が聞こえない問題を修正(※2)
+  - [LSConf] Safariで360映像の天地が反転する問題を修正
+  - [LSConf] 特定の操作で360映像の座標情報が規定外の値になる問題を修正
+- Refactored
+  - [SDK] 不要なコンソールログを削除
+
+(※1) 本機能はDev環境でのみご利用いただけます
+
+(※2) 本不具合は入室時のクリック画面でのユーザー操作（クリック, タップ）を伴うことで解消します。入室時画面の設定が"none"の場合はこれまで通りデバイスのアクセス許可が必要です。
+
+### 破壊的な変更による修正内容
+
+#### create時の一部カスタマイズパラメータを変更
+create時に以下のカスタマイズパラメータのインタフェースが変更となります。
+
+```ts
+// 3.0.0 以前
+iframe = window.LSConferenceIframe.create(
+  document.getElementById('frame-container'),
+  {
+    toolbar: {
+      toolbarItems: [{ "type": "chat", "iconName": "chat" }]
+    },
+    isHiddenVideoMenuButton: false,
+    isHiddenRecordingButton: false,
+    isHiddenSharePoVButton: true,
+  }
+);
+
+// 3.0.0 以降
+iframe = window.LSConferenceIframe.create(
+  document.getElementById('frame-container'),
+  {
+    toolbar: {
+      customItems: [{ "type": "chat", "iconName": "chat" }]
+    },
+    subView: {
+      menu: {
+        isHidden: false,
+        isHiddenRecordingButton: false,
+        isHiddenSharePoVButton: true,
+      },
+    }
+  }
+);
+```
+
+#### `onSharePoV()` を addEventListener で登録する仕様に変更
+`onSharePoV()` は `sharePoV` のイベントを addEventListener で登録する仕様に変更となります。
+
+```ts
+// 3.0.0 以前
+iframe.onSharePoV((subView: SubView, poV: PoV) => {
+  console.log(`onSharePoV: subView: ${JSON.stringify(subView)}, poV: ${JSON.stringify(poV)}`);
+});
+
+// 3.0.0 以降
+iframe.addEventListener('sharePoV', (e: CustomEvent) => {
+  console.log(`sharePoV: subView: ${JSON.stringify(e.detail.subView)}, poV: ${JSON.stringify(e.detail.poV)}`);
+});
+```
+
+#### ログ取得関連の非推奨のメソッドを削除
+`getVideoAudioLog` および `getScreenShareLog`が削除されます。
+問い合わせ時のログ取得には `getLSConfLog` をご利用ください。
+
+```ts
+// 3.0.0 以前
+const log1 = await iframe.getVideoAudioLog();
+const log2 = await iframe.getScreenShareLog();
+
+// 3.0.0 以降
+const log = await iframe.getLSConfLog();
+```
+
 ## v2.5.0
 - Added
   - [SDK] 映像の受信停止/開始の機能を追加
@@ -55,7 +152,7 @@
   - [LSConf] 会議中にカメラやマイクが切断された時に画面が固まる問題を修正
 
 #### ツールバーに任意のボタンを追加する方法
-1. create時のオプションで `toolbarItems` の配列に追加したいボタンを指定してください
+1. create時のオプションで `customItems` の配列に追加したいボタンを指定してください
   ~~~ts
   // チャットアイコンを指定する例
   {
@@ -63,7 +160,7 @@
     "createParameters": {
       ...,
       "toolbar": {
-        "toolbarItems": [{ "type": "chat", "iconName": "chat" }]
+        "customItems": [{ "type": "chat", "iconName": "chat" }]
       },
       ...
     }
