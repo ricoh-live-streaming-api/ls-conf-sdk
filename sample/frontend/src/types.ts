@@ -32,7 +32,13 @@ interface LSConfSampleConfig {
   DEFAULT_LAYOUT: string;
   TOOLBAR_CONFIG: ToolbarConfig;
   SUBVIEW_CONFIG: {
+    theta: {
+      enableZenithCorrection: boolean;
+    };
     enableAutoVideoReceiving: boolean;
+    normal: {
+      enableZoom: boolean;
+    };
     menu: {
       isHidden: boolean;
       isHiddenRecordingButton: boolean;

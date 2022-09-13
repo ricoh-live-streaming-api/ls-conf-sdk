@@ -103,8 +103,24 @@ const configSchema = {
     "subView": {
       "type": "object",
       "properties": {
+        "theta": {
+          "type": "object",
+          "properties": {
+            "enableZenithCorrection": {
+              "type": "boolean",
+            },
+          },
+        },
         "enableAutoVideoReceiving": {
           "type": "boolean"
+        },
+        "normal": {
+          "type": "object",
+          "properties": { 
+            "enableZoom": {
+              "type": "boolean",
+            },
+          }
         },
         "menu": {
           "type": "object",

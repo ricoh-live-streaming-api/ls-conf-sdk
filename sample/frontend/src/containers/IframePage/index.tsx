@@ -97,73 +97,61 @@ const IframePage: React.FC<Record<string, never>> = () => {
       signalingURL: SIGNALING_URL,
       videoCodec: videoCodec,
     };
-    iframe.addEventListener(
-      'error',
-      async (e: ErrorEvent) => {
-        setErrorMessage(e.message);
+    iframe.addEventListener('error', async (e: ErrorEvent) => {
+      setErrorMessage(e.message);
 
-        let log = 'LSConfSample Log\n\n';
-        log += `******************** Error Message ********************\n`;
-        log += `${e.message}\n`;
-        log += `******************** ApplicationLog *******************\n`;
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        log += `LSConfSample Version: v${require('../../../../frontend/package.json').version}\n`;
-        log += `LSConfURL: ${LS_CONF_URL || 'default'}\n`;
-        log += `LSClientID: ${LS_CLIENT_ID || 'unknown'}\n`;
-        log += `SignalingURL: ${SIGNALING_URL || 'default'}\n`;
-        log += `UserAgent: ${window.navigator.userAgent}\n`;
-        log += `******************** LSConfLog ++++********************\n`;
-        try {
-          log += await iframe.getLSConfLog();
-        } catch {
-          // ログ取得失敗時は出力ファイルに追記しない
-        }
-        if (e.error && e.error.toReportString) {
-          log += `******************** toReportString *******************\n`;
-          log += `${e.error.toReportString}`;
-        }
+      let log = 'LSConfSample Log\n\n';
+      log += `******************** Error Message ********************\n`;
+      log += `${e.message}\n`;
+      log += `******************** ApplicationLog *******************\n`;
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      log += `LSConfSample Version: v${require('../../../../frontend/package.json').version}\n`;
+      log += `LSConfURL: ${LS_CONF_URL || 'default'}\n`;
+      log += `LSClientID: ${LS_CLIENT_ID || 'unknown'}\n`;
+      log += `SignalingURL: ${SIGNALING_URL || 'default'}\n`;
+      log += `UserAgent: ${window.navigator.userAgent}\n`;
+      log += `******************** LSConfLog ++++********************\n`;
+      try {
+        log += await iframe.getLSConfLog();
+      } catch {
+        // ログ取得失敗時は出力ファイルに追記しない
+      }
+      if (e.error && e.error.toReportString) {
+        log += `******************** toReportString *******************\n`;
+        log += `${e.error.toReportString}`;
+      }
 
-        const fileName = `ls-conf-sample_${format(new Date(), 'yyyyMMdd_HHmmss')}.log`;
-        const downLoadLink = document.createElement('a');
-        downLoadLink.download = fileName;
-        downLoadLink.href = URL.createObjectURL(new Blob([log], { type: 'text.plain' }));
-        downLoadLink.dataset.downloadurl = ['text/plain', downLoadLink.download, downLoadLink.href].join(':');
-        downLoadLink.click();
-      },
-      { once: false }
-    );
+      const fileName = `ls-conf-sample_${format(new Date(), 'yyyyMMdd_HHmmss')}.log`;
+      const downLoadLink = document.createElement('a');
+      downLoadLink.download = fileName;
+      downLoadLink.href = URL.createObjectURL(new Blob([log], { type: 'text.plain' }));
+      downLoadLink.dataset.downloadurl = ['text/plain', downLoadLink.download, downLoadLink.href].join(':');
+      downLoadLink.click();
+    });
     iframe.addEventListener('connected', () => {
       console.log('connected event occurred');
     });
     iframe.addEventListener('disconnected', () => {
       console.log('disconnected event occurred');
     });
-    iframe.addEventListener(
-      'startRecording',
-      async (e: CustomEvent) => {
-        const targetSubview = e.detail.subView;
-        console.log(`startRecording: subView: ${JSON.stringify(targetSubview)}`);
-        try {
-          await iframe.addRecordingMember(targetSubview, connectionId);
-        } catch (e) {
-          console.warn(`Failed to addRecordingMember in startRecording event. Detail: ${JSON.stringify(e.detail)}`);
-        }
-      },
-      { once: false }
-    );
-    iframe.addEventListener(
-      'stopRecording',
-      async (e: CustomEvent) => {
-        const targetSubview = e.detail.subView;
-        console.log(`stopRecording: subView: ${JSON.stringify(targetSubview)}`);
-        try {
-          await iframe.removeRecordingMember(targetSubview, connectionId);
-        } catch (e) {
-          console.warn(`Failed to removeRecordingMember in stopRecording event. Detail: ${JSON.stringify(e.detail)}`);
-        }
-      },
-      { once: false }
-    );
+    iframe.addEventListener('startRecording', async (e: CustomEvent) => {
+      const targetSubview = e.detail.subView;
+      console.log(`startRecording: subView: ${JSON.stringify(targetSubview)}`);
+      try {
+        await iframe.addRecordingMember(targetSubview, connectionId);
+      } catch (e) {
+        console.warn(`Failed to addRecordingMember in startRecording event. Detail: ${JSON.stringify(e.detail)}`);
+      }
+    });
+    iframe.addEventListener('stopRecording', async (e: CustomEvent) => {
+      const targetSubview = e.detail.subView;
+      console.log(`stopRecording: subView: ${JSON.stringify(targetSubview)}`);
+      try {
+        await iframe.removeRecordingMember(targetSubview, connectionId);
+      } catch (e) {
+        console.warn(`Failed to removeRecordingMember in stopRecording event. Detail: ${JSON.stringify(e.detail)}`);
+      }
+    });
     try {
       await iframe.join(LS_CLIENT_ID, accessToken, connectionId, connectOptions);
     } catch (e) {

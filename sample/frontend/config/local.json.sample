@@ -16,7 +16,13 @@
     "customItems": []
   },
   "subView": {
+    "theta": {
+      "enableZenithCorrection": true
+    },  
     "enableAutoVideoReceiving": true,
+    "normal": {
+      "enableZoom": false
+    },
     "menu": {
       "isHidden": false,
       "isHiddenRecordingButton": false,

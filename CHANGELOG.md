@@ -1,12 +1,77 @@
 # CHANGE LOG
 
+## v4.0.0
+- Added
+  - [SDK] 通常映像の拡大/縮小の有効/無効を切り替える機能を追加
+  - [SDK] SubView毎のStats情報を取得する機能を追加
+  - [SDK] 360映像の自動天頂補正機能(※1)および手動で補正する機能を追加
+  - [SDK] 動画ファイルのURLを指定して再生するプレイヤー機能(β)を追加
+- Changed
+  - [SDK] `getSubViews` のレスポンスのSubViewにカメラとマイクのミュート状態を追加
+  - [SDK] ストリングリテラル型を明示的に型定義するように変更
+  - [SDK] APIの実行時エラーとイベントリスナーによるエラーイベントを分離
+  - [SDK] `addEventListener` で `options.once` 未指定時に毎回イベントが発火するように変更
+  - [SDK] join時の受信専用のモード設定機能をβから正式機能に変更
+- Fixed
+  - [SDK] 一部のエラーイベントで内部構成が仕様と異なっていた問題を修正
+  - [LSConf] UIの再描画時に360映像の視点がリセットされる問題を修正
+  - [LSConf] `getSubViews` の実行時に自拠点の画面共有のSubViewが重複する問題を修正
+  - [LSConf] 切断と映像受信停止のタイミングが重なるとInternalErrorが発生して会議から切断される問題を修正
+  - [LSConf] `create` を複数回実行した際に古いイベントリスナーが残る問題を修正
+  - [LSConf] join直後に `getSubViews` を実行すると誤ったレスポンスが返ってくる問題を修正
+  - [LSConf] 自拠点の画面共有開始時に `remoteConnectionAdded` のイベントが発生する問題を修正
+- Refactored
+  - [LSConf] `ricoh-ls-sdk` を `v1.4.0` に更新
+  - [LSConf] 内部で保持するSubView一覧の構成を変更
+
+(※1) 本機能は `THETAプラグイン側` で取得した各パラメータを TrackMetadata に `pitch`, `roll` のキー名で追加した上でClientSDKの `updateTrackMeta` を呼ぶ必要があります。LSConf側では TrackMetadata の更新のたびに天頂補正処理が実行されます。
+
+### 破壊的な変更による修正内容
+#### APIの実行時エラーとイベントリスナーによるエラーイベントを分離
+これまでAPI実行時のエラーは `Promise.reject` と `エラーイベント` の両方を返していましたが、API実行時のエラーは`Promise.reject` のみ返すように仕様変更します。
+
+```ts
+// 実装部分
+iframe.addEventListener('error', async (e: ErrorEvent) => {
+  console.log('エラーイベントが発火');
+});
+
+try {
+  await iframe.join('client_id', 'access_token', 'connection_id', connectOptions);
+} catch {
+  console.log('実行時エラーが発生');
+}
+
+// 4.0.0 以前 で join時エラーが発生した場合のコンソールログ
+実行時エラーが発生
+エラーイベントが発火
+
+// 4.0.0 以降 で join時エラーが発生した場合のコンソールログ
+実行時エラーが発生
+```
+
+#### `addEventListener` で `options.once` 未指定時に毎回イベントが発火するように変更
+`addEventListener` のデフォルト値が `options.once = false` となるため、一度だけ発火させたい場合にのみ `options.once = true` を明示的に指定してください。
+
+```ts
+// 4.0.0 以前
+iframe.addEventListener('error', async (e: ErrorEvent) => {
+  console.log(e.message);
+}, { once: false });
+
+// 4.0.0 以降
+iframe.addEventListener('error', async (e: ErrorEvent) => {
+  console.log(e.message);
+});
+```
+
 ## v3.0.1
 - Fixed
   - [LSConf] 多拠点参加時に自拠点の画面共有を開始するとブラウザのタブがクラッシュする問題を修正
 
 ## v3.0.0
 - Added
-  - [SDK] join時に受信専用のモード設定機能(β, ※1)を追加
+  - [SDK] join時に受信専用のモード設定機能(β)を追加
   - [SDK] 360映像にポインタを表示する機能(β)を追加
   - [SDK] SubViewの非表示/表示時に映像を自動的に受信停止/再開する処理の有効/無効を切り替える機能を追加
   - [SDK] CreateParametersに入室画面の設定オプションを追加
@@ -22,15 +87,13 @@
   - [LSConf] SubViewの最小幅を定義し、それを下回る場合は画面スクロールが発生するように変更
   - [LSConf] 360映像がPresentationレイアウトの通常表示領域にある場合、拡大/縮小ボタンが非表示になるように変更
 - Fixed
-  - [LSConf] 特定の環境で通話開始時に相手からの音声が聞こえない問題を修正(※2)
+  - [LSConf] 特定の環境で通話開始時に相手からの音声が聞こえない問題を修正(※1)
   - [LSConf] Safariで360映像の天地が反転する問題を修正
   - [LSConf] 特定の操作で360映像の座標情報が規定外の値になる問題を修正
 - Refactored
   - [SDK] 不要なコンソールログを削除
 
-(※1) 本機能はDev環境でのみご利用いただけます
-
-(※2) 本不具合は入室時のクリック画面でのユーザー操作（クリック, タップ）を伴うことで解消します。入室時画面の設定が"none"の場合はこれまで通りデバイスのアクセス許可が必要です。
+(※1) 本不具合は入室時のクリック画面でのユーザー操作（クリック, タップ）を伴うことで解消します。入室時画面の設定が"none"の場合はこれまで通りデバイスのアクセス許可が必要です。
 
 ### 破壊的な変更による修正内容
 
@@ -345,8 +408,8 @@ iframe.onShareRequested(() => {
   - [LSConf] Join時のenableAudio/enableVideoの設定が効かない問題を修正
   - [LSConf] WebM形式の録画ファイル再生時にシークが遅い問題を修正
   - [LSConf] 画面共有時にGalleryレイアウトが崩れる問題を修正
-  - [LSConf] THETA映像の表示領域が再描画のたびにリセットされる問題を修正
-  - [LSConf] THETA映像の初期表示領域がブラウザによって異なる問題を修正
+  - [LSConf] 360映像の表示領域が再描画のたびにリセットされる問題を修正
+  - [LSConf] 360映像の初期表示領域がブラウザによって異なる問題を修正
 
 ## v1.2.3
 - Fixed

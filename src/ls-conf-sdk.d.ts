@@ -4,9 +4,9 @@ export declare type ToolbarItem = {
 };
 export declare type CreateParameters = {
     thetaZoomMaxRange?: number;
-    defaultLayout?: 'gallery' | 'presentation' | 'fullscreen';
+    defaultLayout?: LayoutType;
     room?: {
-        entranceScreen?: 'none' | 'click';
+        entranceScreen?: EntranceType;
     };
     toolbar?: {
         isHidden?: boolean;
@@ -16,15 +16,19 @@ export declare type CreateParameters = {
         isHiddenParticipantsButton?: boolean;
         isHiddenDeviceSettingButton?: boolean;
         isHiddenExitButton?: boolean;
-        customItems: ToolbarItem[];
+        customItems?: ToolbarItem[];
     };
     podCoordinates?: {
         upperLeft?: number[];
         lowerRight?: number[];
     };
     subView?: {
+        normal?: {
+            enableZoom: boolean;
+        };
         theta?: {
-            isHiddenFramerate: boolean;
+            isHiddenFramerate?: boolean;
+            enableZenithCorrection?: boolean;
         };
         enableAutoVideoReceiving?: boolean;
         menu?: {
@@ -71,6 +75,14 @@ export declare type CreateParameters = {
         en?: unknown;
     };
 };
+export declare type LayoutType = 'gallery' | 'presentation' | 'fullscreen';
+export declare type EntranceType = 'none' | 'click';
+export declare type VideoSource = {
+    url: string;
+    connectionId: string;
+    label: string;
+    isTheta: boolean;
+};
 export declare type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
 export declare type ModeType = 'normal' | 'viewer';
 export declare type ConnectOptions = {
@@ -90,7 +102,8 @@ export declare type ScreenShareParameters = {
     connectionId: string;
     accessToken: string;
 };
-export declare type MediaTypes = 'VIDEO_AUDIO' | 'SCREEN_SHARE';
+export declare type MediaTypes = 'VIDEO_AUDIO' | 'SCREEN_SHARE' | 'VIDEO_FILE';
+export declare type TrackKind = 'video' | 'audio';
 export declare type DeviceInfo = {
     deviceId: string;
     groupId: string;
@@ -101,14 +114,21 @@ export declare type SubView = {
     connectionId: string;
     type: MediaTypes;
     isTheta: boolean;
+    enableVideo: boolean;
+    enableAudio: boolean;
 };
 export declare type PoV = {
     pan: number;
     tilt: number;
     fov: number;
 };
+export declare type ImageMimeType = 'image/png' | 'image/jpeg';
+export declare type RotationVector = {
+    pitch: number;
+    roll: number;
+};
 export declare type CaptureImageOptions = {
-    mimeType?: 'image/png' | 'image/jpeg';
+    mimeType?: ImageMimeType;
     qualityArgument?: number;
 };
 export declare type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'error';
@@ -133,27 +153,37 @@ declare class LSConferenceIframe {
     private highlightCallback;
     private getPoVCallback;
     private setPoVCallback;
+    private setRotationVectorCallback;
     private addRecordingMemberCallback;
     private removeRecordingMemberCallback;
     private logCallbacks;
     private getMediaDevicesCallback;
     private updatePointerCallback;
     private getCaptureImageCallback;
+    private updateCurrentTimeCallback;
     private getLSConfLogCallback;
+    private getStatsCallback;
     private startReceiveVideoCallback;
     private stopReceiveVideoCallback;
+    private enableZoomCallback;
+    private static _handleWindowMessage;
     constructor(parentElement: HTMLElement);
+    private handleWindowMessage;
     private setWindowMessageCallback;
     private validateCreateParameters;
     private validateJoinParameters;
     private validateScreenShareParameters;
     private validateSubViewType;
     private validatePoVType;
+    private validateRotationVectorType;
     private validateLayoutType;
     private validateCaptureImageOptionsType;
+    private validateVideoSourceType;
     private setRequestTimer;
     private __create;
     static create(parentElement: HTMLElement, parameters: Partial<CreateParameters>): Promise<LSConferenceIframe>;
+    private __createPlayer;
+    static createPlayer(parentElement: HTMLElement, sources: VideoSource[], parameters?: Partial<CreateParameters>): Promise<LSConferenceIframe>;
     join(clientId: string, accessToken: string, connectionId: string, connectOptions: ConnectOptions): Promise<void>;
     leave(): Promise<void>;
     onShareRequested(callback: Function): void;
@@ -161,6 +191,7 @@ declare class LSConferenceIframe {
     highlight(subView: SubView): Promise<void>;
     getPoV(subView: SubView): Promise<PoV>;
     setPoV(subView: SubView, poV: PoV): Promise<void>;
+    setRotationVector(subView: SubView, rotationVector: RotationVector): Promise<void>;
     getMediaDevices(): Promise<DeviceInfo[]>;
     setCameraMute(isEnabled: boolean): Promise<void>;
     setCameraDevice(deviceId: string): Promise<void>;
@@ -172,12 +203,14 @@ declare class LSConferenceIframe {
     getLSConfLog(): Promise<string>;
     getVideoAudioStats(): Promise<string>;
     getScreenShareStats(): Promise<string>;
-    changeLayout(layout: 'gallery' | 'presentation' | 'fullscreen', subViews?: SubView[]): Promise<void>;
+    getStats(subView: SubView, kind?: TrackKind): Promise<string>;
+    changeLayout(layout: LayoutType, subViews?: SubView[]): Promise<void>;
     addRecordingMember(subView: SubView, connectionId: string): Promise<void>;
     removeRecordingMember(subView: SubView, connectionId: string): Promise<void>;
     getCaptureImage(subView: SubView, options: CaptureImageOptions): Promise<Blob>;
     startReceiveVideo(subView: SubView): Promise<void>;
     stopReceiveVideo(subView: SubView): Promise<void>;
+    enableZoom(subView: SubView, isEnabled: boolean): Promise<void>;
     iframe(): HTMLIFrameElement;
     addEventListener(type: EventType, callback: Function, options?: AddEventListenerOptions): void;
     removeEventListener(type: EventType, callback: Function, _options?: boolean | EventListenerOptions): void;

@@ -97,7 +97,8 @@ $ yarn build    # ビルド
 
 ## ls-conf-sdk の更新
 
-ls-conf-sdkを更新する場合、以下の2ファイルを差し替えてください。
+ls-conf-sdkを更新する場合、以下の2ファイルと`langディレクトリ`を差し替えてください。
 
-- `frontend/src/lib/ls-conf-sdk.js`
 - `frontend/src/@types/ls-conf-sdk.d.ts`
+- `frontend/src/lib/ls-conf-sdk.js`
+- `frontend/src/lib/lang/`
