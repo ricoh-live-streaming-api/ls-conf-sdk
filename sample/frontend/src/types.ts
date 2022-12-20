@@ -13,6 +13,15 @@ interface ToolbarItem {
   iconName: string;
 }
 
+interface SubViewMenuItem {
+  type: string;
+  label: string;
+  targetSubView?: {
+    type?: 'VIDEO_AUDIO' | 'SCREEN_SHARE' | 'VIDEO_FILE';
+    isTheta?: boolean;
+  };
+}
+
 interface ToolbarConfig {
   isHidden: boolean;
   isHiddenCameraButton: boolean;
@@ -43,6 +52,7 @@ interface LSConfSampleConfig {
       isHidden: boolean;
       isHiddenRecordingButton: boolean;
       isHiddenSharePoVButton: boolean;
+      customItems: SubViewMenuItem[];
     };
   };
   POD_COORDINATES?: {

@@ -2,6 +2,14 @@ export declare type ToolbarItem = {
     type: string;
     iconName: string;
 };
+export declare type SubViewMenuItem = {
+    type: string;
+    label: string;
+    targetSubView?: {
+        type?: MediaTypes;
+        isTheta?: boolean;
+    };
+};
 export declare type CreateParameters = {
     thetaZoomMaxRange?: number;
     defaultLayout?: LayoutType;
@@ -23,6 +31,9 @@ export declare type CreateParameters = {
         lowerRight?: number[];
     };
     subView?: {
+        enableAutoVideoReceiving?: boolean;
+        speakingThreshold?: number;
+        speakingIndicatorDuration?: number;
         normal?: {
             enableZoom: boolean;
         };
@@ -30,11 +41,11 @@ export declare type CreateParameters = {
             isHiddenFramerate?: boolean;
             enableZenithCorrection?: boolean;
         };
-        enableAutoVideoReceiving?: boolean;
         menu?: {
             isHidden?: boolean;
             isHiddenRecordingButton?: boolean;
             isHiddenSharePoVButton?: boolean;
+            customItems?: SubViewMenuItem[];
         };
     };
     lsConfURL?: string;
@@ -84,11 +95,13 @@ export declare type VideoSource = {
     isTheta: boolean;
 };
 export declare type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
+export declare type MuteType = 'hard' | 'soft';
 export declare type ModeType = 'normal' | 'viewer';
 export declare type ConnectOptions = {
     username: string;
     enableVideo: boolean;
     enableAudio: boolean;
+    audioMuteType?: MuteType;
     mode?: ModeType;
     maxVideoBitrate?: number;
     maxShareBitrate?: number;

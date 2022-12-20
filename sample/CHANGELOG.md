@@ -1,5 +1,16 @@
 # 変更履歴
 
+## 1.5.0
+- Added
+  - [Frontend] Entrance時の `audio_mute_type` のクエリパラメータ指定を追加
+  - [Frontend] ツールバーにログダウンロードのカスタムボタンを追加
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v4.1.0` に更新
+  - [Frontend] ローカル録画時に黒画面を検知するとエラーメッセージを表示するように変更
+- Refactored
+  - [Frontend] 依存ライブラリを更新
+  - [Backend] 依存ライブラリを更新
+
 ## 1.4.5
 - Changed
   - [Frontend] `ls-conf-sdk` を `v4.0.0` に更新

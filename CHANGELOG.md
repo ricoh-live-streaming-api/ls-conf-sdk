@@ -1,5 +1,22 @@
 # CHANGE LOG
 
+## v4.1.0
+- Added
+  - [LSConf] Player時の同期再生機能を追加
+  - [LSConf] 話者表示機能を追加
+  - [SDK] create時のCreateParametersに話者表示関連のカスタマイズパラメータを追加
+  - [SDK] SubViewMenuに任意のメニューを追加する機能を追加
+  - [SDK] join時のconnectOptionsにマイクのミュート設定を追加
+- Changed
+  - [SDK] ローカル録画時に黒画面を検知すると `RecordingErrorBlackScreen` のエラーが発生するように変更
+- Fixed
+  - [LSConf] ChromeとEdgeでデバイス設定ダイアログでデバイス名が表示されないことがある問題の修正 
+  - [LSConf] viewerモード時に360映像が自動再生されない問題の修正 
+  - [LSConf] setPoV実行後の移動アニメーション中にgetPoVを実行すると移動が中断する問題の修正
+  - [LSConf] updatePointerでのcolor指定が特定の指定方法では反映されない問題の修正
+- Refactored
+  - [SDK, LSConf] 依存ライブラリの更新
+
 ## v4.0.0
 - Added
   - [SDK] 通常映像の拡大/縮小の有効/無効を切り替える機能を追加
@@ -513,11 +530,11 @@ iframe.onShareRequested(() => {
 
 ## v0.0.5
 - Changed
-  - [LSConf] room の routes に `/${LS_CONF_SDK_VERSION}/index.html` を追加
+  - [LSConf] room の routes に `/${LS_CONF_VERSION}/index.html` を追加
 
 ## v0.0.4
 - Changed
-  - [LSConf] LSConf の room の path を `/${ls_conf_sdk_version}/` となるように修正
+  - [LSConf] LSConf の room の path を `/${ls_conf_version}/` となるように修正
 
 ## v0.0.3
 - Changed

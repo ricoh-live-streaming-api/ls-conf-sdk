@@ -13,20 +13,23 @@
     "isHiddenScreenShareButton": false,
     "isHiddenDeviceSettingButton": false,
     "isHiddenExitButton": false,
-    "customItems": []
+    "customItems": [{ "type": "log", "iconName": "download" }]
   },
   "subView": {
+    "enableAutoVideoReceiving": true,
+    "speakingThreshold": 10,
+    "speakingIndicatorDuration": 500,
     "theta": {
       "enableZenithCorrection": true
     },  
-    "enableAutoVideoReceiving": true,
     "normal": {
       "enableZoom": false
     },
     "menu": {
       "isHidden": false,
       "isHiddenRecordingButton": false,
-      "isHiddenSharePoVButton": true
+      "isHiddenSharePoVButton": true,
+      "customItems": []
     }
   },
   "theme": {

@@ -26,9 +26,8 @@ const CREATE_PARAMETERS: CreateParameters = {
 
 const IframePage: React.FC<Record<string, never>> = () => {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { username, video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, use_dummy_device, bitrate_reservation_mbps, room_type, video_codec, is_debug } = qs.parse(
-    window.location.search
-  );
+  const { username, video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, audio_mute_type, use_dummy_device, bitrate_reservation_mbps, room_type, video_codec, is_debug } =
+    qs.parse(window.location.search);
   const { roomId } = useParams<{ roomId: string }>();
   const iframeContainerRef = useRef<HTMLDivElement>(null);
   const [lsConfIframe, setLsConfIframe] = useState<LSConferenceIframe | null>(null);
@@ -36,9 +35,39 @@ const IframePage: React.FC<Record<string, never>> = () => {
   const showErrorDialog = errorMessage !== null;
   const connectionId: string = uuidv4();
   const bitrateReservation = bitrate_reservation_mbps && typeof bitrate_reservation_mbps === 'string' ? bitrate_reservation_mbps : undefined;
+  const audioMuteType = audio_mute_type && (audio_mute_type === 'soft' || audio_mute_type === 'hard') ? audio_mute_type : undefined;
   const roomType = room_type && typeof room_type === 'string' ? room_type : undefined;
   const videoCodec = video_codec && (video_codec === 'h264' || video_codec === 'vp8' || video_codec === 'vp9' || video_codec === 'h265' || video_codec === 'av1') ? video_codec : undefined;
   const isDebug = Boolean(is_debug && typeof is_debug === 'string' && is_debug.toLowerCase() === 'true');
+  const downloadLog = async (iframe: LSConferenceIframe, errorEvent?: ErrorEvent): Promise<void> => {
+    let log = 'LSConfSample Log\n\n';
+    if (errorEvent) {
+      log += `********** Error Message **********\n`;
+      log += `${errorEvent.message}\n`;
+    }
+    log += `********** ApplicationLog *********\n`;
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    log += `LSConfSample Version: v${require('../../../../frontend/package.json').version}\n`;
+    log += `LSConfURL: ${LS_CONF_URL || 'default'}\n`;
+    log += `LSClientID: ${LS_CLIENT_ID || 'unknown'}\n`;
+    log += `SignalingURL: ${SIGNALING_URL || 'default'}\n`;
+    log += `UserAgent: ${window.navigator.userAgent}\n\n`;
+    log += `********** LSConfLog **************\n`;
+    try {
+      log += `${await iframe.getLSConfLog()}\n`;
+    } catch {
+      log += `Failed to getLSConfLog.\n`;
+    }
+    if (errorEvent && errorEvent.error && errorEvent.error.toReportString) {
+      log += `********** toReportString *********\n`;
+      log += errorEvent.error.toReportString;
+    }
+    const downLoadLink = document.createElement('a');
+    downLoadLink.download = `ls-conf-sample_${format(new Date(), 'yyyyMMdd_HHmmss')}.log`;
+    downLoadLink.href = URL.createObjectURL(new Blob([log], { type: 'text.plain' }));
+    downLoadLink.dataset.downloadurl = ['text/plain', downLoadLink.download, downLoadLink.href].join(':');
+    downLoadLink.click();
+  };
   const createAndConnectRoom = async (): Promise<void> => {
     if (!username || !roomId || typeof username !== 'string') {
       // 現在 ls-conf-sdk への対応と同様にエラーをそのまま errorMessage に入れている
@@ -90,6 +119,7 @@ const IframePage: React.FC<Record<string, never>> = () => {
       username: username,
       enableVideo: !enable_video ? false : Boolean(typeof enable_video === 'string' && enable_video.toLowerCase() === 'true'),
       enableAudio: !enable_audio ? true : Boolean(typeof enable_audio === 'string' && enable_audio.toLowerCase() === 'true'),
+      audioMuteType: audioMuteType,
       maxVideoBitrate: Number(video_bitrate),
       maxShareBitrate: Number(share_bitrate),
       // eslint-disable-next-line @typescript-eslint/naming-convention
@@ -98,35 +128,21 @@ const IframePage: React.FC<Record<string, never>> = () => {
       videoCodec: videoCodec,
     };
     iframe.addEventListener('error', async (e: ErrorEvent) => {
-      setErrorMessage(e.message);
-
-      let log = 'LSConfSample Log\n\n';
-      log += `******************** Error Message ********************\n`;
-      log += `${e.message}\n`;
-      log += `******************** ApplicationLog *******************\n`;
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      log += `LSConfSample Version: v${require('../../../../frontend/package.json').version}\n`;
-      log += `LSConfURL: ${LS_CONF_URL || 'default'}\n`;
-      log += `LSClientID: ${LS_CLIENT_ID || 'unknown'}\n`;
-      log += `SignalingURL: ${SIGNALING_URL || 'default'}\n`;
-      log += `UserAgent: ${window.navigator.userAgent}\n`;
-      log += `******************** LSConfLog ++++********************\n`;
-      try {
-        log += await iframe.getLSConfLog();
-      } catch {
-        // ログ取得失敗時は出力ファイルに追記しない
+      // TODO(hase): ChromeのMediaRecorderのバグの暫定対応
+      // 既知の問題のNo.23の現象を検知した時にエラー表示を行う。回避方法などの詳細は以下のリンクをご覧ください。
+      // cf: https://api.livestreaming.ricoh/document/ricoh-live-streaming-conference-%e6%97%a2%e7%9f%a5%e3%81%ae%e5%95%8f%e9%a1%8c/
+      if (e.error.detail.code === 4351) {
+        setErrorMessage(
+          '録画に失敗している可能性があります。一度録画を停止して正常に録画できているかを確認し、映像が黒くなっている場合は `chrome://flags` から `Out-of-process 2D canvas rasterization` の項目を `Disable` にして再度録画してください。正常に録画できている環境でこのメッセージが表示される場合は無視しても問題ありません。'
+        );
+      } else {
+        setErrorMessage(e.message);
+        try {
+          await downloadLog(iframe, e);
+        } catch {
+          console.warn('Failed to download log.');
+        }
       }
-      if (e.error && e.error.toReportString) {
-        log += `******************** toReportString *******************\n`;
-        log += `${e.error.toReportString}`;
-      }
-
-      const fileName = `ls-conf-sample_${format(new Date(), 'yyyyMMdd_HHmmss')}.log`;
-      const downLoadLink = document.createElement('a');
-      downLoadLink.download = fileName;
-      downLoadLink.href = URL.createObjectURL(new Blob([log], { type: 'text.plain' }));
-      downLoadLink.dataset.downloadurl = ['text/plain', downLoadLink.download, downLoadLink.href].join(':');
-      downLoadLink.click();
     });
     iframe.addEventListener('connected', () => {
       console.log('connected event occurred');
@@ -152,11 +168,24 @@ const IframePage: React.FC<Record<string, never>> = () => {
         console.warn(`Failed to removeRecordingMember in stopRecording event. Detail: ${JSON.stringify(e.detail)}`);
       }
     });
+    // ツールバーのダウンロードボタンを押した場合はログをダウンロードする
+    iframe.addApplicationEventListener('log', async () => {
+      try {
+        await downloadLog(iframe);
+      } catch {
+        console.warn('Failed to download log.');
+      }
+    });
     try {
       await iframe.join(LS_CLIENT_ID, accessToken, connectionId, connectOptions);
     } catch (e) {
       if (isDebug) {
         setErrorMessage(e.message);
+        try {
+          await downloadLog(iframe, e);
+        } catch {
+          console.warn('Failed to download log.');
+        }
         return;
       }
       window.close();

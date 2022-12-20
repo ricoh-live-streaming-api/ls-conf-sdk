@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 4.0.0
+ * @version: 4.1.0
  **/
 
 (function (global, factory) {
@@ -26,7 +26,7 @@
       }
   }
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '4.0.0';
+  const LS_CONF_SDK_VERSION = '4.1.0';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
@@ -34,6 +34,7 @@
   const DEFAULT_VIDEO_CODEC = 'h264';
   const DEFAULT_CREATE_TIMEOUT_MSEC = 15000;
   const DEFAULT_JOIN_TIMEOUT_MSEC = 10000;
+  const DEFAULT_AUDIO_MUTE_TYPE = 'hard';
   const DEFAULT_MODE = 'normal';
   const REQUEST_ERRORS = {
       CreateArgsInvalid: {
@@ -245,6 +246,11 @@
           code: 4350,
           type: 'RequestError',
           error: 'StartRecordingFailed',
+      },
+      RecordingErrorBlackScreen: {
+          code: 4351,
+          type: 'RequestError',
+          error: 'RecordingErrorBlackScreen',
       },
       StartReceiveVideoFailed: {
           code: 4360,
@@ -482,7 +488,17 @@
           }
           else if (data.type === 'recording') {
               if (data.error) {
-                  throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5002']);
+                  if (data.errorType === 'RecordingErrorBlackScreen') {
+                      const error = new LSConferenceIframeError(REQUEST_ERRORS['RecordingErrorBlackScreen']);
+                      const eventInitDict = {
+                          error: error,
+                          message: `code: ${error.detail.code}, type: ${error.detail.type}, error: ${error.detail.error}, description: ${data.error}`,
+                      };
+                      this.dispatchEvent(new LSConfEvent('error', eventInitDict));
+                  }
+                  else {
+                      throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5002']);
+                  }
               }
           }
           else if (data.type === 'startRecording') {
@@ -762,7 +778,8 @@
               };
               if (this.state === 'connecting') {
                   this.state = 'created';
-                  this.joinCallback.error(new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']));
+                  // Join中にweb-sdkのエラーイベントが発生したときは、web-sdkのエラーで実行時エラーを返す
+                  this.joinCallback.error(new LSConferenceIframeError(data.error.detail));
               }
               else {
                   this.dispatchEvent(new LSConfEvent('error', eventInitDict));
@@ -839,6 +856,12 @@
               if (parameters.subView.enableAutoVideoReceiving !== undefined && typeof parameters.subView.enableAutoVideoReceiving !== 'boolean') {
                   return false;
               }
+              if (parameters.subView.speakingThreshold !== undefined && typeof parameters.subView.speakingThreshold !== 'number') {
+                  return false;
+              }
+              if (parameters.subView.speakingIndicatorDuration !== undefined && typeof parameters.subView.speakingIndicatorDuration !== 'number') {
+                  return false;
+              }
               if (parameters.subView.menu !== undefined) {
                   if (typeof parameters.subView.menu !== 'object') {
                       return false;
@@ -851,6 +874,34 @@
                   }
                   if (parameters.subView.menu.isHiddenSharePoVButton !== undefined && typeof parameters.subView.menu.isHiddenSharePoVButton !== 'boolean') {
                       return false;
+                  }
+                  if (parameters.subView.menu.customItems !== undefined) {
+                      if (typeof parameters.subView.menu.customItems !== 'object') {
+                          return false;
+                      }
+                      let isValid = true;
+                      parameters.subView.menu.customItems.forEach((item) => {
+                          if (item.label !== undefined && typeof item.label !== 'string') {
+                              isValid = false;
+                          }
+                          if (item.type !== undefined && typeof item.type !== 'string') {
+                              isValid = false;
+                          }
+                          if (item.targetSubView !== undefined) {
+                              if (typeof item.targetSubView !== 'object') {
+                                  isValid = false;
+                              }
+                              if (item.targetSubView.type !== undefined && item.targetSubView.type !== 'VIDEO_AUDIO' && item.targetSubView.type !== 'SCREEN_SHARE' && item.targetSubView.type !== 'VIDEO_FILE') {
+                                  isValid = false;
+                              }
+                              if (item.targetSubView.isTheta !== undefined && typeof item.targetSubView.isTheta !== 'boolean') {
+                                  isValid = false;
+                              }
+                          }
+                      });
+                      if (!isValid) {
+                          return false;
+                      }
                   }
               }
               if (parameters.subView.theta !== undefined) {
@@ -1004,6 +1055,14 @@
           }
           if (typeof connectOptions.enableVideo !== 'boolean') {
               return false;
+          }
+          if (connectOptions.audioMuteType !== undefined) {
+              if (typeof connectOptions.audioMuteType !== 'string') {
+                  return false;
+              }
+              if (connectOptions.audioMuteType !== 'soft' && connectOptions.audioMuteType !== 'hard') {
+                  return false;
+              }
           }
           if (connectOptions.mode !== undefined) {
               if (typeof connectOptions.mode !== 'string') {
@@ -1298,6 +1357,7 @@
                                       isHidden: parameters.subView.menu.isHidden,
                                       isHiddenRecordingButton: true,
                                       isHiddenSharePoVButton: parameters.subView.menu.isHiddenSharePoVButton,
+                                      customItems: parameters.subView.menu.customItems,
                                   };
                               }
                               if (parameters.subView.normal) {
@@ -1395,6 +1455,7 @@
               connectOptions.maxShareBitrate = connectOptions.maxShareBitrate || DEFAULT_MAX_BITRATE;
               connectOptions.useDummyDevice = connectOptions.useDummyDevice || DEFAULT_USE_DUMMY_DEVICE;
               connectOptions.videoCodec = connectOptions.videoCodec || DEFAULT_VIDEO_CODEC;
+              connectOptions.audioMuteType = connectOptions.audioMuteType || DEFAULT_AUDIO_MUTE_TYPE;
               connectOptions.mode = connectOptions.mode || DEFAULT_MODE;
               // video audio の role, mediaType は固定
               const postMessageParameters = {

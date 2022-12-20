@@ -89,7 +89,7 @@ const configSchema = {
           "items": {
             "type": "object",
             "properties": { 
-              "itemId": {
+              "type": {
                 "type": "string",
               },
               "iconName": {
@@ -103,6 +103,15 @@ const configSchema = {
     "subView": {
       "type": "object",
       "properties": {
+        "enableAutoVideoReceiving": {
+          "type": "boolean"
+        },
+        "speakingThreshold": {
+          "type": "number"
+        },
+        "speakingIndicatorDuration": {
+          "type": "number"
+        },
         "theta": {
           "type": "object",
           "properties": {
@@ -110,9 +119,6 @@ const configSchema = {
               "type": "boolean",
             },
           },
-        },
-        "enableAutoVideoReceiving": {
-          "type": "boolean"
         },
         "normal": {
           "type": "object",
@@ -134,8 +140,34 @@ const configSchema = {
             "isHiddenSharePoVButton": {
               "type": "boolean",
             },
+            "customItems": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": { 
+                  "type": {
+                    "type": "string",
+                  },
+                  "label": {
+                    "type": "string",
+                  },
+                  "targetSubView": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "pattern": "VIDEO_AUDIO|SCREEN_SHARE|VIDEO_FILE"
+                      },
+                      "isTheta": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
-        },
+        }
       }
     },
     "theme": {
@@ -295,7 +327,6 @@ module.exports = (env, argv) => {
       }),
       new MiniCssExtractPlugin({
         filename: 'css/[name].css',
-        sourceMap: true,
       }),
       new htmlWebpackPlugin({
         template: path.resolve(__dirname, 'src/index.html'),
@@ -323,8 +354,8 @@ module.exports = (env, argv) => {
           loader: 'source-map-loader',
           exclude: [
             // material-ui は source-map を提供してくれていないっぽいので除外
-            /node_modules\/@material/,
-            /node_modules\/@rmwc/,
+            path.resolve(__dirname, "node_modules/@material/"),
+            path.resolve(__dirname, "node_modules/@rmwc/"),
           ],
         },
         {

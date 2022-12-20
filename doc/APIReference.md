@@ -68,6 +68,23 @@ type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
 
 実際に利用可能なcodecはプラットフォームとブラウザによって異なります。未対応のコーデックを指定した場合には接続時にエラーが発生し接続に失敗します。
 
+#### MuteType
+
+メディアデバイスのミュート時の挙動を設定します。
+
+```js
+type MuteType = 'hard' | 'soft';
+```
+
+各設定時の挙動は以下の通りです。
+
+- "hard": trackを `null` にした際のブラウザ挙動に準拠します
+  - ミュート時にデバイスへのアクセスは行いません（アクセスランプがある場合は消灯）
+  - マイクミュート時は、音声の送信を行いません（受信側は音が聞こえません）
+- "soft": trackを `disabled` にした際のブラウザ挙動に準拠します
+  - ミュート時にもデバイスへのアクセスを行います（アクセスランプがある場合は点灯）
+  - マイクミュート時は、音声の送信を行いません（受信側は音が聞こえません）
+
 #### ModeType
 
 メディア情報（映像/音声/画面共有）送受信のモードの種別です。
@@ -171,6 +188,32 @@ type ToolbarItem = {
 
 (※): 異なるカスタムボタンに対して同一のtypeを指定すると意図しない挙動となる場合があります。
 
+#### SubViewMenuItem
+
+ツールバー上にアプリケーションから指定したカスタムボタンを表示させる場合に使用します。
+
+```js
+type SubViewMenuItem = {
+  type: string;
+  label: string;
+  targetSubView?: {
+    type?: MediaTypes;
+    isTheta?: boolean;
+  };
+};
+```
+|Name|Type|説明|
+|:--|:--|:--|
+| type | string | カスタムボタン押下時の[ApplicationEvents](#ApplicationEvents)の識別子<br>すべてのtypeは一意となるようにご指定ください(※1) |
+| label | string | アイテムの表示名(※2) |
+| targetSubView | object |どの種類のSubViewにこのアイテムを表示するか。<br>未指定の場合は全てのSubViewが対象 |
+| targetSubView.type | [MediaTypes](#mediatypes) | メディア種別<br>未指定の場合は全てのメディア種別が対象 |
+| targetSubView.isTheta | boolean | 対象が360映像かどうか<br>未指定の場合はisThetaの値に依らず全てが対象 |
+
+(※1): 異なるカスタムボタンに対して同一のtypeを指定すると意図しない挙動となる場合があります。
+
+(※2): カスタムボタンの文言の切り替えは、labelに指定する文字列を切り替えてご指定ください。
+
 #### VideoSource
 
 Playerの生成時に指定する動画ファイルのソース情報を表します。
@@ -224,6 +267,8 @@ create時、createPlayer時に指定する `CreateParameters` の一覧です。
 | `toolbar.customItems` | ToolbarItem[] | [] | - | ツールバーに表示するカスタムボタンの配列<br>表示順は左から `切断以外の既定のボタン`, `ToolbarItem[]`, `切断ボタン` の順となる |
 | `subView` | Object | | ◯ | SubView設定のオブジェクト |
 | `subView.enableAutoVideoReceiving` | boolean | true | - | SubViewの非表示時/表示時に自動的に映像を受信停止/再開するかどうか(※2) |
+| `subView.speakingThreshold` | number | 10 | - | 発話判定となる音声ボリュームの閾値<br>設定できる範囲は `1-100` で範囲を超える場合は上限/下限に設定される|
+| `subView.speakingIndicatorDuration` | number | 500 | - | 発話判定時にマイクアイコンを継続的に光らせる時間（単位はms）<br>設定できる範囲は `0-5000` で範囲を超える場合は上限/下限に設定される<br>`0`の場合は一瞬光るのみ|
 | `subView.normal` | Object | | ◯ | 通常映像のSubViewの設定オブジェクト |
 | `subView.normal.enableZoom` | boolean | false | ◯ | 映像の拡大機能を有効にするかどうか |
 | `subView.theta` | Object | | - | 360映像のSubView設定のオブジェクト |
@@ -232,6 +277,7 @@ create時、createPlayer時に指定する `CreateParameters` の一覧です。
 | `subView.menu.isHidden` | boolean | false | ◯ | SubViewのメニューボタンを非表示にするかどうか |
 | `subView.menu.isHiddenRecordingButton` | boolean | false | - | 録画開始ボタンを非表示にするかどうか |
 | `subView.menu.isHiddenSharePoVButton` | boolean | true | ◯ | 視点共有ボタンを非表示にするかどうか |
+| `subView.menu.customItems` | [SubViewMenuItem](#SubViewMenuItem)[] | [] | ◯ | SubViewMenuのリストに追加するカスタムボタンの配列<br>表示順は上から `既定のメニュー`, `SubViewMenuItem[]` の順となる |
 | `theme` | Object | | ◯ | テーマ設定のオブジェクト |
 
 (※1): Playerコンポーネント利用時は一部のカスタマイズのみ対応しています。
@@ -259,6 +305,7 @@ join時に指定する `ConnectOptions` の一覧です。
 | `username` | string | require | - | 拠点名に表示されるユーザ名 |
 | `enableVideo` | boolean | require | - | 通話開始時にカメラを有効にするかどうか |
 | `enableAudio` | boolean | require | - | 通話開始時にマイクを有効にするかどうか |
+| `audioMuteType` | [MuteType](#mutetype) | optional | "hard" | マイクミュート時の挙動を設定する<br>通話途中での変更はできない |
 | `mode` | [ModeType](#modetype) | optional | "normal" | メディア情報（映像/音声/画面共有）送受信のモードを設定する<br>通話途中でモードの変更はできない |
 | `maxVideoBitrate` | number | optional | 2000 | カメラ映像の最大送信ビットレート [kbps]<br>(`100`以上`20000`以下) |
 | `maxShareBitrate` | number | optional | 2000 | 画面共有の最大送信ビットレート [kbps]<br>(`100`以上`20000`以下) |
@@ -334,7 +381,7 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
 - 返り値
   - 成功時: `Promise<void>`
   - 失敗時: `Promise`
-    - ErrorDetail.error: `'JoinFailed' | 'JoinFailedTimeout' | 'JoinArgsInvalid'`
+    - ErrorDetail.error: `'JoinFailed' | 'JoinFailedTimeout' | 'JoinArgsInvalid'` または [ClientSDKの各エラー](https://api.livestreaming.ricoh/document/ricoh-live-streaming-client-sdk-%e3%82%a8%e3%83%a9%e3%83%bc%e4%bb%95%e6%a7%98/)
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1022,6 +1069,18 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 | subView | SubView | 追加されたトラックが含まれるSubView |
 | kind | [TrackKind](#trackkind) | トラック種別 |
 
+※ `detail.subView` の各パラメータは、そのトラック種別のトラックが追加されるまではデフォルト値となります。
+
+例：音声 → 映像 の順でトラックが追加された場合
+- 音声のトラックの `remoteTrackAdded` に含まれる値は以下の通り
+  - `detail.subView.isTheta`: 対象拠点が360映像であるかどうかに関わらず常に `false`
+  - `detail.subView.enableVideo`: 対象拠点のカメラのミュート状態に関わらず常に `false`
+  - `detail.subView.enableAudio`: 対象拠点のマイクの実際のミュート状態と同じ値
+- 映像のトラックの `remoteTrackAdded` に含まれる値は以下の通り
+  - `detail.subView.isTheta`: 対象拠点が360映像であれば `true` そうでなければ `false`
+  - `detail.subView.enableVideo`: 対象拠点のカメラの実際のミュート状態と同じ値
+  - `detail.subView.enableAudio`: 対象拠点のマイクの実際のミュート状態と同じ値
+
 #### startRecording
 
 録画が開始された。
@@ -1109,3 +1168,20 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 |Name|Type|説明|
 |:--|:--|:--|
 | itemRect | DOMRect | 押されたボタンの [DOMRect](https://developer.mozilla.org/en-US/docs/Web/API/DOMRect) |
+
+#### SubViewMenuItem
+
+SubViewMenu上のカスタムボタンが押された際にイベントが発生します。
+
+```js
+{
+  type: ${type},
+  detail: {
+    connectionId: IDString,
+  }
+}
+```
+
+|Name|Type|説明|
+|:--|:--|:--|
+| connectionId | IDString | ボタンが押された対象のSubViewのconnectionId |
