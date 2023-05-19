@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { fetchAccessToken } from '@/api';
 import ErrorDialog from '@/components/ErrorDialog';
 import { DEFAULT_LAYOUT, LS_CLIENT_ID, LS_CONF_URL, ROOM_CONFIG, SIGNALING_URL, SUBVIEW_CONFIG, THEME_CONFIG, THETA_ZOOM_MAX_RANGE, TOOLBAR_CONFIG } from '@/constants';
-import LSConferenceIframe, { ConnectOptions, CreateParameters, ScreenShareParameters } from '@/lib/ls-conf-sdk';
+import LSConferenceIframe, { ConnectOptions, CreateParameters } from '@/lib/ls-conf-sdk';
 
 const CREATE_PARAMETERS: CreateParameters = {
   defaultLayout: (DEFAULT_LAYOUT as 'gallery' | 'presentation' | 'fullscreen') || undefined,
@@ -26,7 +26,7 @@ const CREATE_PARAMETERS: CreateParameters = {
 
 const IframePage: React.FC<Record<string, never>> = () => {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { username, video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, audio_mute_type, use_dummy_device, bitrate_reservation_mbps, room_type, video_codec, is_debug } =
+  const { username, video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, audio_mute_type, use_dummy_device, bitrate_reservation_mbps, room_type, video_codec, max_connections } =
     qs.parse(window.location.search);
   const { roomId } = useParams<{ roomId: string }>();
   const iframeContainerRef = useRef<HTMLDivElement>(null);
@@ -38,7 +38,7 @@ const IframePage: React.FC<Record<string, never>> = () => {
   const audioMuteType = audio_mute_type && (audio_mute_type === 'soft' || audio_mute_type === 'hard') ? audio_mute_type : undefined;
   const roomType = room_type && typeof room_type === 'string' ? room_type : undefined;
   const videoCodec = video_codec && (video_codec === 'h264' || video_codec === 'vp8' || video_codec === 'vp9' || video_codec === 'h265' || video_codec === 'av1') ? video_codec : undefined;
-  const isDebug = Boolean(is_debug && typeof is_debug === 'string' && is_debug.toLowerCase() === 'true');
+  const maxConnections = max_connections && typeof max_connections === 'string' ? max_connections : undefined;
   const downloadLog = async (iframe: LSConferenceIframe, errorEvent?: ErrorEvent): Promise<void> => {
     let log = 'LSConfSample Log\n\n';
     if (errorEvent) {
@@ -64,6 +64,29 @@ const IframePage: React.FC<Record<string, never>> = () => {
     }
     const downLoadLink = document.createElement('a');
     downLoadLink.download = `ls-conf-sample_${format(new Date(), 'yyyyMMdd_HHmmss')}.log`;
+    downLoadLink.href = URL.createObjectURL(new Blob([log], { type: 'text.plain' }));
+    downLoadLink.dataset.downloadurl = ['text/plain', downLoadLink.download, downLoadLink.href].join(':');
+    downLoadLink.click();
+  };
+  const downloadStats = async (iframe: LSConferenceIframe): Promise<void> => {
+    let log = 'LSConfSample Stats\n\n';
+    try {
+      const subViews = await iframe.getSubViews();
+      for (const subView of subViews) {
+        try {
+          log += `********** ${subView.connectionId} **********\n`;
+          const stats = await iframe.getStats(subView);
+          // JSON文字列の可読性向上のため、一度JSONオブジェクトに戻して整形しなおす
+          log += `${JSON.stringify(JSON.parse(stats), null, '\t')}\n`;
+        } catch {
+          log += 'Failed to getStats.\n';
+        }
+      }
+    } catch {
+      log += 'Failed to getSubViews.\n';
+    }
+    const downLoadLink = document.createElement('a');
+    downLoadLink.download = `ls-conf-sample_stats_${format(new Date(), 'yyyyMMdd_HHmmss')}.log`;
     downLoadLink.href = URL.createObjectURL(new Blob([log], { type: 'text.plain' }));
     downLoadLink.dataset.downloadurl = ['text/plain', downLoadLink.download, downLoadLink.href].join(':');
     downLoadLink.click();
@@ -97,20 +120,16 @@ const IframePage: React.FC<Record<string, never>> = () => {
       let screenShareAccessToken;
       const screenShareConnectionId = uuidv4();
       try {
-        screenShareAccessToken = await fetchAccessToken(roomId, screenShareConnectionId, bitrateReservation, roomType);
+        screenShareAccessToken = await fetchAccessToken(roomId, screenShareConnectionId, bitrateReservation, roomType, maxConnections);
       } catch (e) {
         setErrorMessage(e.message);
         return;
       }
-      const screenShareParameters: ScreenShareParameters = {
-        connectionId: screenShareConnectionId,
-        accessToken: screenShareAccessToken,
-      };
-      return screenShareParameters;
+      return screenShareAccessToken;
     });
     let accessToken;
     try {
-      accessToken = await fetchAccessToken(roomId, connectionId, bitrateReservation, roomType);
+      accessToken = await fetchAccessToken(roomId, connectionId, bitrateReservation, roomType, maxConnections);
     } catch (e) {
       setErrorMessage(e.message);
       return;
@@ -172,23 +191,20 @@ const IframePage: React.FC<Record<string, never>> = () => {
     iframe.addApplicationEventListener('log', async () => {
       try {
         await downloadLog(iframe);
+        await downloadStats(iframe);
       } catch {
         console.warn('Failed to download log.');
       }
     });
     try {
-      await iframe.join(LS_CLIENT_ID, accessToken, connectionId, connectOptions);
+      await iframe.join(LS_CLIENT_ID, accessToken, connectOptions);
     } catch (e) {
-      if (isDebug) {
-        setErrorMessage(e.message);
-        try {
-          await downloadLog(iframe, e);
-        } catch {
-          console.warn('Failed to download log.');
-        }
-        return;
+      setErrorMessage(e.message);
+      try {
+        await downloadLog(iframe, e);
+      } catch {
+        console.warn('Failed to download log.');
       }
-      window.close();
       return;
     }
     setLsConfIframe(iframe);

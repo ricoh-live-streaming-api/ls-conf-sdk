@@ -1,6 +1,6 @@
 {
   "name": "ls-conf-sample-backend",
-  "version": "1.5.0",
+  "version": "1.6.3",
   "private": true,
   "scripts": {
     "start": "npx ts-node --project ./tsconfig.json ./app.ts"
@@ -8,11 +8,10 @@
   "dependencies": {
     "date-fns": "^2.16.1",
     "express": "^4.17.1",
-    "express-basic-auth": "^1.2.0",
     "express-validator": "^6.5.0",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
-    "node": "^14.3.0",
+    "request": "^2.88.2",
     "ts-node": "^8.10.1",
     "typescript": "3.9.3"
   },
@@ -20,6 +19,7 @@
     "@types/express": "^4.17.6",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/morgan": "^1.9.1",
-    "@types/node": "^14.0.5"
+    "@types/node": "^14.0.5",
+    "@types/request": "^2.48.8"
   }
 }

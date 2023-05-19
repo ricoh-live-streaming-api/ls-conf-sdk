@@ -1,5 +1,93 @@
 # CHANGE LOG
 
+## v5.1.3
+- Fixed
+  - [LSConf] iOS/iPadOS15系でデバイス設定ダイアログを開いた後にマイクの音声が相手に聞こえなくなる問題の修正
+
+## v5.1.2
+- Fixed
+  - [LSConf] Gallaryレイアウト または Presentationレイアウト で非表示領域のSubViewがカメラONで表示領域に表示された時に映像の自動受信が再開されない問題の修正
+
+## v5.1.1
+- Fixed
+  - [LSConf] Gallaryレイアウト または Presentationレイアウト で非表示領域のSubViewがカメラONで表示領域に表示された時に映像の自動受信が再開されない問題の暫定対応
+
+## v5.1.0
+- Added
+  - [SDK] 切替可能な言語を追加（タイ語, ベトナム語, 韓国語, 中国語簡体字, 中国語繁体字）
+
+## v5.0.1
+- Fixed
+  - [LSConf] iOS15以前でjoinできない問題の修正
+
+## v5.0.0
+- Added
+  - [LSConf] 通常映像のSubViewに対しての書き込み機能を追加
+  - [LSConf] Player時に後から動画ファイルを追加/更新する機能を追加
+  - [LSConf] デバイス設定ダイアログにマイクとスピーカーのテスト機能を追加
+- Changed
+  - [SDK] VideoSource に metaUrl を別で指定できるように変更
+  - [SDK] join時とonShareRequested時にconnectionIdの指定が不要に変更
+  - [LSConf] 一部レイアウトでカメラがONのSubViewを上位に表示するように変更
+  - [LSConf] `ricoh-ls-sdk` を `v1.6.1` に更新
+  - [LSConf] Node 16 に対応
+  - [SDK, LSConf] 依存ライブラリの更新
+- Fixed
+  - [SDK] updatePointerを高頻度で呼んだ時に描画が遅くなる問題の修正
+  - [LSConf] ダミーデバイス利用時に対向側の発話中に状態表示が反応しない問題の修正
+  - [LSConf] Player時のシークバーの操作後に再生が安定しない問題の修正
+  - [LSConf] Connection と Track の Metadata が未指定のクライアントの参加/退室時にイベントの値が不正になる問題の修正
+
+### 破壊的な変更による修正内容
+#### join時とonShareRequested時にconnectionIdの指定が不要に変更
+これまで join時 や onShareRequested時 に connectionId を指定していましたが、[AccessToken](https://api.livestreaming.ricoh/docs/access-token-specification) の connection_id を参照することになったため、指定が不要になりました。
+
+join時
+```ts
+// 5.0.0 以前
+try {
+  await iframe.join(LS_CLIENT_ID, accessToken, connectionId, connectOptions);
+} catch (e) {
+  console.log(e.message)
+}
+
+// 5.0.0 以降
+try {
+  await iframe.join(LS_CLIENT_ID, accessToken, connectOptions);
+} catch (e) {
+  console.log(e.message)
+}
+```
+
+onShareRequested時
+```ts
+// 5.0.0 以前
+iframe.onShareRequested(async () => {
+  let accessToken = null;
+  try {
+    accessToken = await createAccessToken();
+  } catch(error) {
+    console.error('createAccessToken failed: ', error.detail.type);
+  }
+  const screenShareParameters = {
+    connectionId: 'screenShareConnectionId',
+    accessToken: accessToken,
+  };
+  return screenShareParameters;
+});
+
+// 5.0.0 以降
+iframe.onShareRequested(async () => {
+  let accessToken = null;
+  try {
+    accessToken = await createAccessToken();
+  } catch(error) {
+    console.error('createAccessToken failed: ', error.detail.type);
+  }
+  return accessToken;
+});
+```
+
 ## v4.1.0
 - Added
   - [LSConf] Player時の同期再生機能を追加
@@ -320,7 +408,7 @@ const log = await iframe.getLSConfLog();
 - Added
   - [LSConf] PresentationLayoutの通常表示領域のレイアウトの切替機能を追加
 - Fixed
-  - [SDK] getSubViewsのレスポンスに自拠点と共有画面のSubViewが含まれない問題を修正
+  - [SDK] getSubViewsのレスポンスに自拠点と画面共有のSubViewが含まれない問題を修正
 
 ## v2.1.0
 - Added
@@ -329,7 +417,7 @@ const log = await iframe.getLSConfLog();
 - Changed
   - [LSConf] デフォルトの背景色を透過に変更
 - Fixed
-  - [LSConf] 画面共有をしている会議に途中参加すると共有画面が表示されない問題を修正
+  - [LSConf] 画面共有をしている会議に途中参加すると画面共有が表示されない問題を修正
 - Refactored
   - [LSConf] 依存ライブラリの更新
 

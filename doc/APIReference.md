@@ -109,7 +109,7 @@ type TrackKind = 'video' | 'audio';
 
 #### SubView
 
-通話画面に表示される各参加者のカメラ映像や共有画面などの枠の1つ1つをLSConfではSubViewと定義し、特定のSubViewに対して操作を行うAPIで主に使用します。
+通話画面に表示される各参加者のカメラ映像や画面共有などの枠の1つ1つをLSConfではSubViewと定義し、特定のSubViewに対して操作を行うAPIで主に使用します。
 
 ```js
 type SubView = {
@@ -168,7 +168,7 @@ type RotationVector = {
 [LSConfの規定のイベント](#Events)の種類を表す文字列で、各イベントリスナーの登録・削除のAPIで使用します。
 
 ```ts
-type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'error';
+type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'error';
 ```
 
 #### ToolbarItem
@@ -224,6 +224,7 @@ type VideoSource = {
     connectionId: IDString;
     label: string;
     isTheta: boolean;
+    metaUrl?: string;
 };
 ```
 |Name|Type|説明|
@@ -232,15 +233,49 @@ type VideoSource = {
 | connectionId | IDString | 動画ファイルの取得元の connection_id |
 | label | string | 動画ファイルの表示名 |
 | isTheta | boolean | 360動画として表示するかどうか |
+| metaUrl | string | 動画ファイルのメタデータのURLの文字列(※) |
 
-(※) 指定する動画ファイルについて
+(※) 指定するファイルについて
 - 再生できる動画のファイル形式（`webm`, `mp4`等）はブラウザの仕様に依存します
   - 一部のブラウザでは `webm` ファイルの再生をサポートしていない場合があります
 - ファイル名にURIとして使用不可能な文字列（[RFC3986](https://datatracker.ietf.org/doc/html/rfc3986)で定義）が含まれる場合はURLエンコード済の文字列を指定してください
   - NG: `https://example.com/movie/RICOH+THETA+Z1-20220514_152010.webm`
   - OK: `https://example.com/movie/RICOH%2BTHETA%2BZ1-20220514_152010.webm`
-- 動画ファイルは以下のLSConfのURLに対してのCORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要があります
+- 指定するファイルは以下のLSConfのURLに対してのCORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要があります
   - `https://conf.livestreaming.mw.smart-integration.ricoh.com`
+- メタデータのURLが未指定の場合は動画ファイルのURLと同一ディレクトリ内の同名のjsonファイルを参照します
+
+#### Stroke
+SubViewに対して書き込んだストロークの情報を表します。
+
+```ts
+type Stroke {
+  points: number[][];
+  isEnded: boolean;
+  option?: StrokeOption;
+};
+```
+
+|Name|Type|説明|
+|:--|:--|:--|
+|points|number[][]|ストロークを構成する座標の配列<br>映像の左上を原点(0, 0)とし、映像のサイズを基準とした座標が格納される(※1)<br>ストロークとして連続的な値を保持するため映像のサイズを超えた範囲の座標も含まれる|
+|isEnded|boolean|ストロークを書き終わったかどうか|
+|option|[StrokeOption](#strokeoption)|ストロークのオプション<br>未指定の場合はデフォルト値となる|
+
+(※1): LSConfから取得したストロークを別クライアント（ClientSDK）側で描画する際は、そのクライアントで描画している映像サイズと同じ倍率でストロークを表示する必要があります
+
+##### StrokeOption
+
+```ts
+type StrokeOption {
+  size?: number;
+};
+```
+
+|Name|Type|Default|説明|
+|:--|:--|:--|:--|
+|size|number|8| ストロークの太さ（単位はpx） |
+
 
 ### Properties
 
@@ -269,6 +304,10 @@ create時、createPlayer時に指定する `CreateParameters` の一覧です。
 | `subView.enableAutoVideoReceiving` | boolean | true | - | SubViewの非表示時/表示時に自動的に映像を受信停止/再開するかどうか(※2) |
 | `subView.speakingThreshold` | number | 10 | - | 発話判定となる音声ボリュームの閾値<br>設定できる範囲は `1-100` で範囲を超える場合は上限/下限に設定される|
 | `subView.speakingIndicatorDuration` | number | 500 | - | 発話判定時にマイクアイコンを継続的に光らせる時間（単位はms）<br>設定できる範囲は `0-5000` で範囲を超える場合は上限/下限に設定される<br>`0`の場合は一瞬光るのみ|
+| `subView.isHiddenDrawingButton` | boolean | true | - | SubViewの書き込みボタンを非表示にするかどうか(※4) |
+| `subView.drawingInterval` | number | 500 | - | 書き込み中の `strokeUpdated` イベントの発火間隔（単位はms）<br>設定できる範囲は `100-3000` で範囲を超える場合は上限/下限に設定される |
+| `subView.drawingColor` | string | "#661FFF" | - | 書き込み時のストロークの色<br>[CSSのColor定義](https://developer.mozilla.org/ja/docs/Web/CSS/color)に準拠した値とする<br>未指定や不正な値の場合はデフォルト値となる |
+| `subView.drawingOption` | [StrokeOption](#strokeoption) |  | - | 書き込み時のストロークのオプション |
 | `subView.normal` | Object | | ◯ | 通常映像のSubViewの設定オブジェクト |
 | `subView.normal.enableZoom` | boolean | false | ◯ | 映像の拡大機能を有効にするかどうか |
 | `subView.theta` | Object | | - | 360映像のSubView設定のオブジェクト |
@@ -295,6 +334,8 @@ create時、createPlayer時に指定する `CreateParameters` の一覧です。
     - 再度受信停止/再開する状態にレイアウトが変化した場合は自動的に上書きで停止/再開の処理が実行されます
 
 (※3): THETAプラグイン側で取得した各パラメータをTrackMetadataに `pitch`, `roll` のキー名で追加した上でClientSDKの `updateTrackMeta` を呼ぶ必要があります。LSConf側ではTrackMetadataの更新のたびに天頂補正処理が実行されます。
+
+(※4): 書き込みボタンを非表示にしても `updateStroke` を実行するとストロークが表示されます
 
 #### ConnectOptions
 
@@ -368,7 +409,7 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
 
 ### Instance Methods
 
-#### join(clientId, accessToken, connectionId, connectOptions)
+#### join(clientId, accessToken, connectOptions)
 
 ビデオチャットに参加する。
 
@@ -376,7 +417,6 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
   - require
     - clientId
     - accessToken
-    - connectionId
     - connectOptions
 - 返り値
   - 成功時: `Promise<void>`
@@ -387,7 +427,6 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
 |:--|:--|:--|
 | clientId | string | LS PFを利用するためのClientID |
 | accessToken | string | LS Signalingに接続するためのAccessToken |
-| connectionId | IDString | AccessTokenで指定したconnection_id |
 | connectOptions | ConnectOptions | [`ConnectOptions`](#ConnectOptions)を設定する |
 
 #### leave()
@@ -403,7 +442,7 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
 
 #### onShareRequested(callback)
 
-画面共有ボタンの押下時にScreenShareParametersをreturnするコールバック関数を指定する。
+画面共有ボタンの押下時にaccessTokenをreturnするコールバック関数を指定する。
 
 - 引数
   - require
@@ -413,14 +452,7 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
 
 |Name|Type|説明|
 |:--|:--|:--|
-| callback | Function | 画面共有ボタンの押下時にイベント通知を受け取るためのコールバック関数<br>コールバック関数の返り値でScreenShareParametersをreturnする必要がある |
-
-```ts
-type ScreenShareParameters = {
-  connectionId: string; // 画面共有接続用のconnection_id
-  accessToken: string;  // 画面共有接続用のaccessToken
-};
-```
+| callback | Function | 画面共有ボタンの押下時にイベント通知を受け取るためのコールバック関数<br>コールバック関数の返り値でaccessTokenをreturnする必要がある |
 
 #### getMediaDevices()
 接続されているメディアデバイス情報の一覧を取得する。
@@ -731,7 +763,7 @@ SubViewの一覧を取得する。
 - 返り値
   - 成功時: `Promise<void>`
   - 失敗時: `Promise`
-    - ErrorDetail.error: `'UpdatePointerFailed' | 'UpdatePointerError' | 'UpdatePointerArgsInvalid'`
+    - ErrorDetail.error: `'UpdatePointerArgsInvalid'`
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -959,6 +991,54 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
 | subView | SubView | 天頂補正を行う対象のSubView<br>360映像でないSubViewが指定された場合はエラーとなる |
 | rotationVector | RotationVector | THETA（Android標準の[SensorManager](https://developer.android.com/reference/android/hardware/SensorManager)）から取得できる[回転ベクトルセンサー](https://developer.android.com/guide/topics/sensors/sensors_position?hl=ja)の値 |
 
+#### updateStroke(subView, connectionId, stroke, username?, color?)
+
+ストローク情報を更新する。
+
+- 引数
+  - require
+    - subView
+    - connectionId
+    - stroke
+  - optional
+    - username
+    - color
+- 返り値
+  - 成功時: `Promise<void>`
+  - 失敗時: `Promise`
+    - ErrorDetail.error: `'UpdateStrokeFailed' | 'UpdateStrokeError' | 'UpdateStrokeArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 対象となるSubView<br>360映像以外のSubViewのみ指定可能 |
+| connectionId | IDString | ストローク情報の元となるconnection_id<br>同じconnection_idが再リクエストされた場合はストロークを更新する |
+| stroke | [Stroke](#stroke) | 反映するストローク情報 |
+| username | string | ストロークに付随して表示されるラベル<br>未指定の場合はjoin時に指定したusernameを表示<br>空文字列を指定した場合はusernameが非表示となる |
+| color | string | ストロークおよびusernameラベルの表示色<br>指定する文字列は[CSSのColor定義](https://developer.mozilla.org/ja/docs/Web/CSS/color)に準拠した値とする<br>未指定や不正な値の場合はデフォルト値（ '#661FFF' ）となる |
+
+#### addVideoSource(source)
+
+Playerで指定する動画ファイルのソース情報を追加する。
+`VideoSource.connectionId` がすでに存在する場合は情報を上書きする。
+
+- 引数
+  - source
+- 返り値
+  - 設定成功時: `Promise<void>`
+  - 設定失敗時: `Promise`
+    - ErrorDetail.error: `'AddVideoSourceFailed' | 'AddVideoSourceError' | 'AddVideoSourceArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| source | [VideoSource](#videosource) | 動画ファイルのソース情報 |
+
+※ 同期再生中にメタデータの無い動画やメタデータ内のroomIdが他と異なる動画を追加した場合は、以下の挙動になります。
+- 動画を追加した時点で SubView として追加される
+- 追加された動画の再生位置は VideoControlBar のシークバーとは同期されず、シークできない
+- 追加された動画の再生/一時停止は VideoControlBar の再生/一時停止ボタンと連動する
+
+※ 同期再生中に現在の全ての動画の開始時刻より前の時刻を含む動画を追加した場合はその時間の差分だけ再生位置が前に移動します。
+
 ### Events
 
 LSConfの既定のイベントに対するイベントハンドラーは `addEventListener()` を介して登録します。<br>
@@ -966,7 +1046,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 
 #### connected
 
-映像/音声のクライアントが RICOH Live Streaming Service に接続した。
+映像/音声クライアントが RICOH Live Streaming Service に接続した。
 
 ```js
 {
@@ -976,7 +1056,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 
 #### disconnected
 
-映像/音声のクライアントが RICOH Live Streaming Service から切断した。
+映像/音声クライアントが RICOH Live Streaming Service から切断した。
 
 ```js
 {
@@ -986,7 +1066,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 
 #### screenShareConnected
 
-画面共有のクライアントが RICOH Live Streaming Service に接続した。
+画面共有クライアントが RICOH Live Streaming Service に接続した。
 
 ```js
 {
@@ -996,7 +1076,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 
 #### screenShareDisconnected
 
-画面共有のクライアントが RICOH Live Streaming Service から切断した。
+画面共有クライアントが RICOH Live Streaming Service から切断した。
 
 ```js
 {
@@ -1014,7 +1094,6 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
   detail: {
     connectionId: IDString,
     username: string,
-    mediaType: MediaTypes,
     parentConnectionId: IDString | null,
   }
 }
@@ -1024,8 +1103,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 |:--|:--|:--|
 | connectionId | IDString | 接続された connection_id |
 | username | string | 表示名 |
-| mediaType | [MediaTypes](#mediatypes) | メディア種別 |
-| parentConnectionId | IDString \| null | [`mediaType` が `'VIDEO_AUDIO'` の場合] `null` <br>[`mediaType` が `'SCREEN_SHARE'` の場合] 画面共有を開始した `'VIDEO_AUDIO'` の connection_id |
+| parentConnectionId | IDString \| null | [画面共有クライアントの場合] 同一拠点の映像/音声クライアントの connection_id<br>[映像/音声クライアントの場合] `null` |
 
 #### remoteConnectionRemoved
 
@@ -1037,7 +1115,6 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
   detail: {
     connectionId: IDString,
     username: string,
-    mediaType: MediaTypes,
     parentConnectionId: IDString | null,
   }
 }
@@ -1047,8 +1124,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 |:--|:--|:--|
 | connectionId | IDString | 切断した connection_id |
 | username | string | 表示名 |
-| mediaType | [MediaTypes](#mediatypes) | メディア種別 |
-| parentConnectionId | IDString \| null | [`mediaType` が `'VIDEO_AUDIO'` の場合] `null` <br>[`mediaType` が `'SCREEN_SHARE'` の場合] 画面共有を開始した `'VIDEO_AUDIO'` の connection_id |
+| parentConnectionId | IDString \| null | [画面共有クライアントの場合] 同一拠点の映像/音声クライアントの connection_id<br>[映像/音声クライアントの場合] `null` |
 
 #### remoteTrackAdded
 
@@ -1134,15 +1210,43 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 | subView | SubView | 押下した対象のSubView |
 | poV | PoV | 視点情報 |
 
+#### strokeUpdated
+
+ストロークの書き込みが更新された。
+
+イベントの発火タイミングについては以下の通りです。
+
+- 書き始めに一度
+- 書き終わりに一度
+- 書いている間は [CreateParameters](#createparameters) の `subView.drawingInterval` の間隔
+
+```js
+{
+  type: 'strokeUpdated',
+  detail: {
+    subView: SubView,
+    stroke: Stroke
+  }
+}
+```
+
+|Name|Type|説明|
+|:--|:--|:--|
+| subView | SubView | 対象のSubView |
+| stroke | [Stroke](#stroke) | ストローク情報 |
+
 #### error
 
 エラーが発生した。
-エラーの詳細な仕様についてはDeveloperGuideに記載のエラー仕様を参照してください。
+エラーの詳細な仕様については [エラー仕様](https://api.livestreaming.ricoh/docs/lsconf-error-specification) を参照してください。
 
 ```js
 {
   type: 'error',
-  error: error
+  error: {
+    detail: ErrorDetail,
+    data?: unknown,
+  }
 }
 ```
 

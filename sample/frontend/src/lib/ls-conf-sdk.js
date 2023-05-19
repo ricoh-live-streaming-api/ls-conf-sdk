@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 4.1.0
+ * @version: 5.1.3
  **/
 
 (function (global, factory) {
@@ -14,10 +14,7 @@
   class LSConfEvent {
       constructor(type, eventInit) {
           this.type = type;
-          if (type === 'error') {
-              this.event = new ErrorEvent(type, eventInit);
-          }
-          else if (eventInit) {
+          if (eventInit) {
               this.event = new CustomEvent(type, eventInit);
           }
           else {
@@ -25,8 +22,210 @@
           }
       }
   }
+  // エラー内容
+  class ErrorData {
+      constructor(errorName, data) {
+          this.getErrorCode = (errorName) => {
+              switch (errorName) {
+                  // RequestError
+                  case 'CreateArgsInvalid':
+                      return 4010;
+                  case 'JoinArgsInvalid':
+                      return 4020;
+                  case 'SetArgsInvalid':
+                      return 4030;
+                  case 'CreateFailed':
+                      return 4040;
+                  case 'CreateTimeout':
+                      return 4041;
+                  case 'JoinFailed':
+                      return 4050;
+                  case 'JoinFailedTimeout':
+                      return 4051;
+                  case 'CloseFailed':
+                      return 4060;
+                  case 'CameraMuteFailed':
+                      return 4070;
+                  case 'MicMuteFailed':
+                      return 4080;
+                  case 'ShareRequestFailed':
+                      return 4090;
+                  case 'GetReportFailed':
+                      return 4100;
+                  case 'GetReportError':
+                      return 4101;
+                  case 'ChangeLayoutFailed':
+                      return 4110;
+                  case 'GetDeviceFailed':
+                      return 4120;
+                  case 'GetSubViewsFailed':
+                      return 4130;
+                  case 'GetSubViewsError':
+                      return 4131;
+                  case 'GetPoVFailed':
+                      return 4140;
+                  case 'GetPoVError':
+                      return 4141;
+                  case 'GetPoVArgsInvalid':
+                      return 4150;
+                  case 'SetPoVFailed':
+                      return 4160;
+                  case 'SetPoVError':
+                      return 4161;
+                  case 'SetPoVArgsInvalid':
+                      return 4170;
+                  case 'ShareRequestArgsInvalid':
+                      return 4180;
+                  case 'HighlightArgsInvalid':
+                      return 4190;
+                  case 'HighlightFailed':
+                      return 4200;
+                  case 'HighlightError':
+                      return 4210;
+                  case 'AddRecordingMemberArgsInvalid':
+                      return 4220;
+                  case 'AddRecordingMemberFailed':
+                      return 4230;
+                  case 'AddRecordingMemberError':
+                      return 4240;
+                  case 'RemoveRecordingMemberArgsInvalid':
+                      return 4250;
+                  case 'RemoveRecordingMemberFailed':
+                      return 4260;
+                  case 'RemoveRecordingMemberError':
+                      return 4270;
+                  case 'SetCameraDeviceFailed':
+                      return 4280;
+                  case 'SetMicDeviceFailed':
+                      return 4290;
+                  case 'GetMediaDevicesFailed':
+                      return 4300;
+                  case 'GetMediaDevicesError':
+                      return 4310;
+                  case 'GetCaptureImageFailed':
+                      return 4320;
+                  case 'GetCaptureImageError':
+                      return 4330;
+                  case 'GetCaptureImageErrorCameraMuted':
+                      return 4331;
+                  case 'GetCaptureImageArgsInvalid':
+                      return 4340;
+                  case 'StartRecordingFailed':
+                      return 4350;
+                  case 'RecordingErrorBlackScreen':
+                      return 4351;
+                  case 'StartReceiveVideoFailed':
+                      return 4360;
+                  case 'StartReceiveVideoError':
+                      return 4370;
+                  case 'StartReceiveVideoArgsInvalid':
+                      return 4380;
+                  case 'StopReceiveVideoFailed':
+                      return 4390;
+                  case 'StopReceiveVideoError':
+                      return 4400;
+                  case 'StopReceiveVideoArgsInvalid':
+                      return 4410;
+                  case 'GetLSConfLogFailed':
+                      return 4420;
+                  case 'GetLSConfLogError':
+                      return 4430;
+                  case 'EnablePointerFailed':
+                      return 4440;
+                  case 'UpdatePointerArgsInvalid':
+                      return 4450;
+                  case 'UpdatePointerFailed':
+                      return 4460;
+                  case 'UpdatePointerError':
+                      return 4470;
+                  case 'ModeInvalid':
+                      return 4480;
+                  case 'ChangeLayoutArgsInvalid':
+                      return 4490;
+                  case 'EnableZoomFailed':
+                      return 4500;
+                  case 'EnableZoomError':
+                      return 4510;
+                  case 'EnableZoomArgsInvalid':
+                      return 4520;
+                  case 'GetStatsArgsInvalid':
+                      return 4530;
+                  case 'GetStatsFailed':
+                      return 4540;
+                  case 'GetStatsError':
+                      return 4550;
+                  case 'SetRotationVectorFailed':
+                      return 4560;
+                  case 'SetRotationVectorError':
+                      return 4570;
+                  case 'SetRotationVectorArgsInvalid':
+                      return 4580;
+                  case 'CreateTypeInvalid':
+                      return 4590;
+                  case 'UpdateStrokeArgsInvalid':
+                      return 4600;
+                  case 'UpdateStrokeFailed':
+                      return 4610;
+                  case 'AddVideoSourceFailed':
+                      return 4620;
+                  case 'AddVideoSourceError':
+                      return 4630;
+                  case 'AddVideoSourceArgsInvalid':
+                      return 4640;
+                  case 'MediaSourceError':
+                      return 4650;
+                  // InternalError
+                  case 'InternalError5001':
+                      return 5001;
+                  case 'InternalError5002':
+                      return 5002;
+                  case 'InternalError5003':
+                      return 5003;
+                  // エラーコードが存在しない場合は 5000 で返す
+                  default:
+                      return 5000;
+              }
+          };
+          this.toReportString = () => {
+              return `code: ${this.detail.code}, type: ${this.detail.type}, error: ${this.detail.error}`;
+          };
+          const code = this.getErrorCode(errorName);
+          const category = Math.floor(code / 1000);
+          const type = category === 4 ? 'RequestError' : 'InternalError';
+          this.detail = { code, type, error: errorName };
+          this.data = data;
+      }
+  }
+  // SDKエラー内容
+  class SDKErrorData extends ErrorData {
+      constructor(detail, data) {
+          super('SDKError', data);
+          this.detail = detail;
+      }
+  }
+  // LSConfの規定のエラーイベント
+  class LSConfErrorEvent {
+      constructor(errorData) {
+          this.toReportString = () => {
+              return errorData.toReportString();
+          };
+          this.type = 'error';
+          this.event = new ErrorEvent('error', { error: errorData, message: errorData.toReportString() });
+      }
+  }
+  // LSConf規定のエラーオブジェクト
+  class LSConfError extends Error {
+      constructor(errorData) {
+          super(errorData.detail.error);
+          this.detail = errorData.detail;
+          this.data = errorData.data;
+          this.toReportString = () => {
+              return errorData.toReportString();
+          };
+      }
+  }
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '4.1.0';
+  const LS_CONF_SDK_VERSION = '5.1.3';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
@@ -36,366 +235,7 @@
   const DEFAULT_JOIN_TIMEOUT_MSEC = 10000;
   const DEFAULT_AUDIO_MUTE_TYPE = 'hard';
   const DEFAULT_MODE = 'normal';
-  const REQUEST_ERRORS = {
-      CreateArgsInvalid: {
-          code: 4010,
-          type: 'RequestError',
-          error: 'CreateArgsInvalid',
-      },
-      JoinArgsInvalid: {
-          code: 4020,
-          type: 'RequestError',
-          error: 'JoinArgsInvalid',
-      },
-      SetArgsInvalid: {
-          code: 4030,
-          type: 'RequestError',
-          error: 'SetArgsInvalid',
-      },
-      CreateFailed: {
-          code: 4040,
-          type: 'RequestError',
-          error: 'CreateFailed',
-      },
-      CreateTimeout: {
-          code: 4041,
-          type: 'RequestError',
-          error: 'CreateTimeout',
-      },
-      JoinFailed: {
-          code: 4050,
-          type: 'RequestError',
-          error: 'JoinFailed',
-      },
-      JoinFailedTimeout: {
-          code: 4051,
-          type: 'RequestError',
-          error: 'JoinFailedTimeout',
-      },
-      CloseFailed: {
-          code: 4060,
-          type: 'RequestError',
-          error: 'CloseFailed',
-      },
-      CameraMuteFailed: {
-          code: 4070,
-          type: 'RequestError',
-          error: 'CameraMuteFailed',
-      },
-      MicMuteFailed: {
-          code: 4080,
-          type: 'RequestError',
-          error: 'MicMuteFailed',
-      },
-      ShareRequestFailed: {
-          code: 4090,
-          type: 'RequestError',
-          error: 'ShareRequestFailed',
-      },
-      GetReportFailed: {
-          code: 4100,
-          type: 'RequestError',
-          error: 'GetReportFailed',
-      },
-      GetReportError: {
-          code: 4101,
-          type: 'RequestError',
-          error: 'GetReportError',
-      },
-      ChangeLayoutFailed: {
-          code: 4110,
-          type: 'RequestError',
-          error: 'ChangeLayoutFailed',
-      },
-      GetDeviceFailed: {
-          code: 4120,
-          type: 'RequestError',
-          error: 'GetDeviceFailed',
-      },
-      GetSubViewsFailed: {
-          code: 4130,
-          type: 'RequestError',
-          error: 'GetSubViewsFailed',
-      },
-      GetSubViewsError: {
-          code: 4131,
-          type: 'RequestError',
-          error: 'GetSubViewsError',
-      },
-      GetPoVFailed: {
-          code: 4140,
-          type: 'RequestError',
-          error: 'GetPoVFailed',
-      },
-      GetPoVError: {
-          code: 4141,
-          type: 'RequestError',
-          error: 'GetPoVError',
-      },
-      GetPoVArgsInvalid: {
-          code: 4150,
-          type: 'RequestError',
-          error: 'GetPoVArgsInvalid',
-      },
-      SetPoVFailed: {
-          code: 4160,
-          type: 'RequestError',
-          error: 'SetPoVFailed',
-      },
-      SetPoVError: {
-          code: 4161,
-          type: 'RequestError',
-          error: 'SetPoVError',
-      },
-      SetPoVArgsInvalid: {
-          code: 4170,
-          type: 'RequestError',
-          error: 'SetPoVArgsInvalid',
-      },
-      ShareRequestArgsInvalid: {
-          code: 4180,
-          type: 'RequestError',
-          error: 'ShareRequestArgsInvalid',
-      },
-      HighlightArgsInvalid: {
-          code: 4190,
-          type: 'RequestError',
-          error: 'HighlightArgsInvalid',
-      },
-      HighlightFailed: {
-          code: 4200,
-          type: 'RequestError',
-          error: 'HighlightFailed',
-      },
-      HighlightError: {
-          code: 4210,
-          type: 'RequestError',
-          error: 'HighlightError',
-      },
-      AddRecordingMemberArgsInvalid: {
-          code: 4220,
-          type: 'RequestError',
-          error: 'AddRecordingMemberArgsInvalid',
-      },
-      AddRecordingMemberFailed: {
-          code: 4230,
-          type: 'RequestError',
-          error: 'AddRecordingMemberFailed',
-      },
-      AddRecordingMemberError: {
-          code: 4240,
-          type: 'RequestError',
-          error: 'AddRecordingMemberError',
-      },
-      RemoveRecordingMemberArgsInvalid: {
-          code: 4250,
-          type: 'RequestError',
-          error: 'RemoveRecordingMemberArgsInvalid',
-      },
-      RemoveRecordingMemberFailed: {
-          code: 4260,
-          type: 'RequestError',
-          error: 'RemoveRecordingMemberFailed',
-      },
-      RemoveRecordingMemberError: {
-          code: 4270,
-          type: 'RequestError',
-          error: 'RemoveRecordingMemberError',
-      },
-      SetCameraDeviceFailed: {
-          code: 4280,
-          type: 'RequestError',
-          error: 'SetCameraDeviceFailed',
-      },
-      SetMicDeviceFailed: {
-          code: 4290,
-          type: 'RequestError',
-          error: 'SetMicDeviceFailed',
-      },
-      GetMediaDevicesFailed: {
-          code: 4300,
-          type: 'RequestError',
-          error: 'GetMediaDevicesFailed',
-      },
-      GetMediaDevicesError: {
-          code: 4310,
-          type: 'RequestError',
-          error: 'GetMediaDevicesError',
-      },
-      GetCaptureImageFailed: {
-          code: 4320,
-          type: 'RequestError',
-          error: 'GetCaptureImageFailed',
-      },
-      GetCaptureImageError: {
-          code: 4330,
-          type: 'RequestError',
-          error: 'GetCaptureImageError',
-      },
-      GetCaptureImageErrorCameraMuted: {
-          code: 4331,
-          type: 'RequestError',
-          error: 'GetCaptureImageErrorCameraMuted',
-      },
-      GetCaptureImageArgsInvalid: {
-          code: 4340,
-          type: 'RequestError',
-          error: 'GetCaptureImageArgsInvalid',
-      },
-      StartRecordingFailed: {
-          code: 4350,
-          type: 'RequestError',
-          error: 'StartRecordingFailed',
-      },
-      RecordingErrorBlackScreen: {
-          code: 4351,
-          type: 'RequestError',
-          error: 'RecordingErrorBlackScreen',
-      },
-      StartReceiveVideoFailed: {
-          code: 4360,
-          type: 'RequestError',
-          error: 'StartReceiveVideoFailed',
-      },
-      StartReceiveVideoError: {
-          code: 4370,
-          type: 'RequestError',
-          error: 'StartReceiveVideoError',
-      },
-      StartReceiveVideoArgsInvalid: {
-          code: 4380,
-          type: 'RequestError',
-          error: 'StartReceiveVideoArgsInvalid',
-      },
-      StopReceiveVideoFailed: {
-          code: 4390,
-          type: 'RequestError',
-          error: 'StopReceiveVideoFailed',
-      },
-      StopReceiveVideoError: {
-          code: 4400,
-          type: 'RequestError',
-          error: 'StopReceiveVideoError',
-      },
-      StopReceiveVideoArgsInvalid: {
-          code: 4410,
-          type: 'RequestError',
-          error: 'StopReceiveVideoArgsInvalid',
-      },
-      GetLSConfLogFailed: {
-          code: 4420,
-          type: 'RequestError',
-          error: 'GetLSConfLogFailed',
-      },
-      GetLSConfLogError: {
-          code: 4430,
-          type: 'RequestError',
-          error: 'GetLSConfLogError',
-      },
-      EnablePointerFailed: {
-          code: 4440,
-          type: 'RequestError',
-          error: 'EnablePointerFailed',
-      },
-      UpdatePointerArgsInvalid: {
-          code: 4450,
-          type: 'RequestError',
-          error: 'UpdatePointerArgsInvalid',
-      },
-      UpdatePointerFailed: {
-          code: 4460,
-          type: 'RequestError',
-          error: 'UpdatePointerFailed',
-      },
-      UpdatePointerError: {
-          code: 4470,
-          type: 'RequestError',
-          error: 'UpdatePointerError',
-      },
-      ModeInvalid: {
-          code: 4480,
-          type: 'RequestError',
-          error: 'ModeInvalid',
-      },
-      ChangeLayoutArgsInvalid: {
-          code: 4490,
-          type: 'RequestError',
-          error: 'ChangeLayoutArgsInvalid',
-      },
-      EnableZoomFailed: {
-          code: 4500,
-          type: 'RequestError',
-          error: 'EnableZoomFailed',
-      },
-      EnableZoomError: {
-          code: 4510,
-          type: 'RequestError',
-          error: 'EnableZoomError',
-      },
-      EnableZoomArgsInvalid: {
-          code: 4520,
-          type: 'RequestError',
-          error: 'EnableZoomArgsInvalid',
-      },
-      GetStatsArgsInvalid: {
-          code: 4530,
-          type: 'RequestError',
-          error: 'GetStatsArgsInvalid',
-      },
-      GetStatsFailed: {
-          code: 4540,
-          type: 'RequestError',
-          error: 'GetStatsFailed',
-      },
-      GetStatsError: {
-          code: 4550,
-          type: 'RequestError',
-          error: 'GetStatsError',
-      },
-      SetRotationVectorFailed: {
-          code: 4560,
-          type: 'RequestError',
-          error: 'SetRotationVectorFailed',
-      },
-      SetRotationVectorError: {
-          code: 4570,
-          type: 'RequestError',
-          error: 'SetRotationVectorError',
-      },
-      SetRotationVectorArgsInvalid: {
-          code: 4580,
-          type: 'RequestError',
-          error: 'SetRotationVectorArgsInvalid',
-      },
-      CreateTypeInvalid: {
-          code: 4590,
-          type: 'RequestError',
-          error: 'CreateTypeInvalid',
-      },
-  };
-  const INTERNAL_ERRORS = {
-      InternalError5001: {
-          code: 5001,
-          type: 'InternalError',
-          error: 'InternalError5001',
-      },
-      InternalError5002: {
-          code: 5002,
-          type: 'InternalError',
-          error: 'InternalError5002',
-      },
-      InternalError5003: {
-          code: 5003,
-          type: 'InternalError',
-          error: 'InternalError5003',
-      },
-  };
-  class LSConferenceIframeError extends Error {
-      constructor(errorDetail) {
-          super(errorDetail.error);
-          this.detail = errorDetail;
-      }
-  }
+  const DEFAULT_MESSAGE_QUEUE_TIMEOUT_MSEC = 100;
   class LSConferenceIframe {
       constructor(parentElement) {
           this.logCallbacks = new Map();
@@ -416,7 +256,6 @@
           this.addRecordingMemberCallback = { success: () => { }, error: () => { } };
           this.removeRecordingMemberCallback = { success: () => { }, error: () => { } };
           this.getMediaDevicesCallback = { success: () => { }, error: () => { } };
-          this.updatePointerCallback = { success: () => { }, error: () => { } };
           this.getCaptureImageCallback = { success: () => { }, error: () => { } };
           this.updateCurrentTimeCallback = { success: () => { }, error: () => { } };
           this.getLSConfLogCallback = { success: () => { }, error: () => { } };
@@ -424,49 +263,45 @@
           this.startReceiveVideoCallback = { success: () => { }, error: () => { } };
           this.stopReceiveVideoCallback = { success: () => { }, error: () => { } };
           this.enableZoomCallback = { success: () => { }, error: () => { } };
+          this.addVideoSourceCallback = { success: () => { }, error: () => { } };
           this.eventListeners = new Map();
           this.applicationEventListeners = new Map();
+          this.parametersQueue = new Map();
       }
       async handleWindowMessage(event) {
           const data = event.data;
           if (!this.iframeElement.contentWindow) {
-              throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+              throw new LSConfError(new ErrorData('InternalError5001'));
           }
           if (data.type === 'shareRequest' && this.connectOptions) {
-              let shareParams = undefined;
+              let accessToken;
               try {
-                  shareParams = await this.shareRequestedCallback();
+                  accessToken = await this.shareRequestedCallback();
               }
               catch (e) {
                   console.warn('Exception occurred in onShareRequested.', e);
               }
-              if (!shareParams || !this.validateScreenShareParameters(shareParams)) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['ShareRequestArgsInvalid']);
-                  const eventInitDict = {
-                      error: error,
-                      message: `code: ${error.detail.code}, type: ${error.detail.type}, error: ${error.detail.error}, description: ${data.error}`,
-                  };
-                  this.dispatchEvent(new LSConfEvent('error', eventInitDict));
+              if (!accessToken || typeof accessToken !== 'string') {
+                  this.dispatchEvent(new LSConfErrorEvent(new ErrorData('ShareRequestArgsInvalid')));
                   return;
               }
               // screen share の role, mediaType は固定
               const postMessageParameters = {
                   type: 'connectShare',
                   clientId: this.clientId,
-                  accessToken: shareParams.accessToken,
-                  connectionId: shareParams.connectionId,
+                  accessToken: accessToken,
                   role: 'sendonly',
                   mediaType: 'screenshare',
                   connectOptions: this.connectOptions,
               };
               if (!this.iframeElement.contentWindow) {
-                  throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+                  throw new LSConfError(new ErrorData('InternalError5001'));
               }
               try {
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['ShareRequestFailed']);
+                  const error = new LSConfError(new ErrorData('ShareRequestFailed'));
                   throw error;
               }
           }
@@ -474,9 +309,9 @@
               const callback = this.logCallbacks.get(data.logType);
               if (callback) {
                   if (data.error) {
-                      let error = new LSConferenceIframeError(REQUEST_ERRORS['GetReportError']);
+                      let error = new LSConfError(new ErrorData('GetReportError'));
                       if (data.errorType === 'CreateTypeInvalid') {
-                          error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTypeInvalid']);
+                          error = new LSConfError(new ErrorData('CreateTypeInvalid'));
                       }
                       callback.error(error);
                   }
@@ -489,26 +324,16 @@
           else if (data.type === 'recording') {
               if (data.error) {
                   if (data.errorType === 'RecordingErrorBlackScreen') {
-                      const error = new LSConferenceIframeError(REQUEST_ERRORS['RecordingErrorBlackScreen']);
-                      const eventInitDict = {
-                          error: error,
-                          message: `code: ${error.detail.code}, type: ${error.detail.type}, error: ${error.detail.error}, description: ${data.error}`,
-                      };
-                      this.dispatchEvent(new LSConfEvent('error', eventInitDict));
+                      this.dispatchEvent(new LSConfErrorEvent(new ErrorData('RecordingErrorBlackScreen')));
                   }
                   else {
-                      throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5002']);
+                      throw new LSConfError(new ErrorData('InternalError5002'));
                   }
               }
           }
           else if (data.type === 'startRecording') {
               if (data.error) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['StartRecordingFailed']);
-                  const eventInitDict = {
-                      error: error,
-                      message: `code: ${error.detail.code}, type: ${error.detail.type}, error: ${error.detail.error}, description: ${data.error}`,
-                  };
-                  this.dispatchEvent(new LSConfEvent('error', eventInitDict));
+                  this.dispatchEvent(new LSConfErrorEvent(new ErrorData('StartRecordingFailed')));
               }
               else {
                   this.dispatchEvent(new LSConfEvent('startRecording', { detail: { subView: data.subView } }));
@@ -519,9 +344,9 @@
           }
           else if (data.type === 'addRecordingMember') {
               if (data.error) {
-                  let error = new LSConferenceIframeError(REQUEST_ERRORS['AddRecordingMemberError']);
+                  let error = new LSConfError(new ErrorData('AddRecordingMemberError'));
                   if (data.errorType === 'CreateTypeInvalid') {
-                      error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTypeInvalid']);
+                      error = new LSConfError(new ErrorData('CreateTypeInvalid'));
                   }
                   this.addRecordingMemberCallback.error(error);
               }
@@ -531,9 +356,9 @@
           }
           else if (data.type === 'removeRecordingMember') {
               if (data.error) {
-                  let error = new LSConferenceIframeError(REQUEST_ERRORS['RemoveRecordingMemberError']);
+                  let error = new LSConfError(new ErrorData('RemoveRecordingMemberError'));
                   if (data.errorType === 'CreateTypeInvalid') {
-                      error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTypeInvalid']);
+                      error = new LSConfError(new ErrorData('CreateTypeInvalid'));
                   }
                   this.removeRecordingMemberCallback.error(error);
               }
@@ -544,9 +369,9 @@
           else if (data.type === 'connected') {
               if (data.error) {
                   this.state = 'created';
-                  let error = new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']);
+                  let error = new LSConfError(new ErrorData('JoinFailed'));
                   if (data.errorType === 'CreateTypeInvalid') {
-                      error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTypeInvalid']);
+                      error = new LSConfError(new ErrorData('CreateTypeInvalid'));
                   }
                   this.joinCallback.error(error);
               }
@@ -562,7 +387,7 @@
           else if (data.type === 'connectAccepted') {
               if (data.error) {
                   this.state = 'created';
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']);
+                  const error = new LSConfError(new ErrorData('JoinFailed'));
                   this.joinCallback.error(error);
               }
               else {
@@ -584,7 +409,6 @@
                   detail: {
                       connectionId: data.connectionId,
                       username: data.username,
-                      mediaType: data.mediaType,
                       parentConnectionId: data.parentConnectionId,
                   },
               });
@@ -595,7 +419,6 @@
                   detail: {
                       connectionId: data.connectionId,
                       username: data.username,
-                      mediaType: data.mediaType,
                       parentConnectionId: data.parentConnectionId,
                   },
               });
@@ -611,12 +434,12 @@
               this.dispatchEvent(event);
           }
           else if (data.type === 'getDeviceFailed') {
-              const error = new LSConferenceIframeError(REQUEST_ERRORS['GetDeviceFailed']);
+              const error = new LSConfError(new ErrorData('GetDeviceFailed'));
               this.joinCallback.error(error);
           }
           else if (data.type === 'getSubViews') {
               if (data.error) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetSubViewsError']);
+                  const error = new LSConfError(new ErrorData('GetSubViewsError'));
                   this.getSubViewsCallback.error(error);
               }
               else {
@@ -625,12 +448,12 @@
           }
           else if (data.type === 'getSelfSubViewFailed') {
               if (data.error) {
-                  throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5003']);
+                  throw new LSConfError(new ErrorData('InternalError5003'));
               }
           }
           else if (data.type === 'highlight') {
               if (data.error) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['HighlightError']);
+                  const error = new LSConfError(new ErrorData('HighlightError', data.data));
                   this.highlightCallback.error(error);
               }
               else {
@@ -643,7 +466,7 @@
           }
           else if (data.type === 'getPoV') {
               if (data.error) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetPoVError']);
+                  const error = new LSConfError(new ErrorData('GetPoVError'));
                   this.getPoVCallback.error(error);
               }
               else {
@@ -652,7 +475,7 @@
           }
           else if (data.type === 'setPoV') {
               if (data.error) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['SetPoVError']);
+                  const error = new LSConfError(new ErrorData('SetPoVError'));
                   this.setPoVCallback.error(error);
               }
               else {
@@ -661,7 +484,7 @@
           }
           else if (data.type === 'setRotationVector') {
               if (data.error) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['SetRotationVectorError']);
+                  const error = new LSConfError(new ErrorData('SetRotationVectorError'));
                   this.setRotationVectorCallback.error(error);
               }
               else {
@@ -670,9 +493,9 @@
           }
           else if (data.type === 'getMediaDevices') {
               if (data.error) {
-                  let error = new LSConferenceIframeError(REQUEST_ERRORS['GetMediaDevicesError']);
+                  let error = new LSConfError(new ErrorData('GetMediaDevicesError'));
                   if (data.errorType === 'CreateTypeInvalid') {
-                      error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTypeInvalid']);
+                      error = new LSConfError(new ErrorData('CreateTypeInvalid'));
                   }
                   this.getMediaDevicesCallback.error(error);
               }
@@ -680,19 +503,14 @@
                   this.getMediaDevicesCallback.success(data.devices);
               }
           }
-          else if (data.type === 'updatePointer') {
-              if (data.error) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['UpdatePointerError']);
-                  this.updatePointerCallback.error(error);
-              }
-              else {
-                  this.updatePointerCallback.success();
-              }
+          else if (data.type === 'strokeUpdated') {
+              const { subView, stroke } = data;
+              this.dispatchEvent(new LSConfEvent('strokeUpdated', { detail: { subView, stroke } }));
           }
           else if (data.type === 'updateCurrentTime') {
               if (data.error) {
                   // 現状 getCaptureImage 時しか呼ばれないため、エラー時は GetCaptureImageError を返す
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageError']);
+                  const error = new LSConfError(new ErrorData('GetCaptureImageError'));
                   this.updateCurrentTimeCallback.error(error);
               }
               else {
@@ -702,11 +520,11 @@
           else if (data.type === 'getCaptureImage') {
               if (data.error) {
                   if (data.errorType === 'GetCaptureImageErrorCameraMuted') {
-                      const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageErrorCameraMuted']);
+                      const error = new LSConfError(new ErrorData('GetCaptureImageErrorCameraMuted'));
                       this.getCaptureImageCallback.error(error);
                   }
                   else {
-                      const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageError']);
+                      const error = new LSConfError(new ErrorData('GetCaptureImageError'));
                       this.getCaptureImageCallback.error(error);
                   }
               }
@@ -719,7 +537,7 @@
           }
           else if (data.type === 'getLSConfLog') {
               if (data.error) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetLSConfLogError']);
+                  const error = new LSConfError(new ErrorData('GetLSConfLogError'));
                   this.getLSConfLogCallback.error(error);
               }
               else {
@@ -728,9 +546,9 @@
           }
           else if (data.type === 'getStats') {
               if (data.error) {
-                  let error = new LSConferenceIframeError(REQUEST_ERRORS['GetStatsError']);
+                  let error = new LSConfError(new ErrorData('GetStatsError'));
                   if (data.errorType === 'CreateTypeInvalid') {
-                      error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTypeInvalid']);
+                      error = new LSConfError(new ErrorData('CreateTypeInvalid'));
                   }
                   this.getStatsCallback.error(error);
               }
@@ -740,9 +558,9 @@
           }
           else if (data.type === 'startReceiveVideo') {
               if (data.error) {
-                  let error = new LSConferenceIframeError(REQUEST_ERRORS['StartReceiveVideoError']);
+                  let error = new LSConfError(new ErrorData('StartReceiveVideoError'));
                   if (data.errorType === 'CreateTypeInvalid') {
-                      error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTypeInvalid']);
+                      error = new LSConfError(new ErrorData('CreateTypeInvalid'));
                   }
                   this.startReceiveVideoCallback.error(error);
               }
@@ -752,9 +570,9 @@
           }
           else if (data.type === 'stopReceiveVideo') {
               if (data.error) {
-                  let error = new LSConferenceIframeError(REQUEST_ERRORS['StopReceiveVideoError']);
+                  let error = new LSConfError(new ErrorData('StopReceiveVideoError'));
                   if (data.errorType === 'CreateTypeInvalid') {
-                      error = new LSConferenceIframeError(REQUEST_ERRORS['CreateTypeInvalid']);
+                      error = new LSConfError(new ErrorData('CreateTypeInvalid'));
                   }
                   this.stopReceiveVideoCallback.error(error);
               }
@@ -764,25 +582,32 @@
           }
           else if (data.type === 'enableZoom') {
               if (data.error) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['EnableZoomError']);
+                  const error = new LSConfError(new ErrorData('EnableZoomError'));
                   this.enableZoomCallback.error(error);
               }
               else {
                   this.enableZoomCallback.success();
               }
           }
+          else if (data.type === 'MediaSourceError') {
+              this.dispatchEvent(new LSConfErrorEvent(new ErrorData('MediaSourceError', { connectionId: data.connectionId })));
+          }
           else if (data.type === 'error' && data.error) {
-              const eventInitDict = {
-                  error: data.error,
-                  message: `code: ${data.error.detail.code}, type: ${data.error.detail.type}, error: ${data.error.detail.error}`,
-              };
               if (this.state === 'connecting') {
                   this.state = 'created';
                   // Join中にweb-sdkのエラーイベントが発生したときは、web-sdkのエラーで実行時エラーを返す
-                  this.joinCallback.error(new LSConferenceIframeError(data.error.detail));
+                  this.joinCallback.error(new LSConfError(new SDKErrorData(data.error.detail)));
               }
               else {
-                  this.dispatchEvent(new LSConfEvent('error', eventInitDict));
+                  if (data.error.detail && data.error.detail.code) {
+                      const isSDKError = Math.floor(data.error.detail.code / 10000) !== 0;
+                      if (isSDKError) {
+                          this.dispatchEvent(new LSConfErrorEvent(new SDKErrorData(data.error.detail)));
+                      }
+                      else {
+                          this.dispatchEvent(new LSConfErrorEvent(new ErrorData(data.error.detail.error)));
+                      }
+                  }
               }
           }
       }
@@ -860,6 +685,21 @@
                   return false;
               }
               if (parameters.subView.speakingIndicatorDuration !== undefined && typeof parameters.subView.speakingIndicatorDuration !== 'number') {
+                  return false;
+              }
+              if (parameters.subView.isHiddenDrawingButton !== undefined && typeof parameters.subView.isHiddenDrawingButton !== 'boolean') {
+                  return false;
+              }
+              if (parameters.subView.drawingInterval !== undefined && typeof parameters.subView.drawingInterval !== 'number') {
+                  return false;
+              }
+              if (parameters.subView.drawingColor !== undefined && typeof parameters.subView.drawingColor !== 'string') {
+                  return false;
+              }
+              if (parameters.subView.drawingOption !== undefined && typeof parameters.subView.drawingOption !== 'object') {
+                  return false;
+              }
+              if (parameters.subView.drawingOption !== undefined && !this.validateStrokeOptionType(parameters.subView.drawingOption)) {
                   return false;
               }
               if (parameters.subView.menu !== undefined) {
@@ -1037,14 +877,11 @@
           }
           return true;
       }
-      validateJoinParameters(clientId, accessToken, connectionId, connectOptions) {
+      validateJoinParameters(clientId, accessToken, connectOptions) {
           if (typeof clientId !== 'string') {
               return false;
           }
           if (typeof accessToken !== 'string') {
-              return false;
-          }
-          if (typeof connectionId !== 'string') {
               return false;
           }
           if (typeof connectOptions.username !== 'string') {
@@ -1121,15 +958,6 @@
           }
           return true;
       }
-      validateScreenShareParameters(param) {
-          if (typeof param.accessToken !== 'string') {
-              return false;
-          }
-          if (typeof param.connectionId !== 'string') {
-              return false;
-          }
-          return true;
-      }
       validateSubViewType(subView) {
           if (subView.connectionId !== undefined && typeof subView.connectionId !== 'string') {
               return false;
@@ -1172,6 +1000,30 @@
           }
           return true;
       }
+      validateStrokeType(stroke) {
+          if (stroke === undefined) {
+              return false;
+          }
+          if (stroke.points === undefined || !Array.isArray(stroke.points) || stroke.points.length === 0 || !Array.isArray(stroke.points[0]) || typeof stroke.points[0][0] !== 'number') {
+              return false;
+          }
+          if (stroke.isEnded === undefined || typeof stroke.isEnded !== 'boolean') {
+              return false;
+          }
+          if (stroke.option !== undefined && !this.validateStrokeOptionType(stroke.option)) {
+              return false;
+          }
+          return true;
+      }
+      validateStrokeOptionType(option) {
+          if (typeof option !== 'object') {
+              return false;
+          }
+          if (option.size !== undefined && typeof option.size !== 'number') {
+              return false;
+          }
+          return true;
+      }
       validateLayoutType(layout) {
           if (layout !== undefined && (typeof layout !== 'string' || (layout !== 'gallery' && layout !== 'presentation' && layout !== 'fullscreen'))) {
               return false;
@@ -1197,26 +1049,34 @@
               if (typeof sources !== 'object') {
                   return false;
               }
+              let isValid = true;
               sources.forEach((src) => {
                   if (typeof src.connectionId !== 'string') {
-                      return false;
+                      isValid = false;
                   }
                   if (typeof src.isTheta !== 'boolean') {
-                      return false;
+                      isValid = false;
                   }
                   if (typeof src.label !== 'string') {
-                      return false;
+                      isValid = false;
                   }
                   if (typeof src.url !== 'string') {
-                      return false;
+                      isValid = false;
+                  }
+                  if (src.metaUrl && typeof src.metaUrl !== 'string') {
+                      isValid = false;
                   }
                   try {
                       new URL(src.url);
+                      if (src.metaUrl) {
+                          new URL(src.metaUrl);
+                      }
                   }
                   catch (e) {
-                      return false;
+                      isValid = false;
                   }
               });
+              return isValid;
           }
           return true;
       }
@@ -1239,7 +1099,7 @@
                   this.lsConfURL = parameters.lsConfURL;
                   this.iframeElement.src = this.lsConfURL;
               }
-              const createTimeoutId = this.setRequestTimer(reject, new LSConferenceIframeError(REQUEST_ERRORS['CreateTimeout']), DEFAULT_CREATE_TIMEOUT_MSEC);
+              const createTimeoutId = this.setRequestTimer(reject, new LSConfError(new ErrorData('CreateTimeout')), DEFAULT_CREATE_TIMEOUT_MSEC);
               // allow =  "display-capture" は Chrome だと unknown parameter の warning が出るが
               // MDN の仕様では getDM する場合設定する必要があるので記載している
               // cf: https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API/Using_Screen_Capture
@@ -1250,7 +1110,7 @@
                   window.setTimeout(() => {
                       if (!this.iframeElement.contentWindow) {
                           this.state = 'idle';
-                          throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+                          throw new LSConfError(new ErrorData('InternalError5001'));
                       }
                       const postMessageParameters = {
                           type: 'create',
@@ -1272,7 +1132,7 @@
                       }
                       catch (e) {
                           this.state = 'idle';
-                          const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateFailed']);
+                          const error = new LSConfError(new ErrorData('CreateFailed'));
                           return reject(error);
                       }
                       this.setWindowMessageCallback();
@@ -1288,20 +1148,25 @@
               const instance = new this(parentElement);
               const element = parentElement || document.querySelector('body');
               if (!(element instanceof HTMLElement)) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateArgsInvalid']);
+                  const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
                   return reject(error);
               }
               if (!instance.validateCreateParameters(parameters)) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateArgsInvalid']);
+                  const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
                   return reject(error);
               }
               let extParam = parameters;
               try {
-                  // eslint-disable-next-line @typescript-eslint/no-var-requires
+                  /* eslint-disable @typescript-eslint/no-var-requires */
                   const enJson = require('./lang/en.json');
-                  // eslint-disable-next-line @typescript-eslint/no-var-requires
                   const jaJson = require('./lang/ja.json');
-                  extParam = { ...parameters, locales: { ja: jaJson, en: enJson } };
+                  const thJson = require('./lang/th.json');
+                  const viJson = require('./lang/vi.json');
+                  const koJson = require('./lang/ko.json');
+                  const zhCNJson = require('./lang/zh-CN.json');
+                  const zhTWJson = require('./lang/zh-TW.json');
+                  /* eslint-enable @typescript-eslint/no-var-requires */
+                  extParam = { ...parameters, locales: { ja: jaJson, en: enJson, th: thJson, vi: viJson, ko: koJson, zhCN: zhCNJson, zhTW: zhTWJson } };
               }
               catch (e) {
                   console.warn(`Language file could not be read : ${e.message}`);
@@ -1324,7 +1189,7 @@
                   this.lsConfURL = parameters.lsConfURL;
                   this.iframeElement.src = this.lsConfURL;
               }
-              const createTimeoutId = this.setRequestTimer(reject, new LSConferenceIframeError(REQUEST_ERRORS['CreateTimeout']), DEFAULT_CREATE_TIMEOUT_MSEC);
+              const createTimeoutId = this.setRequestTimer(reject, new LSConfError(new ErrorData('CreateTimeout')), DEFAULT_CREATE_TIMEOUT_MSEC);
               // 動画の再生プレイヤーで利用する権限を追加
               this.iframeElement.allow = 'autoplay *; fullscreen *';
               this.parentElement.appendChild(this.iframeElement);
@@ -1333,7 +1198,7 @@
                   window.setTimeout(() => {
                       if (!this.iframeElement.contentWindow) {
                           this.state = 'idle';
-                          throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+                          throw new LSConfError(new ErrorData('InternalError5001'));
                       }
                       // 指定できないパラメータについては固定値を設定する
                       const customParameters = {
@@ -1385,7 +1250,7 @@
                       }
                       catch (e) {
                           this.state = 'idle';
-                          const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateFailed']);
+                          const error = new LSConfError(new ErrorData('CreateFailed'));
                           return reject(error);
                       }
                       this.setWindowMessageCallback();
@@ -1401,24 +1266,29 @@
               const instance = new this(parentElement);
               const element = parentElement || document.querySelector('body');
               if (!(element instanceof HTMLElement)) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateArgsInvalid']);
+                  const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
                   return reject(error);
               }
               if (sources !== undefined && !instance.validateVideoSourceType(sources)) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateArgsInvalid']);
+                  const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
                   return reject(error);
               }
               if (parameters !== undefined && !instance.validateCreateParameters(parameters)) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['CreateArgsInvalid']);
+                  const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
                   return reject(error);
               }
               let extParam = parameters;
               try {
-                  // eslint-disable-next-line @typescript-eslint/no-var-requires
+                  /* eslint-disable @typescript-eslint/no-var-requires */
                   const enJson = require('./lang/en.json');
-                  // eslint-disable-next-line @typescript-eslint/no-var-requires
                   const jaJson = require('./lang/ja.json');
-                  extParam = { ...parameters, locales: { ja: jaJson, en: enJson } };
+                  const thJson = require('./lang/th.json');
+                  const viJson = require('./lang/vi.json');
+                  const koJson = require('./lang/ko.json');
+                  const zhCNJson = require('./lang/zh-CN.json');
+                  const zhTWJson = require('./lang/zh-TW.json');
+                  /* eslint-enable @typescript-eslint/no-var-requires */
+                  extParam = { ...parameters, locales: { ja: jaJson, en: enJson, th: thJson, vi: viJson, ko: koJson, zhCN: zhCNJson, zhTW: zhTWJson } };
               }
               catch (e) {
                   console.warn(`Language file could not be read : ${e.message}`);
@@ -1434,18 +1304,18 @@
               });
           });
       }
-      async join(clientId, accessToken, connectionId, connectOptions) {
+      async join(clientId, accessToken, connectOptions) {
           return new Promise((resolve, reject) => {
               this.state = 'connecting';
-              const joinTimeoutId = this.setRequestTimer(reject, new LSConferenceIframeError(REQUEST_ERRORS['JoinFailedTimeout']), DEFAULT_JOIN_TIMEOUT_MSEC);
+              const joinTimeoutId = this.setRequestTimer(reject, new LSConfError(new ErrorData('JoinFailedTimeout')), DEFAULT_JOIN_TIMEOUT_MSEC);
               if (!this.iframeElement.contentWindow) {
                   clearTimeout(joinTimeoutId);
                   this.state = 'created';
-                  throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+                  throw new LSConfError(new ErrorData('InternalError5001'));
               }
-              if (!this.validateJoinParameters(clientId, accessToken, connectionId, connectOptions)) {
+              if (!this.validateJoinParameters(clientId, accessToken, connectOptions)) {
                   this.state = 'created';
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinArgsInvalid']);
+                  const error = new LSConfError(new ErrorData('JoinArgsInvalid'));
                   clearTimeout(joinTimeoutId);
                   return reject(error);
               }
@@ -1462,7 +1332,6 @@
                   type: 'connect',
                   clientId: clientId,
                   accessToken: accessToken,
-                  connectionId: connectionId,
                   role: 'sendrecv',
                   mediaType: 'videoaudio',
                   connectOptions: connectOptions,
@@ -1485,7 +1354,7 @@
               }
               catch (e) {
                   this.state = 'created';
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['JoinFailed']);
+                  const error = new LSConfError(new ErrorData('JoinFailed'));
                   clearTimeout(joinTimeoutId);
                   return reject(error);
               }
@@ -1498,7 +1367,7 @@
               this.state = 'closing';
               if (!this.iframeElement.contentWindow) {
                   this.state = 'open';
-                  throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+                  throw new LSConfError(new ErrorData('InternalError5001'));
               }
               const postMessageParameters = {
                   type: 'leave',
@@ -1508,7 +1377,7 @@
               }
               catch (e) {
                   this.state = 'open';
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['CloseFailed']);
+                  const error = new LSConfError(new ErrorData('CloseFailed'));
                   return reject(error);
               }
               return resolve();
@@ -1523,7 +1392,7 @@
       getSubViews() {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+                  throw new LSConfError(new ErrorData('InternalError5001'));
               }
               const postMessageParameters = {
                   type: 'getSubViews',
@@ -1533,7 +1402,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetSubViewsFailed']);
+                  const error = new LSConfError(new ErrorData('GetSubViewsFailed'));
                   return reject(error);
               }
           });
@@ -1541,10 +1410,10 @@
       highlight(subView) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['HighlightArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('HighlightArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'highlight',
@@ -1555,7 +1424,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['HighlightFailed']);
+                  const error = new LSConfError(new ErrorData('HighlightFailed'));
                   return reject(error);
               }
           });
@@ -1563,13 +1432,13 @@
       getPoV(subView) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetPoVArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('GetPoVArgsInvalid')));
               }
               if (!subView.isTheta) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetPoVArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('GetPoVArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'getPoV',
@@ -1580,7 +1449,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetPoVFailed']);
+                  const error = new LSConfError(new ErrorData('GetPoVFailed'));
                   return reject(error);
               }
           });
@@ -1588,13 +1457,13 @@
       setPoV(subView, poV) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView) || !this.validatePoVType(poV)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['SetPoVArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('SetPoVArgsInvalid')));
               }
               if (!subView.isTheta) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['SetPoVArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('SetPoVArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'setPoV',
@@ -1606,7 +1475,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['SetPoVFailed']);
+                  const error = new LSConfError(new ErrorData('SetPoVFailed'));
                   return reject(error);
               }
           });
@@ -1614,13 +1483,13 @@
       setRotationVector(subView, rotationVector) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView) || !this.validateRotationVectorType(rotationVector)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['SetRotationVectorArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('SetRotationVectorArgsInvalid')));
               }
               if (!subView.isTheta) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['SetRotationVectorArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('SetRotationVectorArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'setRotationVector',
@@ -1632,7 +1501,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['SetRotationVectorFailed']);
+                  const error = new LSConfError(new ErrorData('SetRotationVectorFailed'));
                   return reject(error);
               }
           });
@@ -1640,10 +1509,10 @@
       getMediaDevices() {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (this.connectOptions && this.connectOptions.mode === 'viewer' && this.state === 'open') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['ModeInvalid']));
+                  return reject(new LSConfError(new ErrorData('ModeInvalid')));
               }
               const postMessageParameters = {
                   type: 'getMediaDevices',
@@ -1653,7 +1522,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetMediaDevicesFailed']);
+                  const error = new LSConfError(new ErrorData('GetMediaDevicesFailed'));
                   return reject(error);
               }
           });
@@ -1661,10 +1530,10 @@
       setCameraMute(isEnabled) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (this.connectOptions && this.connectOptions.mode === 'viewer' && this.state === 'open') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['ModeInvalid']));
+                  return reject(new LSConfError(new ErrorData('ModeInvalid')));
               }
               const postMessageParameters = {
                   type: 'cameraMute',
@@ -1674,7 +1543,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['CameraMuteFailed']);
+                  const error = new LSConfError(new ErrorData('CameraMuteFailed'));
                   return reject(error);
               }
               return resolve();
@@ -1683,10 +1552,10 @@
       setCameraDevice(deviceId) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (this.connectOptions && this.connectOptions.mode === 'viewer' && this.state === 'open') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['ModeInvalid']));
+                  return reject(new LSConfError(new ErrorData('ModeInvalid')));
               }
               const postMessageParameters = {
                   type: 'setCameraDevice',
@@ -1696,7 +1565,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['SetCameraDeviceFailed']);
+                  const error = new LSConfError(new ErrorData('SetCameraDeviceFailed'));
                   return reject(error);
               }
               return resolve();
@@ -1705,10 +1574,10 @@
       setMicMute(isEnabled) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (this.connectOptions && this.connectOptions.mode === 'viewer' && this.state === 'open') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['ModeInvalid']));
+                  return reject(new LSConfError(new ErrorData('ModeInvalid')));
               }
               const postMessageParameters = {
                   type: 'micMute',
@@ -1718,7 +1587,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['MicMuteFailed']);
+                  const error = new LSConfError(new ErrorData('MicMuteFailed'));
                   return reject(error);
               }
               return resolve();
@@ -1727,10 +1596,10 @@
       setMicDevice(deviceId) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (this.connectOptions && this.connectOptions.mode === 'viewer' && this.state === 'open') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['ModeInvalid']));
+                  return reject(new LSConfError(new ErrorData('ModeInvalid')));
               }
               const postMessageParameters = {
                   type: 'setMicDevice',
@@ -1740,7 +1609,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['SetMicDeviceFailed']);
+                  const error = new LSConfError(new ErrorData('SetMicDeviceFailed'));
                   return reject(error);
               }
               return resolve();
@@ -1749,7 +1618,7 @@
       enablePointer(isEnabled) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               const postMessageParameters = {
                   type: 'enablePointer',
@@ -1759,7 +1628,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['EnablePointerFailed']);
+                  const error = new LSConfError(new ErrorData('EnablePointerFailed'));
                   return reject(error);
               }
               return resolve();
@@ -1768,42 +1637,68 @@
       updatePointer(subView, connectionId, poV, username, color) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView) || (poV && !this.validatePoVType(poV))) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['UpdatePointerArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('UpdatePointerArgsInvalid')));
               }
               if (typeof connectionId !== 'string') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['UpdatePointerArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('UpdatePointerArgsInvalid')));
               }
               if (username !== undefined && typeof username !== 'string') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['UpdatePointerArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('UpdatePointerArgsInvalid')));
               }
               if (color !== undefined && typeof color !== 'string') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['UpdatePointerArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('UpdatePointerArgsInvalid')));
               }
-              const postMessageParameters = {
-                  type: 'updatePointer',
+              const parameters = {
                   subView: subView,
                   connectionId: connectionId,
                   poV: poV,
                   username: username,
                   color: color,
               };
-              this.updatePointerCallback = { success: () => resolve(), error: (err) => reject(err) };
-              try {
-                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              this.messageQueue('updatePointer', parameters);
+              // 一括実行時はエラーはログ出力のみとし一旦成功として返す
+              resolve();
+          });
+      }
+      updateStroke(subView, connectionId, stroke, username, color) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
-              catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['UpdatePointerFailed']);
-                  return reject(error);
+              if (!this.validateSubViewType(subView)) {
+                  return reject(new LSConfError(new ErrorData('UpdateStrokeArgsInvalid')));
               }
+              if (connectionId === undefined || typeof connectionId !== 'string') {
+                  return reject(new LSConfError(new ErrorData('UpdateStrokeArgsInvalid')));
+              }
+              if (username !== undefined && typeof username !== 'string') {
+                  return reject(new LSConfError(new ErrorData('UpdateStrokeArgsInvalid')));
+              }
+              if (color !== undefined && typeof color !== 'string') {
+                  return reject(new LSConfError(new ErrorData('UpdateStrokeArgsInvalid')));
+              }
+              if (!this.validateStrokeType(stroke)) {
+                  return reject(new LSConfError(new ErrorData('UpdateStrokeArgsInvalid')));
+              }
+              const parameters = {
+                  subView: subView,
+                  connectionId: connectionId,
+                  stroke: stroke,
+                  username: username,
+                  color: color,
+              };
+              this.messageQueue('updateStroke', parameters);
+              // 一括実行時はエラーはログ出力のみとし一旦成功として返す
+              resolve();
           });
       }
       getReport(type) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  throw new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']);
+                  throw new LSConfError(new ErrorData('InternalError5001'));
               }
               const postMessageParameters = {
                   type: type,
@@ -1814,7 +1709,7 @@
               }
               catch (e) {
                   this.logCallbacks.delete(type);
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetReportFailed']);
+                  const error = new LSConfError(new ErrorData('GetReportFailed'));
                   return reject(error);
               }
           });
@@ -1822,7 +1717,7 @@
       getLSConfLog() {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               const postMessageParameters = {
                   type: 'getLSConfLog',
@@ -1835,7 +1730,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetLSConfLogFailed']);
+                  const error = new LSConfError(new ErrorData('GetLSConfLogFailed'));
                   return reject(error);
               }
           });
@@ -1849,13 +1744,13 @@
       getStats(subView, kind) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetStatsArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('GetStatsArgsInvalid')));
               }
               if (kind && kind !== 'audio' && kind !== 'video') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetStatsArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('GetStatsArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'getStats',
@@ -1870,7 +1765,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['GetStatsFailed']);
+                  const error = new LSConfError(new ErrorData('GetStatsFailed'));
                   return reject(error);
               }
           });
@@ -1878,7 +1773,7 @@
       changeLayout(layout, subViews) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               let isValidSubViews = true;
               if (subViews) {
@@ -1889,7 +1784,7 @@
                   });
               }
               if (!this.validateLayoutType(layout) || !isValidSubViews) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['ChangeLayoutArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('ChangeLayoutArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'changeLayout',
@@ -1900,7 +1795,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['ChangeLayoutFailed']);
+                  const error = new LSConfError(new ErrorData('ChangeLayoutFailed'));
                   return reject(error);
               }
               return resolve();
@@ -1909,13 +1804,13 @@
       addRecordingMember(subView, connectionId) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (typeof connectionId !== 'string') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['AddRecordingMemberArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('AddRecordingMemberArgsInvalid')));
               }
               if (!this.validateSubViewType(subView)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['AddRecordingMemberArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('AddRecordingMemberArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'addRecordingMember',
@@ -1927,7 +1822,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['AddRecordingMemberFailed']);
+                  const error = new LSConfError(new ErrorData('AddRecordingMemberFailed'));
                   return reject(error);
               }
           });
@@ -1935,13 +1830,13 @@
       removeRecordingMember(subView, connectionId) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (typeof connectionId !== 'string') {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['RemoveRecordingMemberArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('RemoveRecordingMemberArgsInvalid')));
               }
               if (!this.validateSubViewType(subView)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['RemoveRecordingMemberArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('RemoveRecordingMemberArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'removeRecordingMember',
@@ -1953,7 +1848,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['RemoveRecordingMemberFailed']);
+                  const error = new LSConfError(new ErrorData('RemoveRecordingMemberFailed'));
                   return reject(error);
               }
           });
@@ -1961,13 +1856,13 @@
       getCaptureImage(subView, options) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('GetCaptureImageArgsInvalid')));
               }
               if (!this.validateCaptureImageOptionsType(options)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('GetCaptureImageArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'getCaptureImage',
@@ -1982,12 +1877,12 @@
                       success: () => {
                           try {
                               if (!this.iframeElement.contentWindow) {
-                                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                                  return reject(new LSConfError(new ErrorData('InternalError5001')));
                               }
                               this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
                           }
                           catch (e) {
-                              const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageFailed']);
+                              const error = new LSConfError(new ErrorData('GetCaptureImageFailed'));
                               return reject(error);
                           }
                       },
@@ -1999,7 +1894,7 @@
                       this.iframeElement.contentWindow.postMessage(postUpdateCurrentTimeMessageParameters, this.lsConfURL);
                   }
                   catch (e) {
-                      const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageFailed']);
+                      const error = new LSConfError(new ErrorData('GetCaptureImageFailed'));
                       return reject(error);
                   }
               }
@@ -2009,7 +1904,7 @@
                       this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
                   }
                   catch (e) {
-                      const error = new LSConferenceIframeError(REQUEST_ERRORS['GetCaptureImageFailed']);
+                      const error = new LSConfError(new ErrorData('GetCaptureImageFailed'));
                       return reject(error);
                   }
               }
@@ -2018,10 +1913,10 @@
       startReceiveVideo(subView) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['StartReceiveVideoArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('StartReceiveVideoArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'startReceiveVideo',
@@ -2032,7 +1927,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['StartReceiveVideoFailed']);
+                  const error = new LSConfError(new ErrorData('StartReceiveVideoFailed'));
                   return reject(error);
               }
           });
@@ -2040,10 +1935,10 @@
       stopReceiveVideo(subView) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['StopReceiveVideoArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('StopReceiveVideoArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'stopReceiveVideo',
@@ -2054,7 +1949,7 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['StopReceiveVideoFailed']);
+                  const error = new LSConfError(new ErrorData('StopReceiveVideoFailed'));
                   return reject(error);
               }
           });
@@ -2062,10 +1957,10 @@
       enableZoom(subView, isEnabled) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
-                  return reject(new LSConferenceIframeError(INTERNAL_ERRORS['InternalError5001']));
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
               }
               if (!this.validateSubViewType(subView)) {
-                  return reject(new LSConferenceIframeError(REQUEST_ERRORS['EnableZoomArgsInvalid']));
+                  return reject(new LSConfError(new ErrorData('EnableZoomArgsInvalid')));
               }
               const postMessageParameters = {
                   type: 'enableZoom',
@@ -2077,7 +1972,29 @@
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  const error = new LSConferenceIframeError(REQUEST_ERRORS['EnableZoomFailed']);
+                  const error = new LSConfError(new ErrorData('EnableZoomFailed'));
+                  return reject(error);
+              }
+          });
+      }
+      addVideoSource(source) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              if (!this.validateVideoSourceType([source])) {
+                  return reject(new LSConfError(new ErrorData('AddVideoSourceArgsInvalid')));
+              }
+              const postMessageParameters = {
+                  type: 'addVideoSource',
+                  source,
+              };
+              this.addVideoSourceCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('AddVideoSourceFailed'));
                   return reject(error);
               }
           });
@@ -2110,8 +2027,8 @@
       }
       dispatchEvent(event) {
           // eventListeners の options 相当の実装はしない
-          if (!(event instanceof LSConfEvent)) {
-              throw new TypeError(`Failed to execute 'dispatchEvent' on '${this.constructor.name}': parameter 1 is not of type 'LSConfEvent'.`);
+          if (!(event instanceof LSConfEvent) && !(event instanceof LSConfErrorEvent)) {
+              throw new TypeError(`Failed to execute 'dispatchEvent' on '${this.constructor.name}': parameter 1 is not of type 'LSConfEvent' or 'LSConfErrorEvent'.`);
           }
           const type = event.type;
           const listeners = this.eventListeners.get(type);
@@ -2161,6 +2078,34 @@
                       return;
                   this.removeApplicationEventListener(event.type, listener, options);
               });
+          }
+      }
+      /**
+       * APIをキューに溜めてから一括実行する
+       * @param type API識別子
+       * @param parameter キューに溜めるパラメータ
+       */
+      messageQueue(type, parameter) {
+          const queue = this.parametersQueue.get(type) || [];
+          queue.push(parameter);
+          // リクエストパラメータをtypeごとにキューに格納
+          this.parametersQueue.set(type, queue);
+          if (queue.length <= 1) {
+              window.setTimeout(() => {
+                  const postMessageParameters = { type, queue: this.parametersQueue.get(type) || [] };
+                  try {
+                      if (!this.iframeElement.contentWindow) {
+                          console.warn(`Internal error in messageQueue. type: ${type}.`);
+                      }
+                      else {
+                          this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+                          this.parametersQueue.set(type, []);
+                      }
+                  }
+                  catch (e) {
+                      console.warn(`Exception occurred in postMessage. type: ${type}.`, e);
+                  }
+              }, DEFAULT_MESSAGE_QUEUE_TIMEOUT_MSEC);
           }
       }
   }

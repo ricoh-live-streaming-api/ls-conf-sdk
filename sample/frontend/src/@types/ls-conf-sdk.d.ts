@@ -34,6 +34,10 @@ export declare type CreateParameters = {
         enableAutoVideoReceiving?: boolean;
         speakingThreshold?: number;
         speakingIndicatorDuration?: number;
+        isHiddenDrawingButton?: boolean;
+        drawingInterval?: number;
+        drawingColor?: string;
+        drawingOption?: StrokeOption;
         normal?: {
             enableZoom: boolean;
         };
@@ -84,15 +88,26 @@ export declare type CreateParameters = {
     locales?: {
         ja?: unknown;
         en?: unknown;
+        th?: unknown;
+        vi?: unknown;
+        ko?: unknown;
+        zhCN?: unknown;
+        zhTW?: unknown;
     };
 };
 export declare type LayoutType = 'gallery' | 'presentation' | 'fullscreen';
 export declare type EntranceType = 'none' | 'click';
+/** ストロークの設定オプション */
+export declare type StrokeOption = {
+    /** ストロークの太さ */
+    size?: number;
+};
 export declare type VideoSource = {
     url: string;
     connectionId: string;
     label: string;
     isTheta: boolean;
+    metaUrl?: string;
 };
 export declare type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
 export declare type MuteType = 'hard' | 'soft';
@@ -110,10 +125,6 @@ export declare type ConnectOptions = {
     videoCodec?: VideoCodecType;
     videoAudioConstraints?: MediaStreamConstraints;
     screenShareConstraints?: MediaStreamConstraints;
-};
-export declare type ScreenShareParameters = {
-    connectionId: string;
-    accessToken: string;
 };
 export declare type MediaTypes = 'VIDEO_AUDIO' | 'SCREEN_SHARE' | 'VIDEO_FILE';
 export declare type TrackKind = 'video' | 'audio';
@@ -135,6 +146,15 @@ export declare type PoV = {
     tilt: number;
     fov: number;
 };
+/** ストローク情報 */
+export declare type Stroke = {
+    /** ストロークの座標情報 */
+    points: number[][];
+    /** ストロークを書き終わったかどうか*/
+    isEnded: boolean;
+    /** ストロークのオプション */
+    option?: StrokeOption;
+};
 export declare type ImageMimeType = 'image/png' | 'image/jpeg';
 export declare type RotationVector = {
     pitch: number;
@@ -144,7 +164,7 @@ export declare type CaptureImageOptions = {
     mimeType?: ImageMimeType;
     qualityArgument?: number;
 };
-export declare type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'error';
+export declare type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'error';
 declare class LSConferenceIframe {
     parentElement: HTMLElement;
     iframeElement: HTMLIFrameElement;
@@ -171,7 +191,6 @@ declare class LSConferenceIframe {
     private removeRecordingMemberCallback;
     private logCallbacks;
     private getMediaDevicesCallback;
-    private updatePointerCallback;
     private getCaptureImageCallback;
     private updateCurrentTimeCallback;
     private getLSConfLogCallback;
@@ -179,16 +198,19 @@ declare class LSConferenceIframe {
     private startReceiveVideoCallback;
     private stopReceiveVideoCallback;
     private enableZoomCallback;
+    private addVideoSourceCallback;
     private static _handleWindowMessage;
+    private parametersQueue;
     constructor(parentElement: HTMLElement);
     private handleWindowMessage;
     private setWindowMessageCallback;
     private validateCreateParameters;
     private validateJoinParameters;
-    private validateScreenShareParameters;
     private validateSubViewType;
     private validatePoVType;
     private validateRotationVectorType;
+    private validateStrokeType;
+    private validateStrokeOptionType;
     private validateLayoutType;
     private validateCaptureImageOptionsType;
     private validateVideoSourceType;
@@ -197,7 +219,7 @@ declare class LSConferenceIframe {
     static create(parentElement: HTMLElement, parameters: Partial<CreateParameters>): Promise<LSConferenceIframe>;
     private __createPlayer;
     static createPlayer(parentElement: HTMLElement, sources: VideoSource[], parameters?: Partial<CreateParameters>): Promise<LSConferenceIframe>;
-    join(clientId: string, accessToken: string, connectionId: string, connectOptions: ConnectOptions): Promise<void>;
+    join(clientId: string, accessToken: string, connectOptions: ConnectOptions): Promise<void>;
     leave(): Promise<void>;
     onShareRequested(callback: Function): void;
     getSubViews(): Promise<SubView[]>;
@@ -212,6 +234,7 @@ declare class LSConferenceIframe {
     setMicDevice(deviceId: string): Promise<void>;
     enablePointer(isEnabled: boolean): Promise<void>;
     updatePointer(subView: SubView, connectionId: string, poV: PoV | null, username?: string, color?: string): Promise<void>;
+    updateStroke(subView: SubView, connectionId: string, stroke: Stroke, username?: string, color?: string): Promise<void>;
     private getReport;
     getLSConfLog(): Promise<string>;
     getVideoAudioStats(): Promise<string>;
@@ -224,6 +247,7 @@ declare class LSConferenceIframe {
     startReceiveVideo(subView: SubView): Promise<void>;
     stopReceiveVideo(subView: SubView): Promise<void>;
     enableZoom(subView: SubView, isEnabled: boolean): Promise<void>;
+    addVideoSource(source: VideoSource): Promise<void>;
     iframe(): HTMLIFrameElement;
     addEventListener(type: EventType, callback: Function, options?: AddEventListenerOptions): void;
     removeEventListener(type: EventType, callback: Function, _options?: boolean | EventListenerOptions): void;
@@ -231,5 +255,11 @@ declare class LSConferenceIframe {
     addApplicationEventListener(type: string, callback: Function, options?: AddEventListenerOptions): void;
     removeApplicationEventListener(type: string, callback: Function, _options?: boolean | EventListenerOptions): void;
     private dispatchApplicationEvent;
+    /**
+     * APIをキューに溜めてから一括実行する
+     * @param type API識別子
+     * @param parameter キューに溜めるパラメータ
+     */
+    private messageQueue;
 }
 export default LSConferenceIframe;

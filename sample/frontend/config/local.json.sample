@@ -19,6 +19,12 @@
     "enableAutoVideoReceiving": true,
     "speakingThreshold": 10,
     "speakingIndicatorDuration": 500,
+    "isHiddenDrawingButton": true,
+    "drawingInterval": 500,
+    "drawingColor": "#661FFF",
+    "drawingOption": {
+      "size": 8
+    },
     "theta": {
       "enableZenithCorrection": true
     },  
@@ -42,8 +48,8 @@
     "components": {
       "participantsVideoContainer": {
         "background": "rgba(0, 0, 0, 0.05)",
-        "subViewSwitchBackgroundColor" : "#fff",
-        "subViewSwitchIconColor" : "rgba(0, 0, 0, 0.87)"
+        "subViewSwitchBackgroundColor": "#fff",
+        "subViewSwitchIconColor": "rgba(0, 0, 0, 0.87)"
       },
       "toolbar": {
         "background": "#303030",

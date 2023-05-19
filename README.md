@@ -34,7 +34,7 @@ RICOH Live Streaming Conference は RICOH Live Streaming Service を使った様
   * `README.md`: LSConfを利用したサンプルアプリの説明
   * `CHANGELOG.md`: サンプルアプリの変更履歴
   * `frontend/`: サンプルアプリのfrontend
-  * `backend/`: サンプルアプリのfrontend
+  * `backend/`: サンプルアプリのbackend
 
 ## アプリケーションからの利用例
 
@@ -90,11 +90,7 @@ async function createAndJoin() {
     } catch(error) {
       console.error('createAccessToken failed: ', error.detail.type);
     }
-    const screenShareParameters = {
-      connectionId: 'screenShareConnectionId',
-      accessToken: accessToken,
-    };
-    return screenShareParameters;
+    return accessToken;
   });
 
   let accessToken = null;
@@ -109,7 +105,6 @@ async function createAndJoin() {
     await frame.join({
       clientId: 'hoge',
       acccessToken: accessToken,
-      connectionId: 'connectionId',
       connectOptions: {
         username: 'huga'
         enableVideo: true,

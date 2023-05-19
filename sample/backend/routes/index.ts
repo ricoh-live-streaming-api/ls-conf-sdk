@@ -1,10 +1,11 @@
 /* eslint @typescript-eslint/naming-convention: 0 */
-import { addMinutes, getUnixTime } from 'date-fns';
+import { addMinutes, getUnixTime, subMinutes } from 'date-fns';
 import express, { NextFunction, Request, Response, Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import * as path from 'path';
 
+import { getRoomInfo } from '../api';
 import { LS_CLIENT_SECRET } from '../app';
 
 const router: Router = express.Router();
@@ -21,16 +22,18 @@ const configPath = path.resolve(__dirname, `../config/${configFileName}`);
 const configJson = require(configPath);
 
 const generateToken = async (secret: string, req: Request): Promise<string> => {
-  const { room_id, connection_id, bitrate_reservation_mbps, room_type } = req.body;
+  const { room_id, connection_id, bitrate_reservation_mbps, room_type, max_connections } = req.body;
+  const roomType = room_type || 'sfu';
   const payload = {
-    nbf: getUnixTime(new Date()),
-    exp: getUnixTime(addMinutes(new Date(), 3)),
+    nbf: getUnixTime(subMinutes(new Date(), 30)),
+    exp: getUnixTime(addMinutes(new Date(), 30)),
     connection_id: connection_id,
     room_id: room_id,
     room_spec: {
-      type: room_type || 'sfu',
+      type: roomType,
+      max_connections: Number(max_connections) || (roomType === 'sfu_large' ? 300 : 50),
       media_control: {
-        bitrate_reservation_mbps: Number(bitrate_reservation_mbps) || configJson.bitrate_reservation_mbps,
+        bitrate_reservation_mbps: Number(bitrate_reservation_mbps) || configJson.bitrateReservationMbps,
       },
     },
   };
@@ -56,6 +59,17 @@ router.post('/access_token', accessTokenValidator, async (req: Request, res: Res
   }
   const access_token = await generateToken(LS_CLIENT_SECRET, req);
   res.json(access_token);
+});
+
+// Room情報取得用のエンドポイント
+router.get('/rooms/:room_id', async (req: Request, res: Response) => {
+  const roomId = req.params.room_id;
+  try {
+    const data = await getRoomInfo(configJson.apiBase, configJson.clientId, roomId);
+    res.json(data);
+  } catch (error) {
+    res.json(error);
+  }
 });
 
 // healthcheck 用のエンドポイント

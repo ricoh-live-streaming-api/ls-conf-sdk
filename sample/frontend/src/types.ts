@@ -41,6 +41,12 @@ interface LSConfSampleConfig {
   DEFAULT_LAYOUT: string;
   TOOLBAR_CONFIG: ToolbarConfig;
   SUBVIEW_CONFIG: {
+    isHiddenDrawingButton: boolean;
+    drawingInterval: number;
+    drawingColor: string;
+    drawingOption: {
+      size: number;
+    };
     theta: {
       enableZenithCorrection: boolean;
     };

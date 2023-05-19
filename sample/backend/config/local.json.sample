@@ -1,4 +1,6 @@
 {
+  "apiBase": "https://api.livestreaming.mw.smart-integration.ricoh.com/v1",
+  "clientId": "",
   "port": 4000,
-  "bitrate_reservation_mbps": 25
+  "bitrateReservationMbps": 25
 }

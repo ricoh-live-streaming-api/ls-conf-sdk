@@ -9,7 +9,14 @@ const validateBitrateReservation = (bitrate: string): boolean => {
   return false;
 };
 const validateRoomType = (roomType: string): boolean => {
-  if (roomType === 'sfu' || roomType === 'p2p' || roomType === 'p2p_turn') {
+  if (roomType === 'sfu' || roomType === 'sfu_large' || roomType === 'p2p' || roomType === 'p2p_turn') {
+    return true;
+  }
+  return false;
+};
+const validateMaxConnections = (maxConnections: string): boolean => {
+  const param = Number(maxConnections);
+  if (!isNaN(param) && Number.isInteger(param) && param > 0) {
     return true;
   }
   return false;
@@ -33,14 +40,16 @@ async function fetchPost<T>(path: string, body?: Record<string, string | number 
 }
 
 // Access Token の取得 API
-export async function fetchAccessToken(roomId: string, connectionId: string, bitrateReservation?: string, roomType?: string): Promise<string> {
-  if (bitrateReservation && validateBitrateReservation(bitrateReservation) && roomType && validateRoomType(roomType)) {
-    return fetchPost('/access_token', { room_id: roomId, connection_id: connectionId, bitrate_reservation_mbps: bitrateReservation, room_type: roomType });
-  } else if (bitrateReservation && validateBitrateReservation(bitrateReservation)) {
-    return fetchPost('/access_token', { room_id: roomId, connection_id: connectionId, bitrate_reservation_mbps: bitrateReservation });
-  } else if (roomType && validateRoomType(roomType)) {
-    return fetchPost('/access_token', { room_id: roomId, connection_id: connectionId, room_type: roomType });
-  } else {
-    return fetchPost('/access_token', { room_id: roomId, connection_id: connectionId });
+export async function fetchAccessToken(roomId: string, connectionId: string, bitrateReservation?: string, roomType?: string, maxConnections?: string): Promise<string> {
+  const body: Record<string, string | number | boolean> = { room_id: roomId, connection_id: connectionId };
+  if (bitrateReservation && validateBitrateReservation(bitrateReservation)) {
+    body['bitrate_reservation_mbps'] = bitrateReservation;
   }
+  if (roomType && validateRoomType(roomType)) {
+    body['room_type'] = roomType;
+  }
+  if (maxConnections && validateMaxConnections(maxConnections)) {
+    body['max_connections'] = maxConnections;
+  }
+  return fetchPost('/access_token', body);
 }

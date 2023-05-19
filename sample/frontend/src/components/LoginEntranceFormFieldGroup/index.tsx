@@ -116,7 +116,7 @@ const LoginEntranceFormFieldGroup: React.FC<LoginEntranceFormFieldGroupProps> = 
     <div className="mdc-card">
       <div className="join-content">
         <Typography use="headline6" tag="h1" theme="onSurface">
-          RICOH Live Streaming Service
+          RICOH Live Streaming Conference Sample
         </Typography>
         <form>
           <div className="form-group">

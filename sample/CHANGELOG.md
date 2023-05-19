@@ -1,5 +1,26 @@
 # 変更履歴
 
+## 1.6.3
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v5.1.3` に更新
+
+## 1.6.2
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v5.1.2` に更新
+
+## 1.6.1
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v5.1.0` に更新
+
+## 1.6.0
+- Added
+  - [Frontend] 受信専用のサンプルアプリ（streaming-viewer-app）を追加
+- Changed
+  - [Frontend] `ls-conf-sdk` を `v5.0.0` に更新
+  - [Backend] AccessToken の有効期限を現在時刻の前後30分に変更
+  - [Frontend, Backend] Node 16 に対応
+  - [Frontend, Backend] 依存ライブラリを更新
+
 ## 1.5.0
 - Added
   - [Frontend] Entrance時の `audio_mute_type` のクエリパラメータ指定を追加
@@ -7,9 +28,7 @@
 - Changed
   - [Frontend] `ls-conf-sdk` を `v4.1.0` に更新
   - [Frontend] ローカル録画時に黒画面を検知するとエラーメッセージを表示するように変更
-- Refactored
-  - [Frontend] 依存ライブラリを更新
-  - [Backend] 依存ライブラリを更新
+  - [Frontend, Backend] 依存ライブラリを更新
 
 ## 1.4.5
 - Changed
@@ -28,9 +47,7 @@
 - Changed
   - [Frontend] `ls-conf-sdk` を `v2.5.0` に更新
   - [Frontend] `ls-conf-sdk` のインタフェース変更に対応
-- Refactored
-  - [Frontend] 依存ライブラリを更新
-  - [Backend] 依存ライブラリを更新
+  - [Frontend, Backend] 依存ライブラリを更新
 
 ## 1.4.1
 - Changed
@@ -41,9 +58,7 @@
   - [Frontend] Entrance時の `video_codec` のクエリパラメータ指定を追加
 - Changed
   - [Frontend] `ls-conf-sdk` を `v2.3.0` に更新
-- Refactored
-  - [Frontend] 依存ライブラリを更新
-  - [Backend] 依存ライブラリを更新
+  - [Frontend, Backend] 依存ライブラリを更新
 
 ## 1.3.4
 - Changed
@@ -70,9 +85,7 @@
 - Changed
   - [Frontend] `ls-conf-sdk` を `v2.1.0` に更新
   - [Frontend] 録画開始/停止のイベントに合わせてローカルの録画通知を表示するように変更
-- Refactored
-  - [Frontend] 依存ライブラリを更新
-  - [Backend] 依存ライブラリを更新
+  - [Frontend, Backend] 依存ライブラリを更新
 
 ## 1.1.0
 - Changed

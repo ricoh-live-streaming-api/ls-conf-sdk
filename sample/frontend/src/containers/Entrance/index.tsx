@@ -9,7 +9,7 @@ import LoginEntranceFormFieldGroup from '@/components/LoginEntranceFormFieldGrou
 const Entrance: React.FC<Record<string, never>> = () => {
   const params: { roomId: string } = useParams();
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, audio_mute_type, use_dummy_device, bitrate_reservation_mbps, room_type, video_codec, is_debug } = qs.parse(
+  const { video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, audio_mute_type, use_dummy_device, bitrate_reservation_mbps, room_type, video_codec, max_connections } = qs.parse(
     window.location.search
   );
   const [roomId, setRoomId] = useState<string>('');
@@ -48,8 +48,8 @@ const Entrance: React.FC<Record<string, never>> = () => {
     if (video_codec && (video_codec === 'h264' || video_codec === 'vp8' || video_codec === 'vp9' || video_codec === 'h265' || video_codec === 'av1')) {
       uriPath += `&video_codec=${video_codec}`;
     }
-    if (is_debug) {
-      uriPath += `&is_debug=${is_debug}`;
+    if (max_connections) {
+      uriPath += `&max_connections=${max_connections}`;
     }
     /* eslint-enable @typescript-eslint/naming-convention */
     window.open(uriPath);

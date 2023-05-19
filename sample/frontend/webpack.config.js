@@ -112,6 +112,23 @@ const configSchema = {
         "speakingIndicatorDuration": {
           "type": "number"
         },
+        "isHiddenDrawingButton": {
+          "type": "boolean"
+        },
+        "drawingInterval": {
+          "type": "number"
+        },
+        "drawingColor": {
+          "type": "string"
+        },
+        "drawingOption": {
+          "type": "object",
+          "properties": { 
+            "size": {
+              "type": "number",
+            },
+          }
+        },
         "theta": {
           "type": "object",
           "properties": {
