@@ -1,6 +1,5 @@
 {
   "name": "ls-conf-sample-backend",
-  "version": "1.6.3",
   "private": true,
   "scripts": {
     "start": "npx ts-node --project ./tsconfig.json ./app.ts"

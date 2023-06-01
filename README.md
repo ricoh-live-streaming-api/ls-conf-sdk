@@ -32,7 +32,6 @@ RICOH Live Streaming Conference は RICOH Live Streaming Service を使った様
   * `lang/`: 言語設定（本ディレクトリを `ls-conf-sdk.js` と同じ場所に配置してください）
 * `sample/`
   * `README.md`: LSConfを利用したサンプルアプリの説明
-  * `CHANGELOG.md`: サンプルアプリの変更履歴
   * `frontend/`: サンプルアプリのfrontend
   * `backend/`: サンプルアプリのbackend
 
