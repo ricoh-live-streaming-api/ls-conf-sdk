@@ -208,6 +208,9 @@ const configSchema = {
         "secondaryTextColor": {
           "type": "string",
         },
+        "disabledTextColor": {
+          "type": "string",
+        },
         "components": {
           "type": "object",
           "properties": {

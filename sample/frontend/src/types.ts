@@ -7,6 +7,18 @@ export interface RootState {}
 // 非同期 Action の型定義
 // XXX(kdxu): thunk 定義をslice ごとに切り分けられたらそうするのが良さそう
 export type RootThunk = ThunkAction<void, RootState, unknown, Action<string>>;
+// Access Token 取得設定の型定義
+export type AccessTokenSetting = {
+  connection_id: string;
+  room_id: string;
+  room_spec: {
+    type: string;
+    max_connections?: number;
+    media_control?: {
+      bitrate_reservation_mbps?: number;
+    };
+  };
+};
 
 interface ToolbarItem {
   type: string;
@@ -72,6 +84,7 @@ interface LSConfSampleConfig {
     onPrimary: string;
     primaryTextColor: string;
     secondaryTextColor: string;
+    disabledTextColor: string;
     components: {
       participantsVideoContainer: {
         background: string;

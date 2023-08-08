@@ -26,7 +26,7 @@
 メディアの種別です。
 
 ```js
-type MediaTypes = 'VIDEO_AUDIO' | 'SCREEN_SHARE' | 'VIDEO_FILE';
+type MediaTypes = 'VIDEO_AUDIO' | 'SCREEN_SHARE' | 'VIDEO_FILE' | 'IMAGE_FILE';
 ```
 
 #### EntranceType
@@ -67,6 +67,14 @@ type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
 ```
 
 実際に利用可能なcodecはプラットフォームとブラウザによって異なります。未対応のコーデックを指定した場合には接続時にエラーが発生し接続に失敗します。
+
+#### IceServersProtocolType
+
+iceServers に使用する TURN Protocol の種別です。
+
+```js
+type IceServersProtocolType = 'all' | 'udp' | 'tcp' | 'tls';
+```
 
 #### MuteType
 
@@ -168,7 +176,7 @@ type RotationVector = {
 [LSConfの規定のイベント](#Events)の種類を表す文字列で、各イベントリスナーの登録・削除のAPIで使用します。
 
 ```ts
-type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'error';
+type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'playerStateChanged' | 'error';
 ```
 
 #### ToolbarItem
@@ -258,11 +266,11 @@ type Stroke {
 
 |Name|Type|説明|
 |:--|:--|:--|
-|points|number[][]|ストロークを構成する座標の配列<br>映像の左上を原点(0, 0)とし、映像のサイズを基準とした座標が格納される(※1)<br>ストロークとして連続的な値を保持するため映像のサイズを超えた範囲の座標も含まれる|
+|points|number[][]|ストロークを構成する座標の配列<br>映像の左上を原点(0, 0)、右下を(1, 1)とした時の座標が格納される(※1)<br>ストロークとして連続的な値を保持するため、映像サイズを超えた範囲の座標(0以下や1以上の座標)も含まれる|
 |isEnded|boolean|ストロークを書き終わったかどうか|
 |option|[StrokeOption](#strokeoption)|ストロークのオプション<br>未指定の場合はデフォルト値となる|
 
-(※1): LSConfから取得したストロークを別クライアント（ClientSDK）側で描画する際は、そのクライアントで描画している映像サイズと同じ倍率でストロークを表示する必要があります
+(※1): LSConfから取得したストロークを別クライアント（ClientSDK）側で描画する際は、そのクライアントで描画している映像サイズと同じ大きさに拡大してストロークを表示する必要があります
 
 ##### StrokeOption
 
@@ -276,6 +284,46 @@ type StrokeOption {
 |:--|:--|:--|:--|
 |size|number|8| ストロークの太さ（単位はpx） |
 
+#### PlayerState
+
+Playerの再生状態を表します。
+
+```js
+type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
+```
+|PlayerState|説明|
+|:--|:--|
+|loading|ロード中|
+|playing|再生中|
+|pause|一時停止中|
+|ended|メディアの終端に到達|
+
+#### ImageSource
+
+SubViewに指定する画像ファイルのソース情報を表します。
+
+```js
+type ImageSource = {
+  url: string;
+  connectionId: IDString;
+  label: string;
+  isTheta: boolean;
+};
+```
+|Name|Type|説明|
+|:--|:--|:--|
+| url | string | 画像ファイルのURLの文字列(※) |
+| connectionId | IDString | 画像ファイルの識別子 |
+| label | string | 画像ファイルの表示名 |
+| isTheta | boolean | 360画像として表示するかどうか |
+
+(※) 指定するファイルについて
+- 表示できる画像のファイル形式（`jpeg`, `png`等）はブラウザの仕様に依存します
+- ファイル名にURIとして使用不可能な文字列（[RFC3986](https://datatracker.ietf.org/doc/html/rfc3986)で定義）が含まれる場合はURLエンコード済の文字列を指定してください
+  - NG: `https://example.com/image/RICOH+THETA+Z1-20220514_152010.jpeg`
+  - OK: `https://example.com/image/RICOH%2BTHETA%2BZ1-20220514_152010.jpeg`
+- 指定するファイルは以下のLSConfのURLに対してのCORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要があります
+  - `https://conf.livestreaming.mw.smart-integration.ricoh.com`
 
 ### Properties
 
@@ -346,17 +394,22 @@ join時に指定する `ConnectOptions` の一覧です。
 | `username` | string | require | - | 拠点名に表示されるユーザ名 |
 | `enableVideo` | boolean | require | - | 通話開始時にカメラを有効にするかどうか |
 | `enableAudio` | boolean | require | - | 通話開始時にマイクを有効にするかどうか |
-| `audioMuteType` | [MuteType](#mutetype) | optional | "hard" | マイクミュート時の挙動を設定する<br>通話途中での変更はできない |
+| `audioMuteType` | [MuteType](#mutetype) | optional | "soft" | マイクミュート時の挙動を設定する(※1)<br>通話途中での変更はできない |
 | `mode` | [ModeType](#modetype) | optional | "normal" | メディア情報（映像/音声/画面共有）送受信のモードを設定する<br>通話途中でモードの変更はできない |
 | `maxVideoBitrate` | number | optional | 2000 | カメラ映像の最大送信ビットレート [kbps]<br>(`100`以上`20000`以下) |
 | `maxShareBitrate` | number | optional | 2000 | 画面共有の最大送信ビットレート [kbps]<br>(`100`以上`20000`以下) |
 | `useDummyDevice` | boolean | optional | false | ダミーデバイスを有効にする<br> - 通話開始時のカメラとマイクがダミーデバイスとなりデバイスなしで参加可能<br> - デバイス設定で「使用しない」が選択可能となる |
 | `signalingURL` | string | optional | デフォルトURL | LSのSignalingURL |
 | `videoCodec` | [VideoCodecType](#videocodectype) | optional | "h264" | 送信映像のビデオコーデック |
-| `videoAudioConstraints` | [MediaStreamConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) | optional | `{ "video": { "aspectRatio": 16 / 9 }, "audio": true }` | カメラ映像とマイク音声に対する制約（[MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints)）を指定する(※1)<br>`video`および`audio`に`false`が指定された場合はダミーデバイスを使用する |
-| `screenShareConstraints` | [MediaStreamConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) | optional | `{ "video": true, "audio": true }` | 画面共有時のディスプレイ映像と音声に対する制約（[MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints)）を指定する(※1) |
+| `videoAudioConstraints` | [MediaStreamConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) | optional | `{ "video": { "aspectRatio": 16 / 9 }, "audio": true }` | カメラ映像とマイク音声に対する制約（[MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints)）を指定する(※2)<br>`video`および`audio`に`false`が指定された場合はダミーデバイスを使用する |
+| `screenShareConstraints` | [MediaStreamConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) | optional | `{ "video": true, "audio": true }` | 画面共有時のディスプレイ映像と音声に対する制約（[MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints)）を指定する(※2) |
+| `iceServersProtocol` | [IceServersProtocolType](#iceserversprotocoltype) | optional | "all" | iceServers に使用する TURN Protocol(※3) |
   
-(※1): 実際に利用可能な制約はブラウザによって異なります。未対応の制約は無視されます。詳細は[こちら](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints#browser_compatibility)をご参照ください。  
+(※1): "hard" にした場合、 MobileSafari でマイク/スピーカーが効かなくなる問題が発生する可能性があります
+
+(※2): 実際に利用可能な制約はブラウザによって異なります。未対応の制約は無視されます。詳細は[こちら](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints#browser_compatibility)をご参照ください。  
+
+(※3): 詳細については[こちら](https://api.livestreaming.ricoh/docs/introduction-ice-servers-protocol/)を参照ください。
 
 ### Factory Methods
 
@@ -1006,7 +1059,7 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
 - 返り値
   - 成功時: `Promise<void>`
   - 失敗時: `Promise`
-    - ErrorDetail.error: `'UpdateStrokeFailed' | 'UpdateStrokeError' | 'UpdateStrokeArgsInvalid'`
+    - ErrorDetail.error: `'UpdateStrokeFailed' | 'UpdateStrokeArgsInvalid'`
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1026,7 +1079,7 @@ Playerで指定する動画ファイルのソース情報を追加する。
 - 返り値
   - 設定成功時: `Promise<void>`
   - 設定失敗時: `Promise`
-    - ErrorDetail.error: `'AddVideoSourceFailed' | 'AddVideoSourceError' | 'AddVideoSourceArgsInvalid'`
+    - ErrorDetail.error: `'AddVideoSourceFailed' | 'AddVideoSourceArgsInvalid'`
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1038,6 +1091,43 @@ Playerで指定する動画ファイルのソース情報を追加する。
 - 追加された動画の再生/一時停止は VideoControlBar の再生/一時停止ボタンと連動する
 
 ※ 同期再生中に現在の全ての動画の開始時刻より前の時刻を含む動画を追加した場合はその時間の差分だけ再生位置が前に移動します。
+
+#### addImageSource(source, parentConnectionId?)
+
+画像ファイルを指定してSubViewに追加する。
+`ImageSource.connectionId` がすでに存在する場合は情報を上書きする。
+
+- 引数
+  - require
+    - source
+  - optional
+    - parentConnectionId
+- 返り値
+  - 設定成功時: `Promise<void>`
+  - 設定失敗時: `Promise`
+    - ErrorDetail.error: `'AddImageSourceFailed' | 'AddImageSourceError' | 'AddImageSourceArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| source | [ImageSource](#imagesource) | 画像ファイルのソース情報 |
+| parentConnectionId | IDString | このSubViewの親のconnection_id(※)<br>未指定の場合は以下となります<br> - [Roomの場合] 自拠点が親となる<br> - [Playerの場合] null となる |
+
+(※) 切断等で親のSubViewが非表示となる場合に子のSubViewも一緒に非表示となります
+
+#### removeImageSource(connectionId)
+
+画像のSubViewを削除する。
+
+- 引数
+  - connectionId
+- 返り値
+  - 設定成功時: `Promise<void>`
+  - 設定失敗時: `Promise`
+    - ErrorDetail.error: `'RemoveImageSourceFailed' | 'RemoveImageSourceError' | 'RemoveImageSourceArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| connectionId | IDString | addImageSource時に指定した [ImageSource](#imagesource).connectionId の値 |
 
 ### Events
 
@@ -1234,6 +1324,31 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 |:--|:--|:--|
 | subView | SubView | 対象のSubView |
 | stroke | [Stroke](#stroke) | ストローク情報 |
+
+#### playerStateChanged
+
+Playerの再生状態が変化した。
+
+```js
+{
+  type: 'playerStateChanged',
+  detail: {
+    state: PlayerState,
+    currentTime: number,
+    currentDate?: number
+  }
+}
+```
+
+|Name|Type|説明|
+|:--|:--|:--|
+| state | [PlayerState](#playerstate) | 現在のPlayerの状態 |
+| currentTime | number | 現在の再生位置（単位はms）(※1) |
+| currentDate | number | 現在の再生位置の時刻のUnixTime （単位はms）<br>一括再生の場合はdetailに含まれない |
+
+(※1): 取りうる値の範囲は以下の通りです。
+- 同期再生の場合: `0` から `指定された全ての動画の started_at と ended_at から計算した全体の再生時間`
+- 一括再生の場合: `0` から `指定された動画の中で一番長い動画の再生時間`
 
 #### error
 

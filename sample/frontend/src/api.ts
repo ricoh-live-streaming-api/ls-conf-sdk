@@ -1,29 +1,34 @@
 /* eslint @typescript-eslint/naming-convention: 0 */
 import { API_BASE } from './constants';
+import { AccessTokenSetting } from './types';
+
 const API_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
-const validateBitrateReservation = (bitrate: string): boolean => {
-  const param = Number(bitrate);
-  if (!isNaN(param) && param >= 1 && param <= 250) {
-    return true;
+
+/**
+ * 入力された値を数値に変換します。
+ *
+ * @param unverified - 数値に変換する値。
+ * @returns 変換後の数値。変換できる値ではない場合は undefined 。
+ */
+const convertToNumber = (unverified: unknown): number | undefined => {
+  if (unverified == undefined) {
+    return undefined;
   }
-  return false;
-};
-const validateRoomType = (roomType: string): boolean => {
-  if (roomType === 'sfu' || roomType === 'sfu_large' || roomType === 'p2p' || roomType === 'p2p_turn') {
-    return true;
+  const num = Number(unverified);
+  if (isNaN(num)) {
+    return undefined;
   }
-  return false;
-};
-const validateMaxConnections = (maxConnections: string): boolean => {
-  const param = Number(maxConnections);
-  if (!isNaN(param) && Number.isInteger(param) && param > 0) {
-    return true;
-  }
-  return false;
+  return num;
 };
 
-// POST リクエストの共通ラッパー
-async function fetchPost<T>(path: string, body?: Record<string, string | number | boolean>): Promise<T> {
+/**
+ * backend に POST リクエストを発行します。
+ *
+ * @param path - リクエストする path
+ * @param body - リクエスト body
+ * @returns API実行結果の body に含まれる JSON 。
+ */
+const fetchPost = async <T>(path: string, body: Record<string, unknown>): Promise<T> => {
   const response = await fetch(API_BASE + path, {
     method: 'POST',
     body: JSON.stringify(body),
@@ -37,19 +42,38 @@ async function fetchPost<T>(path: string, body?: Record<string, string | number 
     throw error;
   }
   return response.json();
-}
+};
 
-// Access Token の取得 API
-export async function fetchAccessToken(roomId: string, connectionId: string, bitrateReservation?: string, roomType?: string, maxConnections?: string): Promise<string> {
-  const body: Record<string, string | number | boolean> = { room_id: roomId, connection_id: connectionId };
-  if (bitrateReservation && validateBitrateReservation(bitrateReservation)) {
-    body['bitrate_reservation_mbps'] = bitrateReservation;
-  }
-  if (roomType && validateRoomType(roomType)) {
-    body['room_type'] = roomType;
-  }
-  if (maxConnections && validateMaxConnections(maxConnections)) {
-    body['max_connections'] = maxConnections;
-  }
-  return fetchPost('/access_token', body);
-}
+/**
+ * AccessTokenSetting を生成します。
+ *
+ * @param roomId - 入室する Room の ID
+ * @param connectionId - 自 Connection の ID
+ * @param bitrateReservation - Room ごとに利用可能な帯域幅の最大値を Mbps 単位で指定
+ * @param roomType - Room の種類
+ * @param maxConnections - Room に入室できる最大 Connection 数
+ * @returns AccessTokenSetting
+ */
+export const createAccessTokenSetting = (roomId: string, connectionId: string, bitrateReservation: unknown, roomType: unknown, maxConnections: unknown): AccessTokenSetting => {
+  return {
+    room_id: roomId,
+    connection_id: connectionId,
+    room_spec: {
+      // string が与えられていない場合はデフォルト値として "sfu" を適用する
+      type: typeof roomType === 'string' ? roomType : 'sfu',
+      media_control: {
+        bitrate_reservation_mbps: convertToNumber(bitrateReservation),
+      },
+      max_connections: convertToNumber(maxConnections),
+    },
+  };
+};
+
+/**
+ * Access Token を取得します。
+ * @param accessTokenSetting - AccessTokenSetting
+ * @returns Access Token
+ */
+export const fetchAccessToken = async (accessTokenSetting: AccessTokenSetting): Promise<string> => {
+  return fetchPost('/access_token', accessTokenSetting);
+};

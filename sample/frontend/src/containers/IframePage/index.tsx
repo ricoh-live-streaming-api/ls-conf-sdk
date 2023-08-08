@@ -7,7 +7,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 
-import { fetchAccessToken } from '@/api';
+import { createAccessTokenSetting, fetchAccessToken } from '@/api';
 import ErrorDialog from '@/components/ErrorDialog';
 import { DEFAULT_LAYOUT, LS_CLIENT_ID, LS_CONF_URL, ROOM_CONFIG, SIGNALING_URL, SUBVIEW_CONFIG, THEME_CONFIG, THETA_ZOOM_MAX_RANGE, TOOLBAR_CONFIG } from '@/constants';
 import LSConferenceIframe, { ConnectOptions, CreateParameters } from '@/lib/ls-conf-sdk';
@@ -26,19 +26,31 @@ const CREATE_PARAMETERS: CreateParameters = {
 
 const IframePage: React.FC<Record<string, never>> = () => {
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { username, video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, audio_mute_type, use_dummy_device, bitrate_reservation_mbps, room_type, video_codec, max_connections } =
-    qs.parse(window.location.search);
+  const {
+    username,
+    video_bitrate,
+    share_bitrate,
+    default_layout,
+    enable_video,
+    enable_audio,
+    audio_mute_type,
+    use_dummy_device,
+    bitrate_reservation_mbps,
+    room_type,
+    video_codec,
+    max_connections,
+    ice_servers_protocol,
+  } = qs.parse(window.location.search);
   const { roomId } = useParams<{ roomId: string }>();
   const iframeContainerRef = useRef<HTMLDivElement>(null);
   const [lsConfIframe, setLsConfIframe] = useState<LSConferenceIframe | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const showErrorDialog = errorMessage !== null;
   const connectionId: string = uuidv4();
-  const bitrateReservation = bitrate_reservation_mbps && typeof bitrate_reservation_mbps === 'string' ? bitrate_reservation_mbps : undefined;
   const audioMuteType = audio_mute_type && (audio_mute_type === 'soft' || audio_mute_type === 'hard') ? audio_mute_type : undefined;
-  const roomType = room_type && typeof room_type === 'string' ? room_type : undefined;
   const videoCodec = video_codec && (video_codec === 'h264' || video_codec === 'vp8' || video_codec === 'vp9' || video_codec === 'h265' || video_codec === 'av1') ? video_codec : undefined;
-  const maxConnections = max_connections && typeof max_connections === 'string' ? max_connections : undefined;
+  const iceServersProtocol =
+    ice_servers_protocol && (ice_servers_protocol === 'all' || ice_servers_protocol === 'udp' || ice_servers_protocol === 'tcp' || ice_servers_protocol === 'tls') ? ice_servers_protocol : undefined;
   const downloadLog = async (iframe: LSConferenceIframe, errorEvent?: ErrorEvent): Promise<void> => {
     let log = 'LSConfSample Log\n\n';
     if (errorEvent) {
@@ -120,20 +132,14 @@ const IframePage: React.FC<Record<string, never>> = () => {
       let screenShareAccessToken;
       const screenShareConnectionId = uuidv4();
       try {
-        screenShareAccessToken = await fetchAccessToken(roomId, screenShareConnectionId, bitrateReservation, roomType, maxConnections);
+        const accessTokenSetting = createAccessTokenSetting(roomId, screenShareConnectionId, bitrate_reservation_mbps, room_type, max_connections);
+        screenShareAccessToken = await fetchAccessToken(accessTokenSetting);
       } catch (e) {
         setErrorMessage(e.message);
         return;
       }
       return screenShareAccessToken;
     });
-    let accessToken;
-    try {
-      accessToken = await fetchAccessToken(roomId, connectionId, bitrateReservation, roomType, maxConnections);
-    } catch (e) {
-      setErrorMessage(e.message);
-      return;
-    }
     const connectOptions: ConnectOptions = {
       username: username,
       enableVideo: !enable_video ? false : Boolean(typeof enable_video === 'string' && enable_video.toLowerCase() === 'true'),
@@ -145,6 +151,7 @@ const IframePage: React.FC<Record<string, never>> = () => {
       useDummyDevice: Boolean(use_dummy_device && typeof use_dummy_device === 'string' && use_dummy_device.toLowerCase() === 'true'),
       signalingURL: SIGNALING_URL,
       videoCodec: videoCodec,
+      iceServersProtocol,
     };
     iframe.addEventListener('error', async (e: ErrorEvent) => {
       // TODO(hase): ChromeのMediaRecorderのバグの暫定対応
@@ -196,6 +203,28 @@ const IframePage: React.FC<Record<string, never>> = () => {
         console.warn('Failed to download log.');
       }
     });
+    try {
+      // join APIの実行中にデバイスアクセス許可ダイアログが表示されてJoinTimeoutが発生することを防ぐため、
+      // 事前にデバイスのアクセス許可を取得してからAccessTokenの生成とjoin APIの実行を行う
+      // Safariは60秒経過でデバイスのアクセス許可が取り消されるため、この処理から60秒以内にjoin APIを実行すること
+      await iframe.getMediaDevices();
+    } catch (e) {
+      setErrorMessage(e.message);
+      try {
+        await downloadLog(iframe, e);
+      } catch {
+        console.warn('Failed to download log.');
+      }
+      return;
+    }
+    let accessToken;
+    try {
+      const accessTokenSetting = createAccessTokenSetting(roomId, connectionId, bitrate_reservation_mbps, room_type, max_connections);
+      accessToken = await fetchAccessToken(accessTokenSetting);
+    } catch (e) {
+      setErrorMessage(e.message);
+      return;
+    }
     try {
       await iframe.join(LS_CLIENT_ID, accessToken, connectOptions);
     } catch (e) {

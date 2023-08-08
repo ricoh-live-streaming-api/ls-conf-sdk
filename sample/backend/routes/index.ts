@@ -1,5 +1,6 @@
 /* eslint @typescript-eslint/naming-convention: 0 */
 import { addMinutes, getUnixTime, subMinutes } from 'date-fns';
+import deepmerge from 'deepmerge';
 import express, { NextFunction, Request, Response, Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
@@ -22,20 +23,11 @@ const configPath = path.resolve(__dirname, `../config/${configFileName}`);
 const configJson = require(configPath);
 
 const generateToken = async (secret: string, req: Request): Promise<string> => {
-  const { room_id, connection_id, bitrate_reservation_mbps, room_type, max_connections } = req.body;
-  const roomType = room_type || 'sfu';
+  const mergedAccessTokenSetting = deepmerge<Record<string, unknown>>(configJson.defaultAccessTokenSetting, req.body);
   const payload = {
+    ...mergedAccessTokenSetting,
     nbf: getUnixTime(subMinutes(new Date(), 30)),
     exp: getUnixTime(addMinutes(new Date(), 30)),
-    connection_id: connection_id,
-    room_id: room_id,
-    room_spec: {
-      type: roomType,
-      max_connections: Number(max_connections) || (roomType === 'sfu_large' ? 300 : 50),
-      media_control: {
-        bitrate_reservation_mbps: Number(bitrate_reservation_mbps) || configJson.bitrateReservationMbps,
-      },
-    },
   };
   return jwt.sign(payload, secret, { algorithm: 'HS256' });
 };

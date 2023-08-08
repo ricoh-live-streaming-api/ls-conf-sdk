@@ -2,5 +2,11 @@
   "apiBase": "https://api.livestreaming.mw.smart-integration.ricoh.com/v1",
   "clientId": "",
   "port": 4000,
-  "bitrateReservationMbps": 25
+  "defaultAccessTokenSetting": {
+    "room_spec": {
+      "media_control": {
+        "bitrate_reservation_mbps": 25
+      }
+    }
+  }
 }

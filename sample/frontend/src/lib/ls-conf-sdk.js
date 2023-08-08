@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 5.1.3
+ * @version: 5.3.0
  **/
 
 (function (global, factory) {
@@ -168,12 +168,22 @@
                       return 4610;
                   case 'AddVideoSourceFailed':
                       return 4620;
-                  case 'AddVideoSourceError':
-                      return 4630;
                   case 'AddVideoSourceArgsInvalid':
                       return 4640;
                   case 'MediaSourceError':
                       return 4650;
+                  case 'AddImageSourceFailed':
+                      return 4660;
+                  case 'AddImageSourceError':
+                      return 4670;
+                  case 'AddImageSourceArgsInvalid':
+                      return 4680;
+                  case 'RemoveImageSourceFailed':
+                      return 4690;
+                  case 'RemoveImageSourceError':
+                      return 4700;
+                  case 'RemoveImageSourceArgsInvalid':
+                      return 4710;
                   // InternalError
                   case 'InternalError5001':
                       return 5001;
@@ -225,7 +235,7 @@
       }
   }
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '5.1.3';
+  const LS_CONF_SDK_VERSION = '5.3.0';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
@@ -233,9 +243,10 @@
   const DEFAULT_VIDEO_CODEC = 'h264';
   const DEFAULT_CREATE_TIMEOUT_MSEC = 15000;
   const DEFAULT_JOIN_TIMEOUT_MSEC = 10000;
-  const DEFAULT_AUDIO_MUTE_TYPE = 'hard';
+  const DEFAULT_AUDIO_MUTE_TYPE = 'soft';
   const DEFAULT_MODE = 'normal';
   const DEFAULT_MESSAGE_QUEUE_TIMEOUT_MSEC = 100;
+  const DEFAULT_ICE_SERVERS_PROTOCOL = 'all';
   class LSConferenceIframe {
       constructor(parentElement) {
           this.logCallbacks = new Map();
@@ -264,6 +275,8 @@
           this.stopReceiveVideoCallback = { success: () => { }, error: () => { } };
           this.enableZoomCallback = { success: () => { }, error: () => { } };
           this.addVideoSourceCallback = { success: () => { }, error: () => { } };
+          this.addImageSourceCallback = { success: () => { }, error: () => { } };
+          this.removeImageSourceCallback = { success: () => { }, error: () => { } };
           this.eventListeners = new Map();
           this.applicationEventListeners = new Map();
           this.parametersQueue = new Map();
@@ -592,6 +605,30 @@
           else if (data.type === 'MediaSourceError') {
               this.dispatchEvent(new LSConfErrorEvent(new ErrorData('MediaSourceError', { connectionId: data.connectionId })));
           }
+          else if (data.type === 'playerStateChanged') {
+              const state = data.state;
+              const currentTime = data.currentTime;
+              const currentDate = data.currentDate;
+              this.dispatchEvent(new LSConfEvent('playerStateChanged', { detail: { state, currentTime, currentDate } }));
+          }
+          else if (data.type === 'addImageSource') {
+              if (data.error) {
+                  const error = new LSConfError(new ErrorData('AddImageSourceError'));
+                  this.addImageSourceCallback.error(error);
+              }
+              else {
+                  this.addImageSourceCallback.success();
+              }
+          }
+          else if (data.type === 'removeImageSource') {
+              if (data.error) {
+                  const error = new LSConfError(new ErrorData('RemoveImageSourceError'));
+                  this.removeImageSourceCallback.error(error);
+              }
+              else {
+                  this.removeImageSourceCallback.success();
+              }
+          }
           else if (data.type === 'error' && data.error) {
               if (this.state === 'connecting') {
                   this.state = 'created';
@@ -762,6 +799,9 @@
                   if (parameters.subView.normal.enableZoom !== undefined && typeof parameters.subView.normal.enableZoom !== 'boolean') {
                       return false;
                   }
+                  if (parameters.subView.normal.isHiddenFramerate !== undefined && typeof parameters.subView.normal.isHiddenFramerate !== 'boolean') {
+                      return false;
+                  }
               }
           }
           if (parameters.podCoordinates !== undefined) {
@@ -803,6 +843,9 @@
                   return false;
               }
               if (parameters.theme.secondaryTextColor !== undefined && typeof parameters.theme.secondaryTextColor !== 'string') {
+                  return false;
+              }
+              if (parameters.theme.disabledTextColor !== undefined && typeof parameters.theme.disabledTextColor !== 'string') {
                   return false;
               }
               if (parameters.theme.components !== undefined) {
@@ -956,6 +999,14 @@
           if (connectOptions.screenShareConstraints !== undefined && typeof connectOptions.screenShareConstraints !== 'object') {
               return false;
           }
+          if (connectOptions.iceServersProtocol !== undefined) {
+              if (typeof connectOptions.iceServersProtocol !== 'string') {
+                  return false;
+              }
+              if (connectOptions.iceServersProtocol !== 'all' && connectOptions.iceServersProtocol !== 'udp' && connectOptions.iceServersProtocol !== 'tcp' && connectOptions.iceServersProtocol !== 'tls') {
+                  return false;
+              }
+          }
           return true;
       }
       validateSubViewType(subView) {
@@ -965,7 +1016,7 @@
           if (subView.isTheta !== undefined && typeof subView.isTheta !== 'boolean') {
               return false;
           }
-          if (subView.type !== undefined && subView.type !== 'VIDEO_AUDIO' && subView.type !== 'SCREEN_SHARE' && subView.type !== 'VIDEO_FILE') {
+          if (subView.type !== undefined && subView.type !== 'VIDEO_AUDIO' && subView.type !== 'SCREEN_SHARE' && subView.type !== 'VIDEO_FILE' && subView.type !== 'IMAGE_FILE') {
               return false;
           }
           if (subView.enableVideo !== undefined && typeof subView.enableVideo !== 'boolean') {
@@ -1080,6 +1131,24 @@
           }
           return true;
       }
+      validateImageSourceType(source) {
+          if (typeof source !== 'object') {
+              return false;
+          }
+          if (source.url && typeof source.url !== 'string') {
+              return false;
+          }
+          if (source.connectionId && typeof source.connectionId !== 'string') {
+              return false;
+          }
+          if (source.label && typeof source.label !== 'string') {
+              return false;
+          }
+          if (source.isTheta && typeof source.isTheta !== 'boolean') {
+              return false;
+          }
+          return true;
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setRequestTimer(reject, error, time) {
           return window.setTimeout(() => {
@@ -1155,22 +1224,8 @@
                   const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
                   return reject(error);
               }
-              let extParam = parameters;
-              try {
-                  /* eslint-disable @typescript-eslint/no-var-requires */
-                  const enJson = require('./lang/en.json');
-                  const jaJson = require('./lang/ja.json');
-                  const thJson = require('./lang/th.json');
-                  const viJson = require('./lang/vi.json');
-                  const koJson = require('./lang/ko.json');
-                  const zhCNJson = require('./lang/zh-CN.json');
-                  const zhTWJson = require('./lang/zh-TW.json');
-                  /* eslint-enable @typescript-eslint/no-var-requires */
-                  extParam = { ...parameters, locales: { ja: jaJson, en: enJson, th: thJson, vi: viJson, ko: koJson, zhCN: zhCNJson, zhTW: zhTWJson } };
-              }
-              catch (e) {
-                  console.warn(`Language file could not be read : ${e.message}`);
-              }
+              const locales = LSConferenceIframe.loadLocales();
+              const extParam = { ...parameters, locales };
               instance
                   .__create(extParam)
                   .then(() => {
@@ -1206,7 +1261,7 @@
                           toolbar: { isHidden: true },
                           subView: {
                               enableAutoVideoReceiving: false,
-                              normal: { enableZoom: false },
+                              normal: { enableZoom: false, isHiddenFramerate: true },
                               theta: { enableZenithCorrection: false, isHiddenFramerate: true },
                               menu: { isHidden: false, isHiddenRecordingButton: true, isHiddenSharePoVButton: true },
                           },
@@ -1228,6 +1283,7 @@
                               if (parameters.subView.normal) {
                                   customParameters.subView.normal = {
                                       enableZoom: parameters.subView.normal.enableZoom,
+                                      isHiddenFramerate: parameters.subView.normal.isHiddenFramerate,
                                   };
                               }
                               if (parameters.subView.theta) {
@@ -1277,22 +1333,8 @@
                   const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
                   return reject(error);
               }
-              let extParam = parameters;
-              try {
-                  /* eslint-disable @typescript-eslint/no-var-requires */
-                  const enJson = require('./lang/en.json');
-                  const jaJson = require('./lang/ja.json');
-                  const thJson = require('./lang/th.json');
-                  const viJson = require('./lang/vi.json');
-                  const koJson = require('./lang/ko.json');
-                  const zhCNJson = require('./lang/zh-CN.json');
-                  const zhTWJson = require('./lang/zh-TW.json');
-                  /* eslint-enable @typescript-eslint/no-var-requires */
-                  extParam = { ...parameters, locales: { ja: jaJson, en: enJson, th: thJson, vi: viJson, ko: koJson, zhCN: zhCNJson, zhTW: zhTWJson } };
-              }
-              catch (e) {
-                  console.warn(`Language file could not be read : ${e.message}`);
-              }
+              const locales = LSConferenceIframe.loadLocales();
+              const extParam = { ...parameters, locales };
               instance
                   .__createPlayer(sources, extParam)
                   .then(() => {
@@ -1327,6 +1369,7 @@
               connectOptions.videoCodec = connectOptions.videoCodec || DEFAULT_VIDEO_CODEC;
               connectOptions.audioMuteType = connectOptions.audioMuteType || DEFAULT_AUDIO_MUTE_TYPE;
               connectOptions.mode = connectOptions.mode || DEFAULT_MODE;
+              connectOptions.iceServersProtocol = connectOptions.iceServersProtocol || DEFAULT_ICE_SERVERS_PROTOCOL;
               // video audio の role, mediaType は固定
               const postMessageParameters = {
                   type: 'connect',
@@ -1999,6 +2042,54 @@
               }
           });
       }
+      addImageSource(source, parentConnectionId) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              if (!this.validateImageSourceType(source)) {
+                  return reject(new LSConfError(new ErrorData('AddImageSourceArgsInvalid')));
+              }
+              if (parentConnectionId && typeof parentConnectionId !== 'string') {
+                  return reject(new LSConfError(new ErrorData('AddImageSourceArgsInvalid')));
+              }
+              const postMessageParameters = {
+                  type: 'addImageSource',
+                  source,
+                  parentConnectionId,
+              };
+              this.addImageSourceCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('AddImageSourceFailed'));
+                  return reject(error);
+              }
+          });
+      }
+      removeImageSource(connectionId) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              if (typeof connectionId !== 'string') {
+                  return reject(new LSConfError(new ErrorData('RemoveImageSourceArgsInvalid')));
+              }
+              const postMessageParameters = {
+                  type: 'removeImageSource',
+                  connectionId,
+              };
+              this.removeImageSourceCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('RemoveImageSourceFailed'));
+                  return reject(error);
+              }
+          });
+      }
       iframe() {
           return this.iframeElement;
       }
@@ -2107,6 +2198,57 @@
                   }
               }, DEFAULT_MESSAGE_QUEUE_TIMEOUT_MSEC);
           }
+      }
+      /**
+       * ./lang 配下の言語ファイル読込
+       * @description 優先言語が設定されている場合は、第二言語以降の設定をfallback用言語とする
+       *     以下の順位で使用言語が決定される
+       *     1. 優先言語の1番目の言語
+       *     2. 1の広域言語(ko-KR だった場合は ko)
+       *     3. 優先言語の2番目以降で`.lang/{言語コード}.json`または`.lang/{広域の言語コード}.json`が存在する言語
+       *     4. ユーザー指定の英語(en)
+       *     5. LSConfのデフォルトの英語(en)
+       * @returns { languages: 言語コード(RFC5646)をキーとした連想配列, fallback: fallback用言語コード }
+       */
+      static loadLocales() {
+          const locales = {
+              languages: {},
+          };
+          const broaderLanguages = window.navigator.languages
+              .filter((language) => language.includes('-'))
+              .map((language) => {
+              // RFC5646で定義されている言語コードは文字数制限が無いためハイフンから手前の文字列を広域言語コードとする
+              // cf: https://datatracker.ietf.org/doc/html/rfc5646#section-4.4
+              return language.slice(0, language.indexOf('-'));
+          });
+          // 優先する言語 及び 広域言語 及び fallback用の'en' の内、重複を除いたものを読込の対象とする
+          const languages = [...new Set(window.navigator.languages.concat(broaderLanguages).concat('en'))];
+          for (const key of languages) {
+              try {
+                  // eslint-disable-next-line @typescript-eslint/no-var-requires
+                  const json = require(`./lang/${key}.json`);
+                  locales.languages[key] = json;
+              }
+              catch (e) {
+                  console.warn(`Could not read '${key}' key language file : ${e.message}`);
+              }
+          }
+          // 第二言語以降の設定をfallback用言語とする(window.navigator.languagesの内{言語コード}.jsonが存在する言語を対象とする)
+          for (const key of languages) {
+              const language = window.navigator.language;
+              if (key != language) {
+                  const broaderKey = key.slice(0, key.indexOf('-'));
+                  if (locales.languages[key]) {
+                      locales.fallback = key;
+                      break;
+                  }
+                  if (locales.languages[broaderKey]) {
+                      locales.fallback = broaderKey;
+                      break;
+                  }
+              }
+          }
+          return locales;
       }
   }
 

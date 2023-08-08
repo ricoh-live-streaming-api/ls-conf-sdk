@@ -44,7 +44,8 @@
     "surface": "#fff",
     "onPrimary": "#fff",
     "primaryTextColor": "rgba(0, 0, 0, 0.87)",
-    "secondaryTextColor": "rgba(0, 0, 0, 0.54)",
+    "secondaryTextColor": "rgba(0, 0, 0, 0.60)",
+    "disabledTextColor": "rgba(0, 0, 0, 0.38)",
     "components": {
       "participantsVideoContainer": {
         "background": "rgba(0, 0, 0, 0.05)",

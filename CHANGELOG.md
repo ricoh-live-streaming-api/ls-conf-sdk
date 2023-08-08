@@ -1,5 +1,31 @@
 # CHANGE LOG
 
+## v5.3.0
+- Added
+  - [SDK] ConnectOptions に iceServersProtocol のオプションを追加
+
+## v5.2.0
+- Added
+  - [SDK] `lang/` 配下に各言語の {RFC5646の言語タグ}.json を配置することで任意の言語に対応できる機能を追加
+  - [SDK] Playerの再生状態変化のイベントを追加
+- Changed
+  - [SDK] 自拠点がカメラミュートの状態で自拠点のSubViewを録画した場合に StartRecordingFailed のエラーを返すように変更
+  - [LSConf] ローカル録画でサポートする MIMEType を追加
+  - [LSConf] デザインカスタマイズパラメータの追加および変更
+  - [LSConf] 通常映像の拡大表示時にSubViewの黒帯の領域にも映像を表示できるように変更
+  - [LSConf] GalleryLayout および PresentationLayout の通常表示領域 のSubViewの表示上限を16に変更
+  - [LSConf] audioMuteType のデフォルト値を "soft" に変更
+- Fixed
+  - [LSConf] 通常映像の描画時にGPUの負荷が高くなる問題を修正
+  - [LSConf] 書き込み機能でカメラON直後にストロークの書き込み位置がズレる問題を修正
+  - [LSConf] `web-sdk` を `v1.7.1` に更新
+  - [LSConf] Gallaryレイアウト または Presentationレイアウト で非表示領域のSubViewがカメラONで表示領域に表示された時に映像の自動受信が再開されない問題の修正
+  - [LSConf] WebGL の Context lost が発生して描画がチラつくことがある問題を修正
+  - [LSConf] 画面共有中のウィンドウサイズの高さだけが変更されると受信側でSubViewのアスペクト比が崩れる問題の修正
+  - [LSConf] Mac Safari でデバイス設定ダイアログでデバイスを変更してキャンセルした時に変更後のデバイスに切り替わる問題の修正
+  - [LSConf] 天頂補正の値が 0 の時に補正されない問題の修正
+  - [SDK, LSConf] 依存ライブラリの更新
+
 ## v5.1.3
 - Fixed
   - [LSConf] iOS/iPadOS15系でデバイス設定ダイアログを開いた後にマイクの音声が相手に聞こえなくなる問題の修正
@@ -29,7 +55,7 @@
   - [SDK] VideoSource に metaUrl を別で指定できるように変更
   - [SDK] join時とonShareRequested時にconnectionIdの指定が不要に変更
   - [LSConf] 一部レイアウトでカメラがONのSubViewを上位に表示するように変更
-  - [LSConf] `ricoh-ls-sdk` を `v1.6.1` に更新
+  - [LSConf] `web-sdk` を `v1.6.1` に更新
   - [LSConf] Node 16 に対応
   - [SDK, LSConf] 依存ライブラリの更新
 - Fixed
@@ -126,7 +152,7 @@ iframe.onShareRequested(async () => {
   - [LSConf] join直後に `getSubViews` を実行すると誤ったレスポンスが返ってくる問題を修正
   - [LSConf] 自拠点の画面共有開始時に `remoteConnectionAdded` のイベントが発生する問題を修正
 - Refactored
-  - [LSConf] `ricoh-ls-sdk` を `v1.4.0` に更新
+  - [LSConf] `web-sdk` を `v1.4.0` に更新
   - [LSConf] 内部で保持するSubView一覧の構成を変更
 
 (※1) 本機能は `THETAプラグイン側` で取得した各パラメータを TrackMetadata に `pitch`, `roll` のキー名で追加した上でClientSDKの `updateTrackMeta` を呼ぶ必要があります。LSConf側では TrackMetadata の更新のたびに天頂補正処理が実行されます。
@@ -280,7 +306,7 @@ const log = await iframe.getLSConfLog();
   - [LSConf] Mobile Safari でデバイスアクセス確認ダイアログで許可しなかった場合にデバイス設定ダイアログで意図しない表示になる問題を修正
   - [LSConf] 画面共有の終了後にログを取得しようとするとエラーになる問題を修正
 - Refactored
-  - [LSConf] `ricoh-ls-sdk` を `v1.2.0` に更新
+  - [LSConf] `web-sdk` を `v1.2.0` に更新
   - [SDK, LSConf] 依存ライブラリの更新
 
 (※1) この対応により以下のメソッドの利用が非推奨となります。問い合わせ時のログ取得には新たに追加された `getLSConfLog()` をご利用ください。
@@ -368,7 +394,7 @@ const log = await iframe.getLSConfLog();
 
 ## v2.2.4
 - Changed
-  - [LSConf] `ricoh-ls-sdk` を `v1.1.1` に更新
+  - [LSConf] `web-sdk` を `v1.1.1` に更新
 - Fixed
   - [LSConf] iOSとiPadOSで ダミーデバイス有効 または カメラマイクOFF で会議開始時に相手からの音声が再生されない問題を修正
   - [SDK/LSConf] 入室直後にカメラやマイクのミュート/アンミュートを行うとエラーが発生する問題を修正
@@ -546,7 +572,7 @@ iframe.onShareRequested(() => {
   - [LSConf] Safariの特定のバージョンで他拠点の音声が聞こえなくなる問題を修正
   - [LSConf] iOS+Safariでレイアウト切替後に自拠点映像が黒くなる問題を修正
 - Refactored
-  - [LSConf] `ricoh-ls-sdk` を `v1.0.4` に更新
+  - [LSConf] `web-sdk` を `v1.0.4` に更新
 
 ## v1.1.0
 - Added
@@ -566,7 +592,7 @@ iframe.onShareRequested(() => {
   - [SDK] LS-PF Prod環境 対応（`DEFAULT_SIGNALING_URL`の修正）
   - [LSConf] エラー処理修正
 - Refactored
-  - [LSConf] `ricoh-ls-sdk` を `v1.0.1` に更新
+  - [LSConf] `web-sdk` を `v1.0.1` に更新
 
 ## v0.0.11
 - Fixed
@@ -591,7 +617,7 @@ iframe.onShareRequested(() => {
   - [LSConf] isThetaのメタデータの指定がない場合に映像が表示されない問題を修正
   - [LSConf] THETAの拡大縮小ボタン押下時に画面が白くなる問題を修正
 - Refactored
-  - [LSConf] `ricoh-ls-sdk` を `v0.6.2` に更新
+  - [LSConf] `web-sdk` を `v0.6.2` に更新
 
 ## v0.0.8
 - Changed
@@ -610,7 +636,7 @@ iframe.onShareRequested(() => {
   - [SDK] remoteTrackRemovedイベントを削除
   - [LSConf] three.js対応
 - Refactored
-  - [LSConf] `ricoh-ls-sdk` を `v0.3.0` に更新
+  - [LSConf] `web-sdk` を `v0.3.0` に更新
 
 ## v0.0.6
 - Changed

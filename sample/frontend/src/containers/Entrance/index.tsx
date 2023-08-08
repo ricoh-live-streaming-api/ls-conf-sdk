@@ -9,9 +9,20 @@ import LoginEntranceFormFieldGroup from '@/components/LoginEntranceFormFieldGrou
 const Entrance: React.FC<Record<string, never>> = () => {
   const params: { roomId: string } = useParams();
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  const { video_bitrate, share_bitrate, default_layout, enable_video, enable_audio, audio_mute_type, use_dummy_device, bitrate_reservation_mbps, room_type, video_codec, max_connections } = qs.parse(
-    window.location.search
-  );
+  const {
+    video_bitrate,
+    share_bitrate,
+    default_layout,
+    enable_video,
+    enable_audio,
+    audio_mute_type,
+    use_dummy_device,
+    bitrate_reservation_mbps,
+    room_type,
+    video_codec,
+    max_connections,
+    ice_servers_protocol,
+  } = qs.parse(window.location.search);
   const [roomId, setRoomId] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const onSubmitSuccess = (): void => {
@@ -50,6 +61,9 @@ const Entrance: React.FC<Record<string, never>> = () => {
     }
     if (max_connections) {
       uriPath += `&max_connections=${max_connections}`;
+    }
+    if (ice_servers_protocol && (ice_servers_protocol === 'all' || ice_servers_protocol === 'udp' || ice_servers_protocol === 'tcp' || ice_servers_protocol === 'tls')) {
+      uriPath += `&ice_servers_protocol=${ice_servers_protocol}`;
     }
     /* eslint-enable @typescript-eslint/naming-convention */
     window.open(uriPath);
