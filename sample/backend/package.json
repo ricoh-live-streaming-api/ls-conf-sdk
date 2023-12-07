@@ -11,7 +11,7 @@
     "express-validator": "^6.5.0",
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
-    "request": "^2.88.2",
+    "node-fetch": "2",
     "ts-node": "^8.10.1",
     "typescript": "3.9.3"
   },
@@ -20,6 +20,6 @@
     "@types/jsonwebtoken": "^8.5.0",
     "@types/morgan": "^1.9.1",
     "@types/node": "^14.0.5",
-    "@types/request": "^2.48.8"
+    "@types/node-fetch": "^2.6.4"
   }
 }

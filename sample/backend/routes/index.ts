@@ -60,7 +60,7 @@ router.get('/rooms/:room_id', async (req: Request, res: Response) => {
     const data = await getRoomInfo(configJson.apiBase, configJson.clientId, roomId);
     res.json(data);
   } catch (error) {
-    res.json(error);
+    res.status(500).json(error);
   }
 });
 

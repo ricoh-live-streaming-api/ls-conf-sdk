@@ -1,5 +1,43 @@
 # CHANGE LOG
 
+## v5.5.0
+- Added
+  - [SDK] 映像の送信フレームレートを変更する機能を追加
+  - [SDK] 映像や音声の配信設定を変更する機能を追加
+- Fixed
+  - [LSConf] Playerで最後まで再生した後に挙動がおかしくなる問題を修正
+  - [LSConf] Playerで動画の先頭にシークするとローディング状態のまま進まなくなる問題を修正
+
+## v5.4.1
+- Fixed
+  - [LSConf] Chrome, Edge において Player で再生中のローディングが終わらなくなる問題を修正
+  - [LSConf] Player で MediaSourceError が発火しないことがある問題を修正
+
+## v5.4.0
+- Added
+  - [SDK] 静止画SubViewを追加する機能(β)を追加
+  - [SDK] VidyoControlBar 関連のAPIを追加
+  - [SDK] デバイスの変更および切断時のイベント（ mediaDeviceChanged ）を追加
+  - [SDK] LSConfError, LSConfErrorEventの型を .d.ts に追加
+  - [SDK] 映像の送信ビットレートを変更するAPIを追加
+- Changed
+  - [SDK] createPlayer 実行後に初回ロードが完了した時点で playerStateChanged の pause イベントが通知されるように変更
+  - [SDK] デザインカスタマイズパラメータの dialog.inputFocusColor を削除して代わりに primary の色を使うように変更
+  - [SDK] getMediaDevicesのレスポンスに 利用有無 と `MediaStreamTrack.getCapabilities()` の情報 を追加
+- Fixed
+  - [LSConf] Player で最初の動画の音声が再生されない問題を修正
+  - [LSConf] Player で360動画で拡大/縮小ボタンを非表示にすると映像が黒くなる問題を修正
+  - [LSConf] Player でFullScreenレイアウトでシークするとロードが終わらない問題を修正
+  - [LSConf] 映像受信再開時にTHETAの天頂補正が一瞬解除される問題を修正
+  - [LSConf] ローカル録画中のネットワーク切断時に正常に録画が停止しない問題を修正
+  - [LSConf] 既に映像受信が停止/開始している場合、stop/startReceiveVideo() が実行されると Promise が解決されない問題を修正
+  - [LSConf] Mac+Safari において入室時のクリック画面でクリックしても会議画面に進まない問題を修正
+  - [LSConf] iOS15 で入室前に getMediaDevices で audio の権限を取得すると入室後にOS設定のマイクから変わる問題を修正
+  - [LSConf] Chrome と Edge でデバイスアクセスを拒否するとデバイス設定ダイアログのカメラ/マイクのリストに空欄が表示される問題を修正
+  - [LSConf] Android でデバイス設定ダイアログで外部マイクを指定してキャンセルすると外部マイクに切り替わる問題を修正
+  - [SDK, LSConf] web-sdkのログやレポートが取得できない問題を修正
+  - [SDK, LSConf] 依存ライブラリの更新
+
 ## v5.3.0
 - Added
   - [SDK] ConnectOptions に iceServersProtocol のオプションを追加
@@ -13,7 +51,7 @@
   - [LSConf] ローカル録画でサポートする MIMEType を追加
   - [LSConf] デザインカスタマイズパラメータの追加および変更
   - [LSConf] 通常映像の拡大表示時にSubViewの黒帯の領域にも映像を表示できるように変更
-  - [LSConf] GalleryLayout および PresentationLayout の通常表示領域 のSubViewの表示上限を16に変更
+  - [LSConf] GalleryLayout および PresentationLayout の拡大表示領域 のSubViewの表示上限を16に変更
   - [LSConf] audioMuteType のデフォルト値を "soft" に変更
 - Fixed
   - [LSConf] 通常映像の描画時にGPUの負荷が高くなる問題を修正

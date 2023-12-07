@@ -1,29 +1,22 @@
-import request from 'request';
+import { Buffer } from 'buffer';
+import fetch from 'node-fetch';
 
 import { LS_CLIENT_SECRET } from './app';
 
 // Room情報の取得
 export async function getRoomInfo(endpoint: string, clientId: string, roomId: string): Promise<unknown> {
+  const auth = Buffer.from(`${clientId}:${LS_CLIENT_SECRET}`).toString('base64');
   const options = {
     method: 'GET',
-    json: true,
-    url: `${endpoint}/clients/${clientId}/rooms/${roomId}?env=${getAPIEnv(endpoint)}`,
-    auth: {
-      user: clientId,
-      password: LS_CLIENT_SECRET,
+    headers: {
+      Authorization: `Basic ${auth}`,
     },
   };
-  return new Promise((resolve, reject) => {
-    request(options, (error, response, body) => {
-      console.log(`[rsi-ls-api] GET /clients/{client_id}/rooms/{room_id} ${response.statusCode}`);
-      console.dir(body, { depth: null });
-      if (error) {
-        console.dir(error);
-        reject(error);
-      } else {
-        resolve(body);
-      }
-    });
+  const response = await fetch(`${endpoint}/clients/${clientId}/rooms/${roomId}?env=${getAPIEnv(endpoint)}`, options);
+  console.log(`[rsi-ls-api] GET /clients/{client_id}/rooms/{room_id} ${response.status}`);
+  return response.json().then((body) => {
+    console.dir(body, { depth: null });
+    return body;
   });
 }
 

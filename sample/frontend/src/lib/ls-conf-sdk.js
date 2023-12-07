@@ -1,25 +1,19 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 5.3.0
+ * @version: 5.5.0
  **/
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
-  typeof define === 'function' && define.amd ? define(factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.LSConferenceIframe = factory());
-}(this, (function () { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
+  typeof define === 'function' && define.amd ? define(['exports'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.LSConferenceIframe = {}));
+}(this, (function (exports) { 'use strict';
 
-  // LSConfの規定のイベント
-  class LSConfEvent {
+  // LSConfのイベント
+  class LSConfEvent extends CustomEvent {
       constructor(type, eventInit) {
-          this.type = type;
-          if (eventInit) {
-              this.event = new CustomEvent(type, eventInit);
-          }
-          else {
-              this.event = new Event(type);
-          }
+          super(type, eventInit);
       }
   }
   // エラー内容
@@ -184,6 +178,34 @@
                       return 4700;
                   case 'RemoveImageSourceArgsInvalid':
                       return 4710;
+                  case 'ChangePlayerStateFailed':
+                      return 4720;
+                  case 'ChangePlayerStateArgsInvalid':
+                      return 4730;
+                  case 'SetSpeakerVolumeFailed':
+                      return 4740;
+                  case 'SetSpeakerVolumeArgsInvalid':
+                      return 4750;
+                  case 'SetSeekPositionFailed':
+                      return 4760;
+                  case 'SetSeekPositionArgsInvalid':
+                      return 4770;
+                  case 'SetVideoSendBitrateFailed':
+                      return 4780;
+                  case 'SetVideoSendBitrateArgsInvalid':
+                      return 4800;
+                  case 'SetVideoSendFramerateFailed':
+                      return 4810;
+                  case 'SetVideoSendFramerateError':
+                      return 4820;
+                  case 'SetVideoSendFramerateArgsInvalid':
+                      return 4830;
+                  case 'SetVideoAudioConstraintsFailed':
+                      return 4840;
+                  case 'SetVideoAudioConstraintsError':
+                      return 4850;
+                  case 'SetVideoAudioConstraintsArgsInvalid':
+                      return 4860;
                   // InternalError
                   case 'InternalError5001':
                       return 5001;
@@ -208,25 +230,29 @@
   }
   // SDKエラー内容
   class SDKErrorData extends ErrorData {
-      constructor(detail, data) {
-          super('SDKError', data);
+      constructor(detail, toReportString) {
+          super('SDKError');
           this.detail = detail;
+          this.toReportString = () => {
+              return toReportString;
+          };
       }
   }
-  // LSConfの規定のエラーイベント
-  class LSConfErrorEvent {
+  // LSConfのエラーイベント
+  class LSConfErrorEvent extends ErrorEvent {
       constructor(errorData) {
+          const message = `code: ${errorData.detail.code}, type: ${errorData.detail.type}, error: ${errorData.detail.error}`;
+          super('error', { error: errorData, message: message });
           this.toReportString = () => {
               return errorData.toReportString();
           };
-          this.type = 'error';
-          this.event = new ErrorEvent('error', { error: errorData, message: errorData.toReportString() });
       }
   }
-  // LSConf規定のエラーオブジェクト
+  // LSConfのエラーオブジェクト
   class LSConfError extends Error {
       constructor(errorData) {
-          super(errorData.detail.error);
+          const message = `code: ${errorData.detail.code}, type: ${errorData.detail.type}, error: ${errorData.detail.error}`;
+          super(message);
           this.detail = errorData.detail;
           this.data = errorData.data;
           this.toReportString = () => {
@@ -235,7 +261,7 @@
       }
   }
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '5.3.0';
+  const LS_CONF_SDK_VERSION = '5.5.0';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
@@ -277,6 +303,12 @@
           this.addVideoSourceCallback = { success: () => { }, error: () => { } };
           this.addImageSourceCallback = { success: () => { }, error: () => { } };
           this.removeImageSourceCallback = { success: () => { }, error: () => { } };
+          this.changePlayerStateCallback = { success: () => { }, error: () => { } };
+          this.setSeekPositionCallback = { success: () => { }, error: () => { } };
+          this.setSpeakerVolumeCallback = { success: () => { }, error: () => { } };
+          this.setVideoSendBitrateCallback = { success: () => { }, error: () => { } };
+          this.setVideoSendFramerateCallback = { success: () => { }, error: () => { } };
+          this.setVideoAudioConstraintsCallback = { success: () => { }, error: () => { } };
           this.eventListeners = new Map();
           this.applicationEventListeners = new Map();
           this.parametersQueue = new Map();
@@ -602,14 +634,23 @@
                   this.enableZoomCallback.success();
               }
           }
+          else if (data.type === 'mediaDeviceChanged') {
+              const { deviceInfo, isMuted } = data;
+              this.dispatchEvent(new LSConfEvent('mediaDeviceChanged', {
+                  detail: { deviceId: deviceInfo.deviceId, groupId: deviceInfo.groupId, kind: deviceInfo.kind, label: deviceInfo.label, isMuted, capabilities: deviceInfo.capabilities },
+              }));
+          }
           else if (data.type === 'MediaSourceError') {
               this.dispatchEvent(new LSConfErrorEvent(new ErrorData('MediaSourceError', { connectionId: data.connectionId })));
           }
           else if (data.type === 'playerStateChanged') {
               const state = data.state;
+              const duration = data.duration;
               const currentTime = data.currentTime;
               const currentDate = data.currentDate;
-              this.dispatchEvent(new LSConfEvent('playerStateChanged', { detail: { state, currentTime, currentDate } }));
+              const startedAt = data.startedAt;
+              const endedAt = data.endedAt;
+              this.dispatchEvent(new LSConfEvent('playerStateChanged', { detail: { state, duration, currentTime, startedAt, endedAt, currentDate } }));
           }
           else if (data.type === 'addImageSource') {
               if (data.error) {
@@ -629,17 +670,65 @@
                   this.removeImageSourceCallback.success();
               }
           }
+          else if (data.type === 'changePlayerState') {
+              if (data.error) {
+                  const error = new LSConfError(new ErrorData('ChangePlayerStateFailed'));
+                  this.changePlayerStateCallback.error(error);
+              }
+              else {
+                  this.changePlayerStateCallback.success();
+              }
+          }
+          else if (data.type === 'setSeekPosition') {
+              if (data.error) {
+                  const error = new LSConfError(new ErrorData('SetSeekPositionFailed'));
+                  this.setSeekPositionCallback.error(error);
+              }
+              else {
+                  this.setSeekPositionCallback.success();
+              }
+          }
+          else if (data.type === 'setSpeakerVolume') {
+              if (data.error) {
+                  const error = new LSConfError(new ErrorData('SetSpeakerVolumeFailed'));
+                  this.setSpeakerVolumeCallback.error(error);
+              }
+              else {
+                  this.setSpeakerVolumeCallback.success();
+              }
+          }
+          else if (data.type === 'setVideoSendBitrate') {
+              this.setVideoSendBitrateCallback.success();
+          }
+          else if (data.type === 'setVideoSendFramerate') {
+              if (data.error) {
+                  const error = new LSConfError(new ErrorData('SetVideoSendFramerateError'));
+                  this.setVideoSendFramerateCallback.error(error);
+              }
+              else {
+                  this.setVideoSendFramerateCallback.success();
+              }
+          }
+          else if (data.type === 'setVideoAudioConstraints') {
+              if (data.error) {
+                  const error = new LSConfError(new ErrorData('SetVideoAudioConstraintsError'));
+                  this.setVideoAudioConstraintsCallback.error(error);
+              }
+              else {
+                  this.setVideoAudioConstraintsCallback.success();
+              }
+          }
           else if (data.type === 'error' && data.error) {
               if (this.state === 'connecting') {
                   this.state = 'created';
                   // Join中にweb-sdkのエラーイベントが発生したときは、web-sdkのエラーで実行時エラーを返す
-                  this.joinCallback.error(new LSConfError(new SDKErrorData(data.error.detail)));
+                  this.joinCallback.error(new LSConfError(new SDKErrorData(data.error.detail, data.error.toReportString)));
               }
               else {
                   if (data.error.detail && data.error.detail.code) {
                       const isSDKError = Math.floor(data.error.detail.code / 10000) !== 0;
                       if (isSDKError) {
-                          this.dispatchEvent(new LSConfErrorEvent(new SDKErrorData(data.error.detail)));
+                          this.dispatchEvent(new LSConfErrorEvent(new SDKErrorData(data.error.detail, data.error.toReportString)));
                       }
                       else {
                           this.dispatchEvent(new LSConfErrorEvent(new ErrorData(data.error.detail.error)));
@@ -665,6 +754,11 @@
           }
           if (parameters.room !== undefined) {
               if (typeof parameters.room.entranceScreen !== undefined && parameters.room.entranceScreen !== 'none' && parameters.room.entranceScreen !== 'click') {
+                  return false;
+              }
+          }
+          if (parameters.player !== undefined) {
+              if (typeof parameters.player.isHiddenVideoControlBar !== undefined && typeof parameters.player.isHiddenVideoControlBar !== 'boolean') {
                   return false;
               }
           }
@@ -908,14 +1002,6 @@
                           return false;
                       }
                   }
-                  if (parameters.theme.components.dialog !== undefined) {
-                      if (typeof parameters.theme.components.dialog !== 'object') {
-                          return false;
-                      }
-                      if (parameters.theme.components.dialog.inputFocusColor !== undefined && typeof parameters.theme.components.dialog.inputFocusColor !== 'string') {
-                          return false;
-                      }
-                  }
               }
           }
           return true;
@@ -1149,6 +1235,27 @@
           }
           return true;
       }
+      validatePlayerStateType(state) {
+          if (typeof state !== 'string') {
+              return false;
+          }
+          if (state !== 'play' && state !== 'pause') {
+              return false;
+          }
+          return true;
+      }
+      validateMediaStreamConstraintsType(constraints) {
+          if (typeof constraints !== 'object') {
+              return false;
+          }
+          if (constraints.audio && typeof constraints.audio !== 'boolean' && typeof constraints.audio !== 'object') {
+              return false;
+          }
+          if (constraints.video && typeof constraints.video !== 'boolean' && typeof constraints.video !== 'object') {
+              return false;
+          }
+          return true;
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setRequestTimer(reject, error, time) {
           return window.setTimeout(() => {
@@ -1268,6 +1375,7 @@
                       };
                       if (parameters) {
                           customParameters.defaultLayout = parameters.defaultLayout;
+                          customParameters.player = parameters.player;
                           customParameters.thetaZoomMaxRange = parameters.thetaZoomMaxRange;
                           customParameters.theme = parameters.theme;
                           customParameters.locales = parameters.locales;
@@ -1997,6 +2105,28 @@
               }
           });
       }
+      changePlayerState(state) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              if (!this.validatePlayerStateType(state)) {
+                  return reject(new LSConfError(new ErrorData('ChangePlayerStateArgsInvalid')));
+              }
+              const postMessageParameters = {
+                  type: 'changePlayerState',
+                  state,
+              };
+              this.changePlayerStateCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('ChangePlayerStateFailed'));
+                  return reject(error);
+              }
+          });
+      }
       enableZoom(subView, isEnabled) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
@@ -2090,6 +2220,142 @@
               }
           });
       }
+      setSpeakerVolume(volume) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              if (typeof volume !== 'number') {
+                  return reject(new LSConfError(new ErrorData('SetSpeakerVolumeArgsInvalid')));
+              }
+              if (!Number.isInteger(volume)) {
+                  volume = Math.trunc(volume);
+              }
+              volume = volume < 0 ? 0 : volume > 100 ? 100 : volume;
+              const postMessageParameters = {
+                  type: 'setSpeakerVolume',
+                  volume,
+              };
+              this.setSpeakerVolumeCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('SetSpeakerVolumeFailed'));
+                  return reject(error);
+              }
+          });
+      }
+      setSeekPosition(currentTime) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              if (typeof currentTime !== 'number') {
+                  return reject(new LSConfError(new ErrorData('SetSeekPositionArgsInvalid')));
+              }
+              if (!Number.isInteger(currentTime)) {
+                  currentTime = Math.trunc(currentTime);
+              }
+              const postMessageParameters = {
+                  type: 'setSeekPosition',
+                  currentTime,
+              };
+              this.setSeekPositionCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('SetSeekPositionFailed'));
+                  return reject(error);
+              }
+          });
+      }
+      setVideoSendBitrate(bitrateKbps) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              if (this.state !== 'open') {
+                  return reject(new LSConfError(new ErrorData('SetVideoSendBitrateFailed')));
+              }
+              if (typeof bitrateKbps !== 'number') {
+                  return reject(new LSConfError(new ErrorData('SetVideoSendBitrateArgsInvalid')));
+              }
+              if (this.state === 'open' && this.connectOptions) {
+                  const maxBitrate = this.connectOptions.maxVideoBitrate ? this.connectOptions.maxVideoBitrate : DEFAULT_MAX_BITRATE;
+                  bitrateKbps = bitrateKbps < 100 ? 100 : bitrateKbps > maxBitrate ? maxBitrate : bitrateKbps;
+              }
+              if (!Number.isInteger(bitrateKbps)) {
+                  bitrateKbps = Math.trunc(bitrateKbps);
+              }
+              const postMessageParameters = {
+                  type: 'setVideoSendBitrate',
+                  bitrateKbps,
+              };
+              this.setVideoSendBitrateCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('SetVideoSendBitrateFailed'));
+                  return reject(error);
+              }
+          });
+      }
+      setVideoSendFramerate(framerate) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              if (this.state !== 'open') {
+                  return reject(new LSConfError(new ErrorData('SetVideoSendFramerateFailed')));
+              }
+              if (typeof framerate !== 'number') {
+                  return reject(new LSConfError(new ErrorData('SetVideoSendFramerateArgsInvalid')));
+              }
+              if (this.state === 'open' && this.connectOptions) {
+                  framerate = framerate < 0 ? 0 : framerate > 10000 ? 10000 : framerate;
+              }
+              const postMessageParameters = {
+                  type: 'setVideoSendFramerate',
+                  framerate,
+              };
+              this.setVideoSendFramerateCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('SetVideoSendFramerateFailed'));
+                  return reject(error);
+              }
+          });
+      }
+      setVideoAudioConstraints(constraints) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              if (this.state !== 'open') {
+                  return reject(new LSConfError(new ErrorData('SetVideoAudioConstraintsFailed')));
+              }
+              if (!this.validateMediaStreamConstraintsType(constraints)) {
+                  return reject(new LSConfError(new ErrorData('SetVideoAudioConstraintsArgsInvalid')));
+              }
+              const postMessageParameters = {
+                  type: 'setVideoAudioConstraints',
+                  constraints,
+              };
+              this.setVideoAudioConstraintsCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('SetVideoAudioConstraintsFailed'));
+                  return reject(error);
+              }
+          });
+      }
       iframe() {
           return this.iframeElement;
       }
@@ -2125,10 +2391,10 @@
           const listeners = this.eventListeners.get(type);
           if (listeners) {
               listeners.forEach(({ listener, options }) => {
-                  listener.call(this, event.event);
+                  listener.call(this, event);
                   if (!(options && options.once))
                       return;
-                  this.removeEventListener(event.type, listener, options);
+                  this.removeEventListener(type, listener, options);
               });
           }
       }
@@ -2252,6 +2518,11 @@
       }
   }
 
-  return LSConferenceIframe;
+  exports.ErrorData = ErrorData;
+  exports.LSConfError = LSConfError;
+  exports.LSConfErrorEvent = LSConfErrorEvent;
+  exports.default = LSConferenceIframe;
+
+  Object.defineProperty(exports, '__esModule', { value: true });
 
 })));

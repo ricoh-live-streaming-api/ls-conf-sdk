@@ -65,9 +65,6 @@
         "menuTextColor": "rgba(0, 0, 0, 0.87)",
         "highlightBorderColor": "#661fff",
         "highlightShadowColor": "#661fff"
-      },
-      "dialog": {
-        "inputFocusColor": "#303030"
       }
     }
   }

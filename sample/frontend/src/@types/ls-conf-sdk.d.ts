@@ -16,6 +16,9 @@ export declare type CreateParameters = {
     room?: {
         entranceScreen?: EntranceType;
     };
+    player?: {
+        isHiddenVideoControlBar?: boolean;
+    };
     toolbar?: {
         isHidden?: boolean;
         isHiddenCameraButton?: boolean;
@@ -82,9 +85,6 @@ export declare type CreateParameters = {
                 highlightBorderColor?: string;
                 highlightShadowColor?: string;
             };
-            dialog?: {
-                inputFocusColor?: string;
-            };
         };
     };
     locales?: {
@@ -140,6 +140,8 @@ export declare type DeviceInfo = {
     groupId: string;
     kind: string;
     label: string;
+    isSelected: boolean;
+    capabilities?: MediaTrackCapabilities;
 };
 export declare type SubView = {
     connectionId: string;
@@ -172,7 +174,30 @@ export declare type CaptureImageOptions = {
     qualityArgument?: number;
 };
 export declare type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
-export declare type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'playerStateChanged' | 'error';
+export declare type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'error';
+export declare type ErrorType = 'RequestError' | 'InternalError';
+export declare type ErrorDetail = {
+    code: number;
+    type: ErrorType;
+    error: string;
+};
+export declare class ErrorData {
+    detail: ErrorDetail;
+    data?: unknown;
+    constructor(errorName: string, data?: unknown);
+    private getErrorCode;
+    toReportString: () => string;
+}
+export declare class LSConfErrorEvent extends ErrorEvent {
+    toReportString: () => string;
+    constructor(errorData: ErrorData);
+}
+export declare class LSConfError extends Error {
+    detail: ErrorDetail;
+    data?: unknown;
+    toReportString: () => string;
+    constructor(errorData: ErrorData);
+}
 declare class LSConferenceIframe {
     parentElement: HTMLElement;
     iframeElement: HTMLIFrameElement;
@@ -209,6 +234,12 @@ declare class LSConferenceIframe {
     private addVideoSourceCallback;
     private addImageSourceCallback;
     private removeImageSourceCallback;
+    private changePlayerStateCallback;
+    private setSeekPositionCallback;
+    private setSpeakerVolumeCallback;
+    private setVideoSendBitrateCallback;
+    private setVideoSendFramerateCallback;
+    private setVideoAudioConstraintsCallback;
     private static _handleWindowMessage;
     private parametersQueue;
     constructor(parentElement: HTMLElement);
@@ -225,6 +256,8 @@ declare class LSConferenceIframe {
     private validateCaptureImageOptionsType;
     private validateVideoSourceType;
     private validateImageSourceType;
+    private validatePlayerStateType;
+    private validateMediaStreamConstraintsType;
     private setRequestTimer;
     private __create;
     static create(parentElement: HTMLElement, parameters: Partial<CreateParameters>): Promise<LSConferenceIframe>;
@@ -257,10 +290,16 @@ declare class LSConferenceIframe {
     getCaptureImage(subView: SubView, options: CaptureImageOptions): Promise<Blob>;
     startReceiveVideo(subView: SubView): Promise<void>;
     stopReceiveVideo(subView: SubView): Promise<void>;
+    changePlayerState(state: string): Promise<void>;
     enableZoom(subView: SubView, isEnabled: boolean): Promise<void>;
     addVideoSource(source: VideoSource): Promise<void>;
     addImageSource(source: ImageSource, parentConnectionId?: string): Promise<void>;
     removeImageSource(connectionId: string): Promise<void>;
+    setSpeakerVolume(volume: number): Promise<void>;
+    setSeekPosition(currentTime: number): Promise<void>;
+    setVideoSendBitrate(bitrateKbps: number): Promise<void>;
+    setVideoSendFramerate(framerate: number): Promise<void>;
+    setVideoAudioConstraints(constraints: MediaStreamConstraints): Promise<void>;
     iframe(): HTMLIFrameElement;
     addEventListener(type: EventType, callback: Function, options?: AddEventListenerOptions): void;
     removeEventListener(type: EventType, callback: Function, _options?: boolean | EventListenerOptions): void;

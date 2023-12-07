@@ -115,6 +115,30 @@ type ModeType = 'normal' | 'viewer';
 type TrackKind = 'video' | 'audio';
 ```
 
+#### DeviceInfo
+
+メディアデバイスの情報です。
+
+```ts
+type DeviceInfo = {
+  deviceId: string;
+  groupId: string;
+  kind: string;
+  label: string;
+  isSelected: boolean;
+  capabilities?: MediaTrackCapabilities;
+};
+```
+
+|Name|Type|説明|
+|:--|:--|:--|
+| deviceId | string | [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo).deviceId の値<br>ダミーデバイスの場合は 'dummy-device' となる |
+| groupId | string | [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo).groupId の値<br>ダミーデバイスの場合は 'dummy-device' となる |
+| kind | string | [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo).kind の値 |
+| label | string | [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo).label の値<br>ダミーデバイスの場合は[文言カスタマイズガイド](https://api.livestreaming.ricoh/docs/lsconf-wording-customize-guide/#devicesettingsdialog)の deviceSettingsDialog.notUsed の値となる |
+| isSelected | boolean | デバイスを利用しているかどうか<br>- `true`: デバイスを利用中<br>- `false`: デバイスを利用していない<br>（join前は全てのデバイスが `false` となります） |
+| capabilities | MediaTrackCapabilities | [MediaStreamTrack.getCapabilities()](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/getCapabilities) の値<br>以下の場合は `undefined` となる<br> - 非対応ブラウザ<br> - ダミーデバイス |
+
 #### SubView
 
 通話画面に表示される各参加者のカメラ映像や画面共有などの枠の1つ1つをLSConfではSubViewと定義し、特定のSubViewに対して操作を行うAPIで主に使用します。
@@ -339,6 +363,8 @@ create時、createPlayer時に指定する `CreateParameters` の一覧です。
 | `defaultLayout` | [LayoutType](#layouttype) | "gallery" | ◯ | ビデオチャット開始時のデフォルトレイアウトを指定する |
 | `room` | Object | | - | ルーム設定のオブジェクト |
 | `room.entranceScreen` | [EntranceType](#entrancetype) | "none" | - | ルームへの入室時の表示画面 |
+| `player` | Object | | ◯ | プレイヤー設定のオブジェクト |
+| `player.isHiddenVideoControlBar` | Object | false | ◯ | [VideoControlBar](https://api.livestreaming.ricoh/docs/lsconf-function/#videocontrolbar) を非表示にする|
 | `toolbar` | Object | | - | ツールバー設定のオブジェクト |
 | `toolbar.isHidden` | boolean | false | - | ツールバー自体を非表示にするかどうか |
 | `toolbar.isHiddenCameraButton` | boolean | false | - | ツールバーのカメラボタンを非表示にするかどうか |
@@ -431,6 +457,11 @@ RICOH Live Streamingを利用した、Roomコンポーネントのiframeを生�
 |parentElement|HTMLElement|iframeが指定されたElementの子として追加される|
 |parameters|`Partial<CreateParameters>`|[`CreateParameters`](#CreateParameters)を設定する|
 
+createで生成されたインスタンスに対しては、Playerで利用する以下のメソッドは利用できません。
+- 再生状態の変更: `changePlayerState`
+- スピーカー音量の設定： `setSpeakerVolume`
+- 再生位置の変更: `setSeekPosition`
+
 #### createPlayer(parentElement, sources, parameters?)
 
 RICOH Live Streamingで録画した動画を利用した、Playerコンポーネントのiframeを生成する。
@@ -454,11 +485,12 @@ RICOH Live Streamingで録画した動画を利用した、Playerコンポーネ
 
 createPlayerで生成されたインスタンスに対しては、Roomで利用する以下のメソッドは利用できません。
 - 接続/切断: `join`, `leave`
-- デバイス: `getMediaDevices`, `setCameraMute`, `setCameraDevice`, `setMicMute`, `setMicDevice`
+- デバイス: `getMediaDevices`, `setCameraMute`, `setCameraDevice`, `setMicMute`, `setMicDevice`, `setVideoAudioConstraints`
 - 画面共有: `onShareRequested`
 - 統計ログ: `getVideoAudioStats`, `getScreenShareStats`, `getStats`
 - 録画: `addRecordingMember`, `removeRecordingMember`
 - 映像受信: `startReceiveVideo`, `stopReceiveVideo`
+- 映像送信: `setVideoSendBitrate`, `setVideoSendFramerate`
 
 ### Instance Methods
 
@@ -512,20 +544,9 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
 - 引数
   - なし
 - 返り値
-  - 成功時: `Promise<DeviceInfo[]>`
-  - 失敗時: `Promise`
+  - 成功時: Promise<[DeviceInfo](#deviceinfo)[]>
+  - 失敗時: Promise
     - ErrorDetail.error: `'GetMediaDevicesFailed' | 'GetMediaDevicesError'`
-
-※ `DeviceInfo` は [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo) の各プロパティに準ずる。
-
-```ts
-type DeviceInfo = {
-  deviceId: string;
-  groupId: string;
-  kind: string;
-  label: string;
-};
-```
 
 #### setCameraMute(isEnabled)
 
@@ -547,7 +568,9 @@ join前に実行しても値は反映されない。<br>
 | isEnabled | boolean | `true`: カメラミュートが有効<br>`false`: カメラミュートが無効 |
 
 #### setCameraDevice(deviceId)
-カメラデバイスを変更する。
+カメラデバイスを変更する。<br>
+ローカル録画時に実行した場合は録画は継続されるが録画映像は変更後に停止する。<br>
+
 - 引数
   - require
     - deviceId
@@ -1129,6 +1152,125 @@ Playerで指定する動画ファイルのソース情報を追加する。
 |:--|:--|:--|
 | connectionId | IDString | addImageSource時に指定した [ImageSource](#imagesource).connectionId の値 |
 
+#### changePlayerState(state)
+
+Player時の再生状態を変更する。
+Room時に実行した場合は無視される。
+
+- 引数
+  - require
+    - state
+- 返り値
+  - 成功時: `Promise<void>`
+  - 失敗時: `Promise`
+    - ErrorDetail.error: `'ChangePlayerStateFailed' | 'ChangePlayerStateArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| state | 'play' \| 'pause' | 変更後のPlayerの再生状態<br>実行前と状態が変化しない場合は無視される |
+
+#### setSpeakerVolume(volume)
+Player時のスピーカーの音量を設定する。
+Room時に実行しても値は反映されない。
+
+- 引数
+  - require
+    - volume
+- 返り値
+  - 成功時: `Promise<void>`
+  - 失敗時: `Promise`
+    - ErrorDetail.error: `'SetSpeakerVolumeFailed' | 'SetSpeakerVolumeArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| volume | number | 設定できる範囲は `0` - `100` で範囲を超える場合は上限/下限に設定される <br> 0（または0以下）を指定するとミュート、0より大きい値を指定するとアンミュートとなる(※) |
+
+(※) 浮動小数点を指定した場合、小数点以下を切り捨てた整数値とみなされます。
+
+#### setSeekPosition(currentTime)
+
+Player時の再生位置を設定する。<br>
+Room時に実行しても値は反映されない。<br>
+createPlayerを実行してから動画ファイルのロード完了後（最初の [playerStateChanged](#playerstatechanged) で pause 状態になった以降）に実行が可能となる。
+
+- 引数
+  - require
+    - currentTime
+- 返り値
+  - 成功時: `Promise<void>`
+  - 失敗時: `Promise`
+    - ErrorDetail.error: `'SetSeekPositionFailed' | 'SetSeekPositionArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| currentTime | number | 移動したい再生位置の [playerStateChanged](#playerstatechanged).currentTime の値<br>設定できる範囲は `0` - [`playerStateChanged.duration`](#playerstatechanged) の値(※)で範囲を超える場合は上限/下限に設定される |
+
+(※) 浮動小数点を指定した場合、小数点以下を切り捨てた整数値とみなされます。
+
+#### setVideoSendBitrate(bitrateKbps)
+
+カメラ映像の送信ビットレートを変更する。<br>
+join完了後に実行が可能となり、join完了前に実行した場合はエラーが返される。<br>
+Player時に実行した場合は無視される。
+
+- 引数
+  - require
+    - bitrateKbps
+  - 返り値
+    - 成功時: `Promise<void>`
+    - 失敗時: `Promise`
+      - ErrorDeatil.error: `'SetVideoSendBitrateFailed'` | `'SetVideoSendBitrateArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| bitrateKbps | number | カメラ映像の送信ビットレートの値[kbps]<br>設定できる範囲は `100` - [`ConnectOptions.maxVideoBitrate`](#connectoptions)(未指定時はデフォルト) の値(※)で範囲を超える場合は上限/下限に設定される |
+
+(※) 浮動小数点を指定した場合、小数点以下を切り捨てた整数値とみなされます。
+
+#### setVideoSendFramerate(framerate)
+
+カメラ映像の送信フレームレートを変更する。<br>
+join完了後に実行が可能となり、join完了前に実行した場合はエラーが返される。<br>
+Player時に実行した場合は無視される。<br>
+本APIは Google Chrome のみ有効。
+
+- 引数
+  - require
+    - framerate
+  - 返り値
+    - 成功時: `Promise<void>`
+    - 失敗時: `Promise`
+      - ErrorDeatil.error: `'SetVideoSendFramerateFailed'` | `'SetVideoSendFramerateError'` | `'SetVideoSendFramerateArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| framerate | number | カメラ映像の送信フレームレートの値[fps]<br>設定できる範囲は `0` - `10000` の値(※) |
+
+(※) [`ConnectOptions.videoAudioConstraints`](#connectoptions) で指定されたフレームレート（または カメラの出力フレームレート）を超えた値を設定しても実効フレームレートはその値を上限/下限として制限されます。
+
+#### setVideoAudioConstraints(constraints)
+
+接続時に指定した [`ConnectOptions.videoAudioConstraints`](#connectoptions) のパラメータを変更する(※1)。<br>
+join完了後に実行が可能となり、join完了前に実行した場合はエラーが返される。<br>
+Player時に実行した場合は無視される。<br>
+自拠点のローカル録画中に実行した場合、録画映像や音声が停止した状態で録画が継続される。<br>
+
+- 引数
+  - require
+    - constraints
+  - 返り値
+    - 成功時: `Promise<void>`
+    - 失敗時: `Promise`
+      - ErrorDeatil.error: `'SetVideoAudioConstraintsFailed'` | `'SetVideoAudioConstraintsError'` | `'SetVideoAudioConstraintsArgsInvalid'`
+
+|Name|Type|説明|
+|:--|:--|:--|
+| constraints | [MediaStreamConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) | 自拠点の映像と音声の [MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints)(※2) を指定する<br>`video` および `audio` に `false` が指定された場合はダミーデバイスを使用する |
+
+(※1): 変更の際に映像や音声が一時的に途切れることがあります。<br>
+(※2): 利用可能なパラメータはブラウザによって異なります。未対応や未指定の場合はブラウザ側の仕様に従います。各ブラウザのサポート状況は[こちら](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints#browser_compatibility)をご参照ください。
+(※3): ブラウザがFirefoxの場合、指定したパラメータが正しく反映されない場合があります。
+
 ### Events
 
 LSConfの既定のイベントに対するイベントハンドラーは `addEventListener()` を介して登録します。<br>
@@ -1247,6 +1389,35 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
   - `detail.subView.enableVideo`: 対象拠点のカメラの実際のミュート状態と同じ値
   - `detail.subView.enableAudio`: 対象拠点のマイクの実際のミュート状態と同じ値
 
+#### mediaDeviceChanged
+
+デバイス設定が変更された。
+
+ダミーデバイスに設定された状態でミュートを解除しようとした場合は変更がなくともこちらのイベントが発火します。
+
+```js
+{
+  type: 'mediaDeviceChanged',
+  detail: {
+    deviceId: string,
+    groupId: string,
+    kind: string,
+    label: string,
+    isMuted: boolean,
+    capabilities?: MediaTrackCapabilities,
+  }
+}
+```
+
+|Name|Type|説明|
+|:--|:--|:--|
+| deviceId | string | [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo).deviceId の値<br>ダミーデバイスの場合は 'dummy-device' となる |
+| groupId | string | [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo).groupId の値<br>ダミーデバイスの場合は 'dummy-device' となる |
+| kind | string | [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo).kind の値 |
+| label | string | [MediaDeviceInfo](https://developer.mozilla.org/ja/docs/Web/API/MediaDeviceInfo).label の値<br>ダミーデバイスの場合は[文言カスタマイズガイド](https://api.livestreaming.ricoh/docs/lsconf-wording-customize-guide/#devicesettingsdialog)の deviceSettingsDialog.notUsed の値となる |
+| isMuted | boolean | `true`: デバイスがミュート状態<br>`false`: デバイスがアンミュート状態 |
+| capabilities | MediaTrackCapabilities | [MediaStreamTrack.getCapabilities()](https://developer.mozilla.org/en-US/docs/Web/API/MediaStreamTrack/getCapabilities) の値<br>以下の場合は `undefined` となる<br> - 非対応ブラウザ<br> - ダミーデバイス |
+
 #### startRecording
 
 録画が開始された。
@@ -1334,7 +1505,10 @@ Playerの再生状態が変化した。
   type: 'playerStateChanged',
   detail: {
     state: PlayerState,
+    duration: number,
     currentTime: number,
+    startedAt?: number,
+    endedAt?: number,
     currentDate?: number
   }
 }
@@ -1343,10 +1517,17 @@ Playerの再生状態が変化した。
 |Name|Type|説明|
 |:--|:--|:--|
 | state | [PlayerState](#playerstate) | 現在のPlayerの状態 |
-| currentTime | number | 現在の再生位置（単位はms）(※1) |
+| duration | number | 総再生時間（単位はms）(※1) |
+| currentTime | number | 現在の再生位置（単位はms）(※2) |
+| startedAt | number | [同期再生] 動画全体の開始時刻のUnixTime（単位はms）<br>[一括再生] detailに含まれない |
+| endedAt | number | [同期再生] 動画全体の終了時刻のUnixTime（単位はms）<br>[一括再生] detailに含まれない |
 | currentDate | number | 現在の再生位置の時刻のUnixTime （単位はms）<br>一括再生の場合はdetailに含まれない |
 
-(※1): 取りうる値の範囲は以下の通りです。
+(※1): 総再生時間の定義は以下の通りです。
+- 同期再生の場合: 指定された全ての動画の `started_at` と `ended_at` から計算した全体の再生時間
+- 一括再生の場合: 指定された全ての動画の中で一番長い動画の再生時間
+
+(※2): 取りうる値の範囲は以下の通りです。
 - 同期再生の場合: `0` から `指定された全ての動画の started_at と ended_at から計算した全体の再生時間`
 - 一括再生の場合: `0` から `指定された動画の中で一番長い動画の再生時間`
 

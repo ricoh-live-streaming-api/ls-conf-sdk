@@ -268,14 +268,6 @@ const configSchema = {
                 },
               }
             },
-            "dialog": {
-              "type": "object",
-              "properties": {
-                "inputFocusColor": {
-                  "type": "string",
-                },
-              }
-            },
           }
         }
       }

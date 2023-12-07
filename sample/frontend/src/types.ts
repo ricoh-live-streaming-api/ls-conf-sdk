@@ -105,9 +105,6 @@ interface LSConfSampleConfig {
         highlightBorderColor: string;
         highlightShadowColor: string;
       };
-      dialog: {
-        inputFocusColor: string;
-      };
     };
   };
   ROOM_CONFIG: {

@@ -13,7 +13,7 @@ interface ErrorDialogProps {
 
 const ErrorDialog: React.FC<ErrorDialogProps> = (props) => {
   return (
-    <Dialog open={props.open}>
+    <Dialog open={props.open} onClose={props.onClose}>
       <DialogContent>{props.message}</DialogContent>
       <DialogActions>
         <DialogButton action="close" isDefaultAction onClick={props.onClose}>
