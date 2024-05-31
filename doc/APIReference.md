@@ -66,14 +66,15 @@ type ImageMimeType = 'image/png' | 'image/jpeg';
 type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
 ```
 
-実際に利用可能なcodecはプラットフォームとブラウザによって異なります。未対応のコーデックを指定した場合には接続時にエラーが発生し接続に失敗します。
+実際に利用可能なcodecはプラットフォームとブラウザによって異なります。<br>
+未対応のコーデックを指定した場合には接続時にエラーが発生し接続に失敗します。
 
 #### IceServersProtocolType
 
 iceServers に使用する TURN Protocol の種別です。
 
 ```js
-type IceServersProtocolType = 'all' | 'udp' | 'tcp' | 'tls';
+type IceServersProtocolType = 'all' | 'udp' | 'tcp' | 'tls' | 'tcp_tls';
 ```
 
 #### MuteType
@@ -181,7 +182,7 @@ type PoV {
 
 #### RotationVector
 
-THETA（Android標準の[SensorManager](https://developer.android.com/reference/android/hardware/SensorManager)）から取得できる[回転ベクトルセンサー](https://developer.android.com/guide/topics/sensors/sensors_position?hl=ja)の値で360映像のSubViewに対して天頂補正を行うAPIで主に使用します。
+THETA（Android標準の [SensorManager](https://developer.android.com/reference/android/hardware/SensorManager) ）から取得できる [回転ベクトルセンサー](https://developer.android.com/guide/topics/sensors/sensors_position?hl=ja) の値で360映像のSubViewに対して天頂補正を行うAPIで主に使用します。
 
 ```ts
 type RotationVector = {
@@ -200,7 +201,7 @@ type RotationVector = {
 [LSConfの規定のイベント](#Events)の種類を表す文字列で、各イベントリスナーの登録・削除のAPIで使用します。
 
 ```ts
-type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'playerStateChanged' | 'error';
+type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'playerStateChanged' | 'log' | 'error';
 ```
 
 #### ToolbarItem
@@ -242,8 +243,7 @@ type SubViewMenuItem = {
 | targetSubView.type | [MediaTypes](#mediatypes) | メディア種別<br>未指定の場合は全てのメディア種別が対象 |
 | targetSubView.isTheta | boolean | 対象が360映像かどうか<br>未指定の場合はisThetaの値に依らず全てが対象 |
 
-(※1): 異なるカスタムボタンに対して同一のtypeを指定すると意図しない挙動となる場合があります。
-
+(※1): 異なるカスタムボタンに対して同一のtypeを指定すると意図しない挙動となる場合があります。<br>
 (※2): カスタムボタンの文言の切り替えは、labelに指定する文字列を切り替えてご指定ください。
 
 #### VideoSource
@@ -278,6 +278,7 @@ type VideoSource = {
 - メタデータのURLが未指定の場合は動画ファイルのURLと同一ディレクトリ内の同名のjsonファイルを参照します
 
 #### Stroke
+
 SubViewに対して書き込んだストロークの情報を表します。
 
 ```ts
@@ -349,6 +350,23 @@ type ImageSource = {
 - 指定するファイルは以下のLSConfのURLに対してのCORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要があります
   - `https://conf.livestreaming.mw.smart-integration.ricoh.com`
 
+#### LogCategory
+
+ログの種別を表します。
+
+```js
+type LogCategory = 'environment' | 'setting' | 'recording' | 'device' | 'member' | 'analysis' | 'clientSdk';
+```
+|LogCategory|説明|
+|:--|:--|
+|environment|実行環境関連ログ|
+|setting|設定パラメータ関連ログ|
+|recording|ローカル録画機能関連ログ|
+|device|デバイス関連ログ|
+|member|参加者情報関連ログ|
+|analysis|解析用ログ|
+|clientSdk|ClientSDKのログ|
+
 ### Properties
 
 #### CreateParameters
@@ -372,23 +390,23 @@ create時、createPlayer時に指定する `CreateParameters` の一覧です。
 | `toolbar.isHiddenScreenShareButton` | boolean | false | - | ツールバーの画面共有ボタンを非表示にするかどうか |
 | `toolbar.isHiddenParticipantsButton` | boolean | true | - | ツールバーの参加者一覧ボタンを非表示にするかどうか<br>機能未実装につきデフォルトで非表示 |
 | `toolbar.isHiddenDeviceSettingButton` | boolean | false | - | ツールバーのデバイス設定ボタンを非表示にするかどうか |
-| `toolbar.isHiddenExitButton` | boolean | false | - | ツールバーの退室ボタンを非表示にするかどうか |
+| `toolbar.isHiddenExitButton` | boolean | false | - | ツールバーの切断ボタンを非表示にするかどうか |
 | `toolbar.customItems` | ToolbarItem[] | [] | - | ツールバーに表示するカスタムボタンの配列<br>表示順は左から `切断以外の既定のボタン`, `ToolbarItem[]`, `切断ボタン` の順となる |
 | `subView` | Object | | ◯ | SubView設定のオブジェクト |
 | `subView.enableAutoVideoReceiving` | boolean | true | - | SubViewの非表示時/表示時に自動的に映像を受信停止/再開するかどうか(※2) |
 | `subView.speakingThreshold` | number | 10 | - | 発話判定となる音声ボリュームの閾値<br>設定できる範囲は `1-100` で範囲を超える場合は上限/下限に設定される|
 | `subView.speakingIndicatorDuration` | number | 500 | - | 発話判定時にマイクアイコンを継続的に光らせる時間（単位はms）<br>設定できる範囲は `0-5000` で範囲を超える場合は上限/下限に設定される<br>`0`の場合は一瞬光るのみ|
-| `subView.isHiddenDrawingButton` | boolean | true | - | SubViewの書き込みボタンを非表示にするかどうか(※4) |
-| `subView.drawingInterval` | number | 500 | - | 書き込み中の `strokeUpdated` イベントの発火間隔（単位はms）<br>設定できる範囲は `100-3000` で範囲を超える場合は上限/下限に設定される |
-| `subView.drawingColor` | string | "#661FFF" | - | 書き込み時のストロークの色<br>[CSSのColor定義](https://developer.mozilla.org/ja/docs/Web/CSS/color)に準拠した値とする<br>未指定や不正な値の場合はデフォルト値となる |
-| `subView.drawingOption` | [StrokeOption](#strokeoption) |  | - | 書き込み時のストロークのオプション |
+| `subView.isHiddenDrawingButton` | boolean | true | ◯ | SubViewの書き込みボタンを非表示にするかどうか(※4) |
+| `subView.drawingInterval` | number | 500 | ◯ | 書き込み中の `strokeUpdated` イベントの発火間隔（単位はms）<br>設定できる範囲は `100-3000` で範囲を超える場合は上限/下限に設定される |
+| `subView.drawingColor` | string | "#661FFF" | ◯ | 書き込み時のストロークの色<br>[CSSのColor定義](https://developer.mozilla.org/ja/docs/Web/CSS/color)に準拠した値とする<br>未指定や不正な値の場合はデフォルト値となる |
+| `subView.drawingOption` | [StrokeOption](#strokeoption) |  | ◯ | 書き込み時のストロークのオプション |
 | `subView.normal` | Object | | ◯ | 通常映像のSubViewの設定オブジェクト |
 | `subView.normal.enableZoom` | boolean | false | ◯ | 映像の拡大機能を有効にするかどうか |
 | `subView.theta` | Object | | - | 360映像のSubView設定のオブジェクト |
 | `subView.theta.enableZenithCorrection` | boolean | true | - | 360映像の自動の天頂補正機能(※3)の有効/無効を切り替える |
 | `subView.menu` | Object | | ◯ | SubViewのメニュー設定のオブジェクト |
 | `subView.menu.isHidden` | boolean | false | ◯ | SubViewのメニューボタンを非表示にするかどうか |
-| `subView.menu.isHiddenRecordingButton` | boolean | false | - | 録画開始ボタンを非表示にするかどうか |
+| `subView.menu.isHiddenRecordingButton` | boolean | false | - | ローカル録画開始ボタンを非表示にするかどうか |
 | `subView.menu.isHiddenSharePoVButton` | boolean | true | ◯ | 視点共有ボタンを非表示にするかどうか |
 | `subView.menu.customItems` | [SubViewMenuItem](#SubViewMenuItem)[] | [] | ◯ | SubViewMenuのリストに追加するカスタムボタンの配列<br>表示順は上から `既定のメニュー`, `SubViewMenuItem[]` の順となる |
 | `theme` | Object | | ◯ | テーマ設定のオブジェクト |
@@ -448,9 +466,11 @@ RICOH Live Streamingを利用した、Roomコンポーネントのiframeを生�
     - parentElement
     - parameters
 - 返り値
-  - 成功時: `Promise<LSConferenceIframe>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'CreateFailed' | 'CreateTimeout' | 'CreateArgsInvalid'`
+  - `Promise<LSConferenceIframe>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - CreateFailed
+  - CreateTimeout
+  - CreateArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -473,14 +493,16 @@ RICOH Live Streamingで録画した動画を利用した、Playerコンポーネ
   - optioinal
     - parameters
 - 返り値
-  - 成功時: `Promise<LSConferenceIframe>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'CreateFailed' | 'CreateTimeout' | 'CreateArgsInvalid'`
+  - `Promise<LSConferenceIframe>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - CreateFailed
+  - CreateTimeout
+  - CreateArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
 |parentElement|HTMLElement|iframeが指定されたElementの子として追加される|
-|sources|VideoSource[]|Playerに追加したい [VideoSource](#VideoSource) の配列|
+|sources|VideoSource[] \| string |Playerに追加したい [VideoSource](#VideoSource) の配列<br>または動画ファイルのソース情報が定義されたjsonファイルのURL(※)|
 |parameters|`Partial<CreateParameters>`|[`CreateParameters`](#CreateParameters) を設定する|
 
 createPlayerで生成されたインスタンスに対しては、Roomで利用する以下のメソッドは利用できません。
@@ -492,11 +514,37 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
 - 映像受信: `startReceiveVideo`, `stopReceiveVideo`
 - 映像送信: `setVideoSendBitrate`, `setVideoSendFramerate`
 
+(※) 指定するファイルについて
+- Playerに追加したい [VideoSource](#VideoSource) の配列が定義されているjsonファイルを指定します
+
+  例: sources.json
+  ```json
+  {
+    "sources": [
+      {
+        "url": "https://example.com/movie/video1.mp4",
+        "connectionId": "video1Id",
+        "label": "video1",
+        "isTheta": true
+      },
+      {
+        "url": "https://example.com/movie/video2.mp4",
+        "connectionId": "video2Id",
+        "label": "video2",
+        "isTheta": false
+      }
+    ]
+  }
+  ```
+
+- 指定するファイルは以下のLSConfのURLに対してのCORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要があります
+  - `https://conf.livestreaming.mw.smart-integration.ricoh.com`
+
 ### Instance Methods
 
 #### join(clientId, accessToken, connectOptions)
 
-ビデオチャットに参加する。
+Room に 接続（入室）する。
 
 - 引数
   - require
@@ -504,9 +552,15 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
     - accessToken
     - connectOptions
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'JoinFailed' | 'JoinFailedTimeout' | 'JoinArgsInvalid'` または [ClientSDKの各エラー](https://api.livestreaming.ricoh/document/ricoh-live-streaming-client-sdk-%e3%82%a8%e3%83%a9%e3%83%bc%e4%bb%95%e6%a7%98/)
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - JoinFailed
+  - JoinFailedTimeout
+  - JoinArgsInvalid
+  - GetDeviceFailed
+  - [ClientSDK の connect 時のエラー](https://api.livestreaming.ricoh/docs/clientsdk-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)
+- エラー理由 ※GetDeviceFailed の場合のみこのプロパティが存在する
+  - [getUserMedia()の例外](https://developer.mozilla.org/ja/docs/Web/API/MediaDevices/getUserMedia#%E4%BE%8B%E5%A4%96) 
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -516,14 +570,14 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
 
 #### leave()
 
-ビデオチャットから退室する。
+Room から 切断（退室）する。
 
 - 引数
   - なし
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'CloseFailed'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - CloseFailed
 
 #### onShareRequested(callback)
 
@@ -537,16 +591,21 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
 
 |Name|Type|説明|
 |:--|:--|:--|
-| callback | Function | 画面共有ボタンの押下時にイベント通知を受け取るためのコールバック関数<br>コールバック関数の返り値でaccessTokenをreturnする必要がある |
+| callback | Function | 画面共有ボタンの押下時にイベント通知を受け取るためのコールバック関数<br>コールバック関数の返り値で`Promise<string>`のaccessTokenをreturnする必要がある |
 
 #### getMediaDevices()
+
 接続されているメディアデバイス情報の一覧を取得する。
+
 - 引数
   - なし
 - 返り値
-  - 成功時: Promise<[DeviceInfo](#deviceinfo)[]>
-  - 失敗時: Promise
-    - ErrorDetail.error: `'GetMediaDevicesFailed' | 'GetMediaDevicesError'`
+  - `Promise<[DeviceInfo](#deviceinfo)[]>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - GetMediaDevicesFailed
+  - GetMediaDevicesError
+- エラー理由 ※GetMediaDevicesError の場合のみこのプロパティが存在する
+  - [getUserMedia()の例外](https://developer.mozilla.org/ja/docs/Web/API/MediaDevices/getUserMedia#%E4%BE%8B%E5%A4%96) 
 
 #### setCameraMute(isEnabled)
 
@@ -554,20 +613,20 @@ join後のカメラミュートの有効/無効を変更する。<br>
 join前に実行しても値は反映されない。<br>
 通話開始時のミュート状態を設定したい場合は、join時に[connectOptions.enableVideo](#join-parameters)を指定する。
 
-
 - 引数
   - require
     - isEnabled
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'MicMuteFailed'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - MicMuteFailed
 
 |Name|Type|説明|
 |:--|:--|:--|
 | isEnabled | boolean | `true`: カメラミュートが有効<br>`false`: カメラミュートが無効 |
 
 #### setCameraDevice(deviceId)
+
 カメラデバイスを変更する。<br>
 ローカル録画時に実行した場合は録画は継続されるが録画映像は変更後に停止する。<br>
 
@@ -575,9 +634,9 @@ join前に実行しても値は反映されない。<br>
   - require
     - deviceId
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'SetCameraDeviceFailed'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - SetCameraDeviceFailed
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -593,23 +652,25 @@ join前に実行しても値は反映されない。<br>
   - require
     - isEnabled
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'CameraMuteFailed'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - CameraMuteFailed
 
 |Name|Type|説明|
 |:--|:--|:--|
 | isEnabled | boolean | `true`: マイクミュートが有効<br>`false`: マイクミュートが無効 |
 
 #### setMicDevice(deviceId)
+
 マイクデバイスを変更する。
+
 - 引数
   - require
     - deviceId
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'SetMicDeviceFailed'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - SetMicDeviceFailed
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -622,9 +683,10 @@ join前に実行しても値は反映されない。<br>
 - 引数
   - なし
 - 返り値
-  - 成功時: `Promise<string>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'GetReportFailed' | 'GetReportError'`
+  - `Promise<string>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - GetReportFailed
+  - GetReportError
 
 #### getScreenShareStats()
 
@@ -633,9 +695,10 @@ join前に実行しても値は反映されない。<br>
 - 引数
   - なし
 - 返り値
-  - 成功時: `Promise<string>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'GetReportFailed' | 'GetReportError'`
+  - `Promise<string>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - GetReportFailed
+  - GetReportError
 
 #### getStats(subView, kind?)
 
@@ -647,9 +710,11 @@ join前に実行しても値は反映されない。<br>
   - optional
     - kind
 - 返り値
-  - 成功時: `Promise<string>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'GetStatsFailed' | 'GetStatsError' | 'GetStatsArgsInvalid'`
+  - `Promise<string>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - GetStatsFailed
+  - GetStatsError
+  - GetStatsArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -722,9 +787,10 @@ LSConfの問い合わせ用のログ情報を取得する。
 - 引数
   - なし
 - 返り値
-  - 成功時: `Promise<string>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'GetLSConfLogFailed' | 'GetLSConfLogError'`
+  - `Promise<string>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - GetLSConfLogFailed
+  - GetLSConfLogError
 
 #### changeLayout(layout, subViews?)
 
@@ -736,9 +802,10 @@ LSConfの問い合わせ用のログ情報を取得する。
   - optional
     - subViews
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'ChangeLayoutFailed' | 'ChangeLayoutArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - ChangeLayoutFailed
+  - ChangeLayoutArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -752,9 +819,10 @@ SubViewの一覧を取得する。
 - 引数
   - なし
 - 返り値
-  - 成功時: `Promise<SubView[]>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'GetSubViewsFailed' | 'GetSubViewsError'`
+  - `Promise<SubView[]>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - GetSubViewsFailed
+  - GetSubViewsError
 
 #### highlight(subView)
 
@@ -764,9 +832,11 @@ SubViewの一覧を取得する。
   - require
     - subView
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'HighlightFailed' | 'HighlightError' | 'HighlightArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - HighlightFailed
+  - HighlightError
+  - HighlightArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -780,9 +850,11 @@ SubViewの一覧を取得する。
   - require
     - subView
 - 返り値
-  - 成功時: `Promise<PoV>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'GetPoVFailed' | 'GetPoVError' | 'GetPoVArgsInvalid'`
+  - `Promise<PoV>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - GetPoVFailed
+  - GetPoVError
+  - GetPoVArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -797,9 +869,11 @@ SubViewの一覧を取得する。
     - subView
     - poV
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'SetPoVFailed' | 'SetPoVError' | 'SetPoVArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - SetPoVFailed
+  - SetPoVError
+  - SetPoVArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -808,16 +882,16 @@ SubViewの一覧を取得する。
 
 #### enablePointer(isEnabled)
 
-360映像SubView内に自拠点の視点ポインタ表示を切り替える。
+360映像SubView内に自拠点の視点ポインタ表示を切り替える。<br>
 本機能はβ機能であり、今後機能の削除や仕様変更等発生する可能性があります。ご利用の際はご注意ください。
 
 - 引数
   - require
     - isEnabled
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'EnablePointerFailed'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - EnablePointerFailed
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -825,7 +899,7 @@ SubViewの一覧を取得する。
 
 #### updatePointer(subView, connectionId, poV, username?, color?)
 
-360映像SubView内の相手視点ポインタの位置を更新する。
+360映像SubView内の相手視点ポインタの位置を更新する。<br>
 本機能はβ機能であり、今後機能の削除や仕様変更等発生する可能性があります。ご利用の際はご注意ください。
 
 - 引数
@@ -837,9 +911,9 @@ SubViewの一覧を取得する。
     - username
     - color
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'UpdatePointerArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - UpdatePointerArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -858,9 +932,11 @@ SubViewの一覧を取得する。
     - subView
     - connectionId
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'AddRecordingMemberFailed' | 'AddRecordingMemberError' | 'AddRecordingMemberArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - AddRecordingMemberFailed
+  - AddRecordingMemberError
+  - AddRecordingMemberArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -876,9 +952,11 @@ SubViewの一覧を取得する。
     - subView
     - connectionId
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'RemoveRecordingMemberFailed' | 'RemoveRecordingMemberError' | 'RemoveRecordingMemberArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - RemoveRecordingMemberFailed
+  - RemoveRecordingMemberError
+  - RemoveRecordingMemberArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -894,9 +972,12 @@ SubViewの一覧を取得する。
     - subView
     - options
 - 返り値
-  - 成功時: `Promise<Blob>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'GetCaptureImageFailed' | 'GetCaptureImageError' | 'GetCaptureImageErrorCameraMuted' | 'GetCaptureImageArgsInvalid'`
+  - `Promise<Blob>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - GetCaptureImageFailed
+  - GetCaptureImageError
+  - GetCaptureImageErrorCameraMuted
+  - GetCaptureImageArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1007,9 +1088,11 @@ LSConf既定のイベントリスナーを削除する。
   - require
     - subView
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'StopReceiveVideoFailed' | 'StopReceiveVideoError' | 'StopReceiveVideoArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - StopReceiveVideoFailed
+  - StopReceiveVideoError
+  - StopReceiveVideoArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1024,9 +1107,11 @@ LSConf既定のイベントリスナーを削除する。
 - 引数
   - subView
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'StartReceiveVideoFailed' | 'StartReceiveVideoError' | 'StartReceiveVideoArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - StartReceiveVideoFailed
+  - StartReceiveVideoError
+  - StartReceiveVideoArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1041,9 +1126,11 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
     - subView
     - isEnabled
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'EnableZoomFailed' | 'EnableZoomError' | 'EnableZoomArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - EnableZoomFailed
+  - EnableZoomError
+  - EnableZoomArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1058,9 +1145,11 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
   - subView
   - rotationVector
 - 返り値
-  - 設定成功時: `Promise<void>`
-  - 設定失敗時: `Promise`
-    - ErrorDetail.error: `'SetRotationVectorFailed' | 'SetRotationVectorError' | 'SetRotationVectorArgsInvalid'`
+  - 設定`Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - SetRotationVectorFailed
+  - SetRotationVectorError
+  - SetRotationVectorArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1080,9 +1169,10 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
     - username
     - color
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'UpdateStrokeFailed' | 'UpdateStrokeArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - UpdateStrokeFailed
+  - UpdateStrokeArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1094,15 +1184,17 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
 
 #### addVideoSource(source)
 
-Playerで指定する動画ファイルのソース情報を追加する。
-`VideoSource.connectionId` がすでに存在する場合は情報を上書きする。
+Playerで指定する動画ファイルのソース情報を追加する。<br>
+`VideoSource.connectionId` がすでに存在する場合は情報を上書きする。<br>
+追加したソース情報内のURLの期限切れなどで [`MediaSourceError`](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#mediasourceerror) が発生した場合は、同一の connectionId に対してURLを更新後のものに差し替えて再度実行することで SubView が更新されます。
 
 - 引数
   - source
 - 返り値
-  - 設定成功時: `Promise<void>`
-  - 設定失敗時: `Promise`
-    - ErrorDetail.error: `'AddVideoSourceFailed' | 'AddVideoSourceArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - AddVideoSourceFailed
+  - AddVideoSourceArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1117,8 +1209,9 @@ Playerで指定する動画ファイルのソース情報を追加する。
 
 #### addImageSource(source, parentConnectionId?)
 
-画像ファイルを指定してSubViewに追加する。
-`ImageSource.connectionId` がすでに存在する場合は情報を上書きする。
+画像ファイルを指定してSubViewに追加する。<br>
+`ImageSource.connectionId` がすでに存在する場合は情報を上書きする。<br>
+追加したソース情報内のURLの期限切れなどで [`MediaSourceError`](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#mediasourceerror) が発生した場合は、同一の connectionId に対してURLを更新後のものに差し替えて再度実行することで SubView が更新されます。
 
 - 引数
   - require
@@ -1126,9 +1219,11 @@ Playerで指定する動画ファイルのソース情報を追加する。
   - optional
     - parentConnectionId
 - 返り値
-  - 設定成功時: `Promise<void>`
-  - 設定失敗時: `Promise`
-    - ErrorDetail.error: `'AddImageSourceFailed' | 'AddImageSourceError' | 'AddImageSourceArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - AddImageSourceFailed
+  - AddImageSourceError
+  - AddImageSourceArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1144,9 +1239,11 @@ Playerで指定する動画ファイルのソース情報を追加する。
 - 引数
   - connectionId
 - 返り値
-  - 設定成功時: `Promise<void>`
-  - 設定失敗時: `Promise`
-    - ErrorDetail.error: `'RemoveImageSourceFailed' | 'RemoveImageSourceError' | 'RemoveImageSourceArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - RemoveImageSourceFailed
+  - RemoveImageSourceError
+  - RemoveImageSourceArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1154,32 +1251,35 @@ Playerで指定する動画ファイルのソース情報を追加する。
 
 #### changePlayerState(state)
 
-Player時の再生状態を変更する。
+Player時の再生状態を変更する。<br>
 Room時に実行した場合は無視される。
 
 - 引数
   - require
     - state
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'ChangePlayerStateFailed' | 'ChangePlayerStateArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - ChangePlayerStateFailed
+  - ChangePlayerStateArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
 | state | 'play' \| 'pause' | 変更後のPlayerの再生状態<br>実行前と状態が変化しない場合は無視される |
 
 #### setSpeakerVolume(volume)
-Player時のスピーカーの音量を設定する。
+
+Player時のスピーカーの音量を設定する。<br>
 Room時に実行しても値は反映されない。
 
 - 引数
   - require
     - volume
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'SetSpeakerVolumeFailed' | 'SetSpeakerVolumeArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - SetSpeakerVolumeFailed
+  - SetSpeakerVolumeArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1197,9 +1297,10 @@ createPlayerを実行してから動画ファイルのロード完了後（最�
   - require
     - currentTime
 - 返り値
-  - 成功時: `Promise<void>`
-  - 失敗時: `Promise`
-    - ErrorDetail.error: `'SetSeekPositionFailed' | 'SetSeekPositionArgsInvalid'`
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - SetSeekPositionFailed
+  - SetSeekPositionArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1216,10 +1317,11 @@ Player時に実行した場合は無視される。
 - 引数
   - require
     - bitrateKbps
-  - 返り値
-    - 成功時: `Promise<void>`
-    - 失敗時: `Promise`
-      - ErrorDeatil.error: `'SetVideoSendBitrateFailed'` | `'SetVideoSendBitrateArgsInvalid'`
+- 返り値
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - SetVideoSendBitrateFailed
+  - SetVideoSendBitrateArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1237,10 +1339,12 @@ Player時に実行した場合は無視される。<br>
 - 引数
   - require
     - framerate
-  - 返り値
-    - 成功時: `Promise<void>`
-    - 失敗時: `Promise`
-      - ErrorDeatil.error: `'SetVideoSendFramerateFailed'` | `'SetVideoSendFramerateError'` | `'SetVideoSendFramerateArgsInvalid'`
+- 返り値
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - SetVideoSendFramerateFailed
+  - SetVideoSendFramerateError
+  - SetVideoSendFramerateArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1253,15 +1357,17 @@ Player時に実行した場合は無視される。<br>
 接続時に指定した [`ConnectOptions.videoAudioConstraints`](#connectoptions) のパラメータを変更する(※1)。<br>
 join完了後に実行が可能となり、join完了前に実行した場合はエラーが返される。<br>
 Player時に実行した場合は無視される。<br>
-自拠点のローカル録画中に実行した場合、録画映像や音声が停止した状態で録画が継続される。<br>
+自拠点のローカル録画中に実行した場合、録画は停止される。<br>
 
 - 引数
   - require
     - constraints
-  - 返り値
-    - 成功時: `Promise<void>`
-    - 失敗時: `Promise`
-      - ErrorDeatil.error: `'SetVideoAudioConstraintsFailed'` | `'SetVideoAudioConstraintsError'` | `'SetVideoAudioConstraintsArgsInvalid'`
+- 返り値
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - SetVideoAudioConstraintsFailed
+  - SetVideoAudioConstraintsError
+  - SetVideoAudioConstraintsArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
@@ -1391,8 +1497,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 
 #### mediaDeviceChanged
 
-デバイス設定が変更された。
-
+デバイス設定が変更された。<br>
 ダミーデバイスに設定された状態でミュートを解除しようとした場合は変更がなくともこちらのイベントが発火します。
 
 ```js
@@ -1473,8 +1578,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 
 #### strokeUpdated
 
-ストロークの書き込みが更新された。
-
+ストロークの書き込みが更新された。<br>
 イベントの発火タイミングについては以下の通りです。
 
 - 書き始めに一度
@@ -1531,9 +1635,32 @@ Playerの再生状態が変化した。
 - 同期再生の場合: `0` から `指定された全ての動画の started_at と ended_at から計算した全体の再生時間`
 - 一括再生の場合: `0` から `指定された動画の中で一番長い動画の再生時間`
 
+#### log
+
+ログ出力イベントが発火した。
+
+```js
+{
+  type: 'log',
+  detail: {
+    message: string,
+    category: LogCategory,
+    subcategory: string,
+    date: string,
+  }
+}
+```
+
+|Name|Type|説明|
+|:--|:--|:--|
+| message | string | ログのメッセージ |
+| category | [LogCategory](#logcategory) | ログの種別 |
+| subcategory | string | ログの第2種別 |  |
+| date | string | ISO 8601形式による時刻情報 |
+
 #### error
 
-エラーが発生した。
+エラーが発生した。<br>
 エラーの詳細な仕様については [エラー仕様](https://api.livestreaming.ricoh/docs/lsconf-error-specification) を参照してください。
 
 ```js

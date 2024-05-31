@@ -33,8 +33,8 @@
     "fullscreen": "FullScreen",
     "exitFullscreen": "Exit FullScreen",
     "sharePoV": "Share PoV",
-    "startRecording": "Start Recording",
-    "stopRecording": "Stop Recording"
+    "startRecording": "Start Local Recording",
+    "stopRecording": "Stop Local Recording"
   },
   "presentationLayout": {
     "horizontalButtonTips": "Switch to Horizontal",

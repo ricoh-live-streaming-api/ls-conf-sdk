@@ -1,6 +1,6 @@
 # ls-conf-sample
 
-`ls-conf-sdk` を使ってiframeの会議コンポーネント（LSConf）を利用するサンプルアプリケーションです。
+`ls-conf-sdk` を使って iframe の会議コンポーネント（LSConf）を利用するサンプルアプリケーションである。
 
 ## 動作要件
 
@@ -16,7 +16,7 @@ v16.18.1
 
 ## ローカル実行手順
 
-アプリをローカルで動作させるには、frontend と backend の 2 つを起動する必要があります。
+アプリをローカルで動作させるには、frontend と backend の 2 つを起動する必要がある。
 
 ### backend
 
@@ -29,7 +29,9 @@ v16.18.1
 |port|backendのローカル実行時にbackendが待ち受けるポート番号|
 |bitrateReservationMbps|Room毎に利用可能な帯域幅の最大値(※)<br>backendが発行するAccessTokenに含まれる `RoomSpec.media_control.bitrate_reservation_mbps` の値|
 
+<!-- textlint-disable ja-technical-writing/sentence-length -->
 ※ 設定値の決め方については [RICOH Live Streaming Client APP for THETA SenderとRICOH Live Streaming Conferenceを組み合わせて動作確認したい](https://api.livestreaming.ricoh/document/ricoh-live-streaming-client-app-for-theta-sender%e3%81%a8ricoh-live-streaming-conference%e3%82%92%e7%b5%84%e3%81%bf%e5%90%88%e3%82%8f%e3%81%9b%e3%81%a6%e5%8b%95%e4%bd%9c%e7%a2%ba%e8%aa%8d%e3%81%97/) をご参照ください。
+<!-- textlint-enable ja-technical-writing/sentence-length -->
 
 #### Step2. 環境変数の設定
 
@@ -41,7 +43,7 @@ export LS_CLIENT_SECRET=XXXX // 発行されたClientSecretを指定してくだ
 
 #### Step3. 実行
 
-以下のコマンドを実行すると `http://localhost:4000` でサーバが起動します。
+以下のコマンドを実行すると `http://localhost:4000` でサーバが起動される。
 
 ```shell
 $ cd backend # backend へ移動
@@ -65,7 +67,7 @@ Api Server listening on port 4000!
 
 #### Step2. 実行
 
-以下のコマンドを実行すると `http://localhost:3000` でサーバが起動します。
+以下のコマンドを実行すると `http://localhost:3000` でサーバが起動される。
 
 ```shell
 $ cd frontend # frontend へ移動
@@ -77,15 +79,15 @@ $ yarn start  # ローカル実行(webpackを利用)
 
 ## 静的ファイルの生成
 
-以下の手順でfrontendの静的ファイルを生成できます。
+以下の手順で frontend の静的ファイルを生成できる。
 
 #### Step1. 設定ファイルの作成
 
-ローカル実行時と同様に `frontend/config/local.json` を作成します。
+ローカル実行時と同様に `frontend/config/local.json` を作成する。
 
 #### Step2. 実行
 
-以下のコマンドを実行すると `frontend/dist/` 下に成果物（静的ファイル）が生成されます。
+以下のコマンドを実行すると `frontend/dist/` 下に成果物（静的ファイル）が生成される。
 
 ```shell
 $ rm -rf dist/* # dist/ 内を一度 clean にする
@@ -97,7 +99,7 @@ $ yarn build    # ビルド
 
 ## ls-conf-sdk の更新
 
-ls-conf-sdkを更新する場合、以下の2ファイルと`langディレクトリ`を差し替えてください。
+ls-conf-sdk を更新する場合、以下の 2 ファイルと`langディレクトリ`を差し替えてください。
 
 - `frontend/`
   - `src/@types/ls-conf-sdk.d.ts`

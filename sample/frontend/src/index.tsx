@@ -60,7 +60,7 @@ window.addEventListener('resize', () => {
 const rootReducer = mainSlice.reducer;
 
 // https://redux.js.org/redux-toolkit/overview#whats-included
-// devTools Extention はデフォルトで ON になっている
+// devTools Extension はデフォルトで ON になっている
 const store = configureStore({
   reducer: rootReducer,
   middleware: middleware,

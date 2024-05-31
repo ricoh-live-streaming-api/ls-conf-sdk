@@ -115,7 +115,7 @@ export declare type ImageSource = {
     isTheta: boolean;
 };
 export declare type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
-export declare type IceServersProtocolType = 'all' | 'udp' | 'tcp' | 'tls';
+export declare type IceServersProtocolType = 'all' | 'udp' | 'tcp' | 'tls' | 'tcp_tls';
 export declare type MuteType = 'hard' | 'soft';
 export declare type ModeType = 'normal' | 'viewer';
 export declare type ConnectOptions = {
@@ -174,7 +174,8 @@ export declare type CaptureImageOptions = {
     qualityArgument?: number;
 };
 export declare type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
-export declare type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'error';
+export declare type LogCategory = 'environment' | 'setting' | 'recording' | 'device' | 'member' | 'analysis' | 'clientSdk';
+export declare type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'log' | 'error';
 export declare type ErrorType = 'RequestError' | 'InternalError';
 export declare type ErrorDetail = {
     code: number;
@@ -222,7 +223,7 @@ declare class LSConferenceIframe {
     private setRotationVectorCallback;
     private addRecordingMemberCallback;
     private removeRecordingMemberCallback;
-    private logCallbacks;
+    private getReportCallbacks;
     private getMediaDevicesCallback;
     private getCaptureImageCallback;
     private updateCurrentTimeCallback;
@@ -258,11 +259,12 @@ declare class LSConferenceIframe {
     private validateImageSourceType;
     private validatePlayerStateType;
     private validateMediaStreamConstraintsType;
+    private validateUrl;
     private setRequestTimer;
     private __create;
     static create(parentElement: HTMLElement, parameters: Partial<CreateParameters>): Promise<LSConferenceIframe>;
     private __createPlayer;
-    static createPlayer(parentElement: HTMLElement, sources: VideoSource[], parameters?: Partial<CreateParameters>): Promise<LSConferenceIframe>;
+    static createPlayer(parentElement: HTMLElement, sources: VideoSource[] | string, parameters?: Partial<CreateParameters>): Promise<LSConferenceIframe>;
     join(clientId: string, accessToken: string, connectOptions: ConnectOptions): Promise<void>;
     leave(): Promise<void>;
     onShareRequested(callback: Function): void;

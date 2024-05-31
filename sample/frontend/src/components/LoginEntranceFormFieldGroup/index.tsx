@@ -14,7 +14,7 @@ import { Typography } from '@rmwc/typography';
 import React, { useState } from 'react';
 
 // MWCのバグが、以下2つあるため一時的に指定している
-// TextFieldの色はprimary値しか受け付けない / ラベルの色はthemaやclassを使っても、強制的に#6200eeの値になる
+// TextFieldの色はprimary値しか受け付けない / ラベルの色はthemeやclassを使っても、強制的に#6200eeの値になる
 // TODO(hkt): RMWC側でバグが対応され次第削除する
 const TEXTFIELD_THEME_OPTIONS = {
   primary: '#6200ee',

@@ -47,6 +47,8 @@ const IframePage: React.FC<Record<string, never>> = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   // ダイアログで表示中のダミーデバイス変更通知のデバイス種別
   const showingDummyDeviceTypes = useRef<string[]>([]);
+  // logイベントから受け取ったLSConfLogの保持用変数
+  const logEvent = useRef(new Map<string, { date: number; log: string }[]>());
   const showErrorDialog = errorMessage !== null;
   const connectionId: string = uuidv4();
   const audioMuteType = audio_mute_type && (audio_mute_type === 'soft' || audio_mute_type === 'hard') ? audio_mute_type : undefined;
@@ -73,10 +75,25 @@ const IframePage: React.FC<Record<string, never>> = () => {
     log += `SignalingURL: ${SIGNALING_URL || 'default'}\n`;
     log += `UserAgent: ${window.navigator.userAgent}\n\n`;
     log += `********** LSConfLog **************\n`;
-    try {
-      log += `${await iframe.getLSConfLog()}\n`;
-    } catch {
-      log += `Failed to getLSConfLog.\n`;
+    if (e instanceof LSConfErrorEvent && Math.floor(e.error.detail.code / 1000) == 5) {
+      // InternalError（5000番台）の場合は内部に保持したログを出力する
+      log += `An unexpected error occurs. Output logs by LogEvent. \n\n`;
+      log += getStoredLSConfLog();
+    } else {
+      try {
+        const lsConfLog = await iframe.getLSConfLog();
+        if (lsConfLog === null || lsConfLog === undefined || lsConfLog == '') {
+          // LSConfLogが空の場合は内部に保持したログを出力する
+          log += `Result of getLSConfLog is blank. Output logs by LogEvent. \n\n`;
+          log += getStoredLSConfLog();
+        } else {
+          log += `${lsConfLog}\n`;
+        }
+      } catch {
+        // LSConfLogの取得に失敗した場合は内部に保持したログを出力する
+        log += `Failed to getLSConfLog. Output logs by LogEvent. \n\n`;
+        log += getStoredLSConfLog();
+      }
     }
     const downLoadLink = document.createElement('a');
     downLoadLink.download = `ls-conf-sample_${format(new Date(), 'yyyyMMdd_HHmmss')}.log`;
@@ -106,6 +123,18 @@ const IframePage: React.FC<Record<string, never>> = () => {
     downLoadLink.href = URL.createObjectURL(new Blob([log], { type: 'text.plain' }));
     downLoadLink.dataset.downloadurl = ['text/plain', downLoadLink.download, downLoadLink.href].join(':');
     downLoadLink.click();
+  };
+  const getStoredLSConfLog = (): string => {
+    let log = '';
+    const categories = ['Environment', 'Setting', 'Recording', 'Device', 'Member', 'Analysis', 'ClientSdk'];
+    for (const category of categories) {
+      log += `******************** ${category} **********************\n`;
+      const categoryLogs = logEvent.current.get(category.charAt(0).toLowerCase() + category.slice(1));
+      if (categoryLogs) {
+        log += categoryLogs.map((item) => item.log).join('\n') + '\n';
+      }
+    }
+    return log;
   };
   const createAndConnectRoom = async (): Promise<void> => {
     if (!username || !roomId || typeof username !== 'string') {
@@ -222,6 +251,18 @@ const IframePage: React.FC<Record<string, never>> = () => {
       }
       console.log(`mediaDeviceChanged: ${JSON.stringify(e.detail)}`);
     });
+    // ls-conf-sdkのlogイベントが発生した場合はログを保持する
+    iframe.addEventListener('log', (e: CustomEvent) => {
+      const { message, category, subcategory, date } = e.detail;
+      const logs = logEvent.current.get(category) || [];
+      const log = `[${date}]${subcategory ? '[' + subcategory + ']' : ''} ${message}`;
+      logs.push({ date: new Date(date).getTime(), log });
+      const updateLogs = logs.filter((log) => {
+        // 直近10分経過したログを削除する(ログは溜まり続けるためメモリを圧迫させないように適宜削除する)
+        return Date.now() - log.date < 1000 * 60 * 10;
+      });
+      logEvent.current.set(category, updateLogs);
+    });
     // ツールバーのダウンロードボタンを押した場合はログをダウンロードする
     iframe.addApplicationEventListener('log', async () => {
       try {
@@ -285,10 +326,10 @@ const IframePage: React.FC<Record<string, never>> = () => {
     setErrorMessage(null);
   };
   useLayoutEffect(() => {
-    createAndConnectRoom();
+    void createAndConnectRoom();
     return () => {
       if (lsConfIframe) {
-        lsConfIframe.leave();
+        void lsConfIframe.leave();
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

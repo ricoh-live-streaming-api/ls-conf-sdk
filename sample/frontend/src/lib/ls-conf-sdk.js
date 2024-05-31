@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 5.5.0
+ * @version: 5.7.0
  **/
 
 (function (global, factory) {
@@ -213,13 +213,22 @@
                       return 5002;
                   case 'InternalError5003':
                       return 5003;
+                  case 'InternalError5004':
+                      return 5004;
                   // エラーコードが存在しない場合は 5000 で返す
                   default:
                       return 5000;
               }
           };
           this.toReportString = () => {
-              return `code: ${this.detail.code}, type: ${this.detail.type}, error: ${this.detail.error}`;
+              // dataが設定されている場合はdataの内容を返す
+              if (this.data) {
+                  // インデント(半角スペース4桁)と改行で整形
+                  return `${JSON.stringify(this.data, null, 4)}`;
+              }
+              else {
+                  return `code: ${this.detail.code}, type: ${this.detail.type}, error: ${this.detail.error}`;
+              }
           };
           const code = this.getErrorCode(errorName);
           const category = Math.floor(code / 1000);
@@ -261,7 +270,7 @@
       }
   }
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '5.5.0';
+  const LS_CONF_SDK_VERSION = '5.7.0';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
@@ -275,7 +284,7 @@
   const DEFAULT_ICE_SERVERS_PROTOCOL = 'all';
   class LSConferenceIframe {
       constructor(parentElement) {
-          this.logCallbacks = new Map();
+          this.getReportCallbacks = new Map();
           this.parentElement = parentElement;
           this.iframeElement = document.createElement('iframe');
           this.lsConfURL = DEFAULT_LS_CONF_URL;
@@ -313,45 +322,47 @@
           this.applicationEventListeners = new Map();
           this.parametersQueue = new Map();
       }
-      async handleWindowMessage(event) {
+      handleWindowMessage(event) {
           const data = event.data;
           if (!this.iframeElement.contentWindow) {
               throw new LSConfError(new ErrorData('InternalError5001'));
           }
           if (data.type === 'shareRequest' && this.connectOptions) {
-              let accessToken;
-              try {
-                  accessToken = await this.shareRequestedCallback();
-              }
-              catch (e) {
-                  console.warn('Exception occurred in onShareRequested.', e);
-              }
-              if (!accessToken || typeof accessToken !== 'string') {
-                  this.dispatchEvent(new LSConfErrorEvent(new ErrorData('ShareRequestArgsInvalid')));
-                  return;
-              }
-              // screen share の role, mediaType は固定
-              const postMessageParameters = {
-                  type: 'connectShare',
-                  clientId: this.clientId,
-                  accessToken: accessToken,
-                  role: 'sendonly',
-                  mediaType: 'screenshare',
-                  connectOptions: this.connectOptions,
-              };
-              if (!this.iframeElement.contentWindow) {
-                  throw new LSConfError(new ErrorData('InternalError5001'));
-              }
-              try {
-                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
-              }
-              catch (e) {
-                  const error = new LSConfError(new ErrorData('ShareRequestFailed'));
-                  throw error;
-              }
+              void (async () => {
+                  let accessToken;
+                  try {
+                      accessToken = await this.shareRequestedCallback();
+                  }
+                  catch (e) {
+                      console.warn('Exception occurred in onShareRequested.', e);
+                  }
+                  if (!accessToken || typeof accessToken !== 'string') {
+                      this.dispatchEvent(new LSConfErrorEvent(new ErrorData('ShareRequestArgsInvalid')));
+                      return;
+                  }
+                  // screen share の role, mediaType は固定
+                  const postMessageParameters = {
+                      type: 'connectShare',
+                      clientId: this.clientId,
+                      accessToken: accessToken,
+                      role: 'sendonly',
+                      mediaType: 'screenshare',
+                      connectOptions: this.connectOptions,
+                  };
+                  if (!this.iframeElement.contentWindow) {
+                      throw new LSConfError(new ErrorData('InternalError5001'));
+                  }
+                  try {
+                      this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+                  }
+                  catch (e) {
+                      const error = new LSConfError(new ErrorData('ShareRequestFailed'));
+                      throw error;
+                  }
+              })();
           }
-          else if (data.type === 'log') {
-              const callback = this.logCallbacks.get(data.logType);
+          else if (data.type === 'getReport') {
+              const callback = this.getReportCallbacks.get(data.logType);
               if (callback) {
                   if (data.error) {
                       let error = new LSConfError(new ErrorData('GetReportError'));
@@ -363,7 +374,7 @@
                   else {
                       callback.success(data.log);
                   }
-                  this.logCallbacks.delete(data.logType);
+                  this.getReportCallbacks.delete(data.logType);
               }
           }
           else if (data.type === 'recording') {
@@ -479,7 +490,11 @@
               this.dispatchEvent(event);
           }
           else if (data.type === 'getDeviceFailed') {
-              const error = new LSConfError(new ErrorData('GetDeviceFailed'));
+              let error = new LSConfError(new ErrorData('GetDeviceFailed'));
+              const hasDataProperty = Object.prototype.hasOwnProperty.call(data, 'data');
+              if (hasDataProperty) {
+                  error = new LSConfError(new ErrorData('GetDeviceFailed', data.data));
+              }
               this.joinCallback.error(error);
           }
           else if (data.type === 'getSubViews') {
@@ -539,6 +554,10 @@
           else if (data.type === 'getMediaDevices') {
               if (data.error) {
                   let error = new LSConfError(new ErrorData('GetMediaDevicesError'));
+                  const hasDataProperty = Object.prototype.hasOwnProperty.call(data, 'data');
+                  if (hasDataProperty) {
+                      error = new LSConfError(new ErrorData('GetMediaDevicesError', data.data));
+                  }
                   if (data.errorType === 'CreateTypeInvalid') {
                       error = new LSConfError(new ErrorData('CreateTypeInvalid'));
                   }
@@ -641,7 +660,7 @@
               }));
           }
           else if (data.type === 'MediaSourceError') {
-              this.dispatchEvent(new LSConfErrorEvent(new ErrorData('MediaSourceError', { connectionId: data.connectionId })));
+              this.dispatchEvent(new LSConfErrorEvent(new ErrorData('MediaSourceError', { connectionId: data.connectionId, url: data.url })));
           }
           else if (data.type === 'playerStateChanged') {
               const state = data.state;
@@ -718,6 +737,22 @@
                   this.setVideoAudioConstraintsCallback.success();
               }
           }
+          else if (data.type === 'createPlayer') {
+              if (data.error) {
+                  this.dispatchEvent(new LSConfErrorEvent(new ErrorData('CreateFailed')));
+              }
+          }
+          else if (data.type === 'log') {
+              const event = new LSConfEvent('log', {
+                  detail: {
+                      message: data.message,
+                      category: data.category,
+                      subcategory: data.subcategory,
+                      date: data.date,
+                  },
+              });
+              this.dispatchEvent(event);
+          }
           else if (data.type === 'error' && data.error) {
               if (this.state === 'connecting') {
                   this.state = 'created';
@@ -731,7 +766,7 @@
                           this.dispatchEvent(new LSConfErrorEvent(new SDKErrorData(data.error.detail, data.error.toReportString)));
                       }
                       else {
-                          this.dispatchEvent(new LSConfErrorEvent(new ErrorData(data.error.detail.error)));
+                          this.dispatchEvent(new LSConfErrorEvent(new ErrorData(data.error.detail.error, data.error.data)));
                       }
                   }
               }
@@ -1089,7 +1124,11 @@
               if (typeof connectOptions.iceServersProtocol !== 'string') {
                   return false;
               }
-              if (connectOptions.iceServersProtocol !== 'all' && connectOptions.iceServersProtocol !== 'udp' && connectOptions.iceServersProtocol !== 'tcp' && connectOptions.iceServersProtocol !== 'tls') {
+              if (connectOptions.iceServersProtocol !== 'all' &&
+                  connectOptions.iceServersProtocol !== 'udp' &&
+                  connectOptions.iceServersProtocol !== 'tcp' &&
+                  connectOptions.iceServersProtocol !== 'tls' &&
+                  connectOptions.iceServersProtocol !== 'tcp_tls') {
                   return false;
               }
           }
@@ -1256,6 +1295,15 @@
           }
           return true;
       }
+      validateUrl(url) {
+          try {
+              new URL(url);
+          }
+          catch (e) {
+              return false;
+          }
+          return true;
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setRequestTimer(reject, error, time) {
           return window.setTimeout(() => {
@@ -1380,6 +1428,18 @@
                           customParameters.theme = parameters.theme;
                           customParameters.locales = parameters.locales;
                           if (customParameters.subView && parameters.subView) {
+                              if (parameters.subView.isHiddenDrawingButton !== undefined) {
+                                  customParameters.subView.isHiddenDrawingButton = parameters.subView.isHiddenDrawingButton;
+                              }
+                              if (parameters.subView.drawingInterval !== undefined) {
+                                  customParameters.subView.drawingInterval = parameters.subView.drawingInterval;
+                              }
+                              if (parameters.subView.drawingColor !== undefined) {
+                                  customParameters.subView.drawingColor = parameters.subView.drawingColor;
+                              }
+                              if (parameters.subView.drawingOption) {
+                                  customParameters.subView.drawingOption = parameters.subView.drawingOption;
+                              }
                               if (parameters.subView.menu) {
                                   customParameters.subView.menu = {
                                       isHidden: parameters.subView.menu.isHidden,
@@ -1433,7 +1493,11 @@
                   const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
                   return reject(error);
               }
-              if (sources !== undefined && !instance.validateVideoSourceType(sources)) {
+              if (sources !== undefined && typeof sources !== 'string' && !instance.validateVideoSourceType(sources)) {
+                  const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
+                  return reject(error);
+              }
+              if (sources !== undefined && typeof sources === 'string' && !instance.validateUrl(sources)) {
                   const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
                   return reject(error);
               }
@@ -1854,12 +1918,12 @@
               const postMessageParameters = {
                   type: type,
               };
-              this.logCallbacks.set(type, { success: (log) => resolve(log), error: (err) => reject(err) });
+              this.getReportCallbacks.set(type, { success: (log) => resolve(log), error: (err) => reject(err) });
               try {
                   this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
               catch (e) {
-                  this.logCallbacks.delete(type);
+                  this.getReportCallbacks.delete(type);
                   const error = new LSConfError(new ErrorData('GetReportFailed'));
                   return reject(error);
               }
@@ -1874,7 +1938,7 @@
                   type: 'getLSConfLog',
               };
               this.getLSConfLogCallback = {
-                  success: async (lsConfLog) => resolve(lsConfLog),
+                  success: (lsConfLog) => resolve(lsConfLog),
                   error: (err) => reject(err),
               };
               try {
@@ -1909,7 +1973,7 @@
                   kind: kind,
               };
               this.getStatsCallback = {
-                  success: async (stats) => resolve(stats),
+                  success: (stats) => resolve(stats),
                   error: (err) => reject(err),
               };
               try {
@@ -2021,43 +2085,12 @@
                   options,
               };
               this.getCaptureImageCallback = { success: (blob) => resolve(blob), error: (err) => reject(err) };
-              // 録画ファイルのキャプチャ時は先に currentTime を更新させる
-              if (subView.type === 'VIDEO_FILE') {
-                  this.updateCurrentTimeCallback = {
-                      // currentTime の更新成功後に getCaptureImage を実行する
-                      success: () => {
-                          try {
-                              if (!this.iframeElement.contentWindow) {
-                                  return reject(new LSConfError(new ErrorData('InternalError5001')));
-                              }
-                              this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
-                          }
-                          catch (e) {
-                              const error = new LSConfError(new ErrorData('GetCaptureImageFailed'));
-                              return reject(error);
-                          }
-                      },
-                      // エラー時は getCaptureImage の reject を実行する
-                      error: (err) => reject(err),
-                  };
-                  const postUpdateCurrentTimeMessageParameters = { type: 'updateCurrentTime', connectionId: subView.connectionId };
-                  try {
-                      this.iframeElement.contentWindow.postMessage(postUpdateCurrentTimeMessageParameters, this.lsConfURL);
-                  }
-                  catch (e) {
-                      const error = new LSConfError(new ErrorData('GetCaptureImageFailed'));
-                      return reject(error);
-                  }
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
               }
-              else {
-                  // MediaStream のキャプチャ時はそのまま getCaptureImage を実行する
-                  try {
-                      this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
-                  }
-                  catch (e) {
-                      const error = new LSConfError(new ErrorData('GetCaptureImageFailed'));
-                      return reject(error);
-                  }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('GetCaptureImageFailed'));
+                  return reject(error);
               }
           });
       }

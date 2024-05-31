@@ -10,8 +10,4 @@ const mainSlice = createSlice({
   reducers: {},
 });
 
-// const { actions } = mainSlice;
-
-// export const {} = actions;
-// default で slice を export
 export default mainSlice;

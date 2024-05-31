@@ -1,5 +1,47 @@
 # CHANGE LOG
 
+## v5.7.0
+- Changed
+  - [SDK] GetMediaDevicesError と GetDeviceFailed のエラーレスポンスにエラー理由を返すように変更
+- Fixed
+  - [LSConf] デバイスが多い場合に getMediaDevices() の実行に時間がかかる問題を修正
+
+## v5.6.1
+- Fixed
+  - [LSConf] 送信映像の解像度が変更されると受信側でSubViewのアスペクト比が崩れる問題を修正
+
+## v5.6.0
+- Added
+  - [SDK] ログが出力される度に発火する `log` イベントを追加
+- Changed
+  - [SDK,LSConf] Player での書き込み機能に対応
+  - [SDK,LSConf] createPlayer の引数でソース情報が定義された jsonファイル の URL を指定できるように変更
+  - [LSConf] Player での同期再生時のメタデータ情報取得前の日時表示を変更
+  - [LSConf] Player でのデフォルトのスピーカー設定を ON に変更
+  - [LSConf] 自拠点のローカル録画中に配信設定が変更されると録画が停止されるように変更
+  - [LSConf] getLSConfLog の出力に Stats の local-candidate の情報を追加
+  - [LSConf] 「録画」の文言を「ローカル録画」に変更
+  - [SDK] IceServersProtocolType に `tcp_tls` を追加
+- Fixed
+  - [LSConf] `web-sdk` を `v1.9.2` に更新
+  - [LSConf] 静止画SubView の SubViewMenu に録画開始ボタンが表示されていた問題を修正
+  - [LSConf] mediaDeviceChanged イベントに含まれる capabilities が変更後のデバイスと異なる問題を修正
+  - [LSConf] Firefox で createPlayer を実行すると MediaSourceError が発生する問題を修正
+  - [LSConf] 同一connection_idの拠点が切断/再入室した時のクラウド録画を同期再生すると1つの動画しか表示されない問題を修正
+  - [LSConf] 書き込み対象の SubView の位置が変化しても書き込みが終了しない問題を修正
+  - [LSConf] Player の全画面表示での再生中に動画が追加されるとローディングが終わらなくなる問題を修正
+  - [LSConf] Player でシークバーを連続で操作するとエラーが起きる問題を修正
+  - [LSConf] Player でローディング状態のまま進まなくなる問題を修正
+  - [LSConf] Player で終端まで再生すると横スクロールバーが表示される問題を修正
+  - [LSConf] Safari で Player 時に音声が再生され続ける問題を修正
+  - [LSConf] 通常表示領域の 静止画SubView 上にマーカーが表示されない問題を修正
+  - [LSConf] 書き込みボタンの押下時に SubView が一瞬黒くなる問題を修正
+  - [LSConf] 送信側の解像度変更時に受信側で映像が一瞬黒くちらつく問題を修正
+  - [SDK,LSConf] Player の全画面表示再生中に全画面解除するとそれまで非表示だった動画と音声のタイミングがずれる問題を修正
+  - [SDK,LSConf] 依存ライブラリの更新
+- Refactored
+  - [SDK,LSConf] 非同期/同期処理や分岐条件の記法を変更
+
 ## v5.5.0
 - Added
   - [SDK] 映像の送信フレームレートを変更する機能を追加
@@ -51,7 +93,7 @@
   - [LSConf] ローカル録画でサポートする MIMEType を追加
   - [LSConf] デザインカスタマイズパラメータの追加および変更
   - [LSConf] 通常映像の拡大表示時にSubViewの黒帯の領域にも映像を表示できるように変更
-  - [LSConf] GalleryLayout および PresentationLayout の拡大表示領域 のSubViewの表示上限を16に変更
+  - [LSConf] GalleryLayout および PresentationLayoutの拡大表示領域 のSubViewの表示上限を16に変更
   - [LSConf] audioMuteType のデフォルト値を "soft" に変更
 - Fixed
   - [LSConf] 通常映像の描画時にGPUの負荷が高くなる問題を修正
@@ -100,7 +142,7 @@
   - [SDK] updatePointerを高頻度で呼んだ時に描画が遅くなる問題の修正
   - [LSConf] ダミーデバイス利用時に対向側の発話中に状態表示が反応しない問題の修正
   - [LSConf] Player時のシークバーの操作後に再生が安定しない問題の修正
-  - [LSConf] Connection と Track の Metadata が未指定のクライアントの参加/退室時にイベントの値が不正になる問題の修正
+  - [LSConf] Connection と Track の Metadata が未指定のクライアントの参加/切断時にイベントの値が不正になる問題の修正
 
 ### 破壊的な変更による修正内容
 #### join時とonShareRequested時にconnectionIdの指定が不要に変更
@@ -439,12 +481,12 @@ const log = await iframe.getLSConfLog();
 
 ## v2.2.3
 - Added
-  - [SDK] 録画できない条件で録画を開始した場合、録画開始失敗のエラーを追加
+  - [SDK] ローカル録画できない条件で録画を開始した場合、録画開始失敗のエラーを追加
 - Changed
   - [LSConf] デバイス設定ダイアログを表示している間はカメラ/マイクがミュートになるように変更
   - [LSConf] 録画機能を Windows, Mac かつ Chrome, Edge のみに制限
 - Fixed
-  - [LSConf] 録画停止ボタン以外での録画停止時に stopRecording のイベントが発火しない問題を修正
+  - [LSConf] ローカル録画停止ボタン以外での録画停止時に stopRecording のイベントが発火しない問題を修正
   - [LSConf] Androidの特定の機種 でデバイス設定からカメラデバイスが変更できない問題を修正
   - [LSConf] PresentationLayout で共通画面が勝手に拡大表示領域に表示されることがある問題を修正
   - [LSConf] デバイス設定からスピーカーデバイスの変更を行なっても指定したスピーカーから音が出ない問題を修正
