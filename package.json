@@ -1,0 +1,8 @@
+{
+  "name": "@ricoh-live-streaming-api/ls-conf-sdk",
+  "version": "5.7.0",
+  "description": "RICOH Live Streaming Conference SDK",
+  "main": "src/ls-conf-sdk.js",
+  "module": "src/ls-conf-sdk.js",
+  "types": "src/ls-conf-sdk.d.ts"
+}
