@@ -13,7 +13,7 @@
     "isHiddenScreenShareButton": false,
     "isHiddenDeviceSettingButton": false,
     "isHiddenExitButton": false,
-    "customItems": [{ "type": "log", "iconName": "download" }]
+    "customItems": [{ "type": "log", "iconName": "download", "tips": "ログをダウンロードする" }]
   },
   "subView": {
     "enableAutoVideoReceiving": true,

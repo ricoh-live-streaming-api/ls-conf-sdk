@@ -1,7 +1,7 @@
 /* eslint @typescript-eslint/naming-convention: 0 */
 import { addMinutes, getUnixTime, subMinutes } from 'date-fns';
 import deepmerge from 'deepmerge';
-import express, { NextFunction, Request, Response, Router } from 'express';
+import express, { NextFunction, Request, RequestHandler, Response, Router } from 'express';
 import { body, validationResult } from 'express-validator';
 import jwt from 'jsonwebtoken';
 import * as path from 'path';
@@ -35,7 +35,7 @@ const generateToken = async (secret: string, req: Request): Promise<string> => {
 // body に各パラメタが渡されているかをチェックしている
 const accessTokenValidator = [body('connection_id', 'invalid connection_id').notEmpty(), body('room_id', 'invalid room_id').notEmpty()];
 
-router.post('/access_token', accessTokenValidator, async (req: Request, res: Response, _next: NextFunction) => {
+router.post('/access_token', accessTokenValidator, (async (req: Request, res: Response, _next: NextFunction) => {
   // XXX(kdxu): 画面共有は複数受け付けることになったので、排他ロックは行わないが
   // XXX(kdxu): 将来的にどこかで排他ロックが必要になった場合、disconnect 時に webhook 等でサーバに通知しないと排他ロックの実装ができないが
   // XXX(kdxu): 現状 SFU 側が event webhook に対応していない
@@ -51,10 +51,10 @@ router.post('/access_token', accessTokenValidator, async (req: Request, res: Res
   }
   const access_token = await generateToken(LS_CLIENT_SECRET, req);
   res.json(access_token);
-});
+}) as RequestHandler);
 
 // Room情報取得用のエンドポイント
-router.get('/rooms/:room_id', async (req: Request, res: Response) => {
+router.get('/rooms/:room_id', (async (req: Request, res: Response) => {
   const roomId = req.params.room_id;
   try {
     const data = await getRoomInfo(configJson.apiBase, configJson.clientId, roomId);
@@ -62,7 +62,7 @@ router.get('/rooms/:room_id', async (req: Request, res: Response) => {
   } catch (error) {
     res.status(500).json(error);
   }
-});
+}) as RequestHandler);
 
 // healthcheck 用のエンドポイント
 // text;plain で空 JSON を返却する

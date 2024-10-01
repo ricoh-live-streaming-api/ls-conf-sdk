@@ -1,8 +1,9 @@
 # RICOH Live Streaming Conference SDK API仕様
 
 ## 概要
-
-本文書は、RICOH Live Streaming Serviceを利用したWebアプリケーション用コンポーネントである`LSConf`をアプリケーションから利用するための `LSConfSDK` のAPI仕様を定める。
+<!-- textlint-disable ja-technical-writing/sentence-length -->
+本文書は、RICOH Live Streaming Service を利用した Web アプリケーション用コンポーネントである`LSConf`をアプリケーションから利用するための `LSConfSDK` の API 仕様を定める。
+<!-- textlint-enable ja-technical-writing/sentence-length -->
 
 ## API仕様
 
@@ -10,7 +11,7 @@
 
 #### IDString
 
-主にアプリケーションが生成するアプリケーション開発者が利用するIDで利用します。
+主にアプリケーションが生成するアプリケーションの開発者が利用する ID で利用する。
 
 - 1 文字以上 255 文字以下
 - ASCII
@@ -23,7 +24,7 @@
 
 #### MediaTypes
 
-メディアの種別です。
+メディアの種別を示す。
 
 ```js
 type MediaTypes = 'VIDEO_AUDIO' | 'SCREEN_SHARE' | 'VIDEO_FILE' | 'IMAGE_FILE';
@@ -31,20 +32,20 @@ type MediaTypes = 'VIDEO_AUDIO' | 'SCREEN_SHARE' | 'VIDEO_FILE' | 'IMAGE_FILE';
 
 #### EntranceType
 
-Room 接続時のエントランス画面の種別です。
+Room 接続時のエントランス画面の種別を示す。
 
 ```js
 type EntranceType = 'none' | 'click';
 ```
 
-各モード設定時の挙動は以下の通りです。
-- "none": エントランス画面を表示せず、直接Roomに参加します。
-  - ダミーデバイス時でも相手拠点の音声を再生するために、マイクのデバイスアクセス許可が必須となります。
-- "click": クリック画面がエントランス画面として表示され、画面をクリックすることでRoomに参加します。
+各モード設定時の挙動は以下の通りである。
+- "none": エントランス画面を表示せず、直接 Room に参加しする。
+  - ダミーデバイス時でも相手拠点の音声を再生するために、マイクのデバイスアクセス許可が必須である。
+- "click": クリック画面がエントランス画面として表示され、画面をクリックすることで Room に参加する。
 
 #### LayoutType
 
-レイアウトの種別です。
+レイアウトの種別を示す。
 
 ```js
 type LayoutType = 'gallery' | 'presentation' | 'fullscreen';
@@ -52,7 +53,7 @@ type LayoutType = 'gallery' | 'presentation' | 'fullscreen';
 
 #### ImageMimeType
 
-画像のファイル形式の種別です。
+画像のファイル形式の種別を示す。
 
 ```js
 type ImageMimeType = 'image/png' | 'image/jpeg';
@@ -60,18 +61,18 @@ type ImageMimeType = 'image/png' | 'image/jpeg';
 
 #### VideoCodecType
 
-送信映像のビデオコーデックの種別です。
+送信映像のビデオコーデックの種別を示す。
 
 ```js
 type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
 ```
 
-実際に利用可能なcodecはプラットフォームとブラウザによって異なります。<br>
-未対応のコーデックを指定した場合には接続時にエラーが発生し接続に失敗します。
+実際に利用可能な codec はプラットフォームとブラウザによって異なる。<br>
+未対応のコーデックを指定した場合には接続時にエラーが発生し接続に失敗する。
 
 #### IceServersProtocolType
 
-iceServers に使用する TURN Protocol の種別です。
+iceServers に使用する TURN Protocol の種別を示す。
 
 ```js
 type IceServersProtocolType = 'all' | 'udp' | 'tcp' | 'tls' | 'tcp_tls';
@@ -79,38 +80,38 @@ type IceServersProtocolType = 'all' | 'udp' | 'tcp' | 'tls' | 'tcp_tls';
 
 #### MuteType
 
-メディアデバイスのミュート時の挙動を設定します。
+メディアデバイスのミュート時の挙動を設定する。
 
 ```js
 type MuteType = 'hard' | 'soft';
 ```
 
-各設定時の挙動は以下の通りです。
+各設定時の挙動は以下の通りである。
 
-- "hard": trackを `null` にした際のブラウザ挙動に準拠します
+- "hard": track を `null` にした際のブラウザ挙動に準拠する
   - ミュート時にデバイスへのアクセスは行いません（アクセスランプがある場合は消灯）
-  - マイクミュート時は、音声の送信を行いません（受信側は音が聞こえません）
-- "soft": trackを `disabled` にした際のブラウザ挙動に準拠します
-  - ミュート時にもデバイスへのアクセスを行います（アクセスランプがある場合は点灯）
-  - マイクミュート時は、音声の送信を行いません（受信側は音が聞こえません）
+  - マイクミュート時は、音声の送信しません（受信側は音が聞こえません）
+- "soft": track を `disabled` にした際のブラウザ挙動に準拠する
+  - ミュート時にもデバイスへアクセスする（アクセスランプがある場合は点灯）
+  - マイクミュート時は、音声の送信しません（受信側は音が聞こえません）
 
 #### ModeType
 
-メディア情報（映像/音声/画面共有）送受信のモードの種別です。
+メディア情報（映像/音声/画面共有）送受信のモードの種別を示す。
 
 ```js
 type ModeType = 'normal' | 'viewer';
 ```
 
-各モード設定時の挙動は以下の通りです。
-- "normal": メディア情報（映像/音声/画面共有）の送受信を行います
+各モード設定時の挙動は以下の通りである。
+- "normal": メディア情報（映像/音声/画面共有）の送受信を行う
 - "viewer": メディア情報（映像/音声/画面共有）の受信のみを行い、送信は行いません
   - ダミーデバイス固定でデバイスの変更やアンミュート、画面共有ができません
-  - Roomに受信拠点しかいない場合を除き、自拠点のSubViewが表示されません
+  - Room に受信拠点しかいない場合を除き、自拠点の SubView が表示されません
 
 #### TrackKind
 
-トラックの種別です。
+トラックの種別を示す。
 
 ```js
 type TrackKind = 'video' | 'audio';
@@ -118,7 +119,7 @@ type TrackKind = 'video' | 'audio';
 
 #### DeviceInfo
 
-メディアデバイスの情報です。
+メディアデバイスの情報を示す。
 
 ```ts
 type DeviceInfo = {
@@ -142,7 +143,7 @@ type DeviceInfo = {
 
 #### SubView
 
-通話画面に表示される各参加者のカメラ映像や画面共有などの枠の1つ1つをLSConfではSubViewと定義し、特定のSubViewに対して操作を行うAPIで主に使用します。
+通話画面に表示される各参加者のカメラ映像や画面共有などの枠の 1 つ 1 つを LSConf では SubView と定義し、特定の SubView に対して操作する API で主に使用する。
 
 ```js
 type SubView = {
@@ -164,7 +165,7 @@ type SubView = {
 
 #### PoV
 
-360映像の視点情報（Point of View）で、360映像の中でどの範囲を表示しているかを表します。
+360 映像の視点情報（Point of View）で、360 映像の中でどの範囲を表示しているかを表す。
 
 ```ts
 type PoV {
@@ -182,7 +183,7 @@ type PoV {
 
 #### RotationVector
 
-THETA（Android標準の [SensorManager](https://developer.android.com/reference/android/hardware/SensorManager) ）から取得できる [回転ベクトルセンサー](https://developer.android.com/guide/topics/sensors/sensors_position?hl=ja) の値で360映像のSubViewに対して天頂補正を行うAPIで主に使用します。
+THETA（Android 標準の [SensorManager](https://developer.android.com/reference/android/hardware/SensorManager)）から取得できる [回転ベクトルセンサー](https://developer.android.com/guide/topics/sensors/sensors_position?hl=ja) の値で 360 映像の SubView に対して天頂補正する API で主に使用する。
 
 ```ts
 type RotationVector = {
@@ -198,32 +199,35 @@ type RotationVector = {
 
 #### EventType
 
-[LSConfの規定のイベント](#Events)の種類を表す文字列で、各イベントリスナーの登録・削除のAPIで使用します。
+[LSConfの規定のイベント](#Events)の種類を表す文字列で、各イベントリスナーの登録・削除の API で使用する。
 
 ```ts
-type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'playerStateChanged' | 'log' | 'error';
+type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'mediaDeviceChanged' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'playerStateChanged' | 'changeMediaStability' | 'userOperation' | 'log' | 'error';
 ```
 
 #### ToolbarItem
 
-ツールバー上にアプリケーションから指定したカスタムボタンを表示させる場合に使用します。
+ツールバー上にアプリケーションから指定したカスタムボタンを表示させる場合に使用する。
 
 ```js
 type ToolbarItem = {
   type: string;
   iconName: string;
+  tips: string;
 };
 ```
 |Name|Type|説明|
 |:--|:--|:--|
-| type | string | カスタムボタン押下時の[ApplicationEvents](#ApplicationEvents)の識別子<br>すべてのtypeは一意となるようにご指定ください(※) |
+| type | string | カスタムボタン押下時の[ApplicationEvents](#ApplicationEvents)の識別子<br>すべてのtypeは一意となるようにご指定ください(※1) |
 | iconName | string | [GoogleFontsのアイコン名](https://fonts.google.com/icons) |
+| tips | string | マウスオーバー時にツールチップで表示されるテキスト(※2)<br>未指定 または 空文字 の場合はツールチップが表示されません
 
-(※): 異なるカスタムボタンに対して同一のtypeを指定すると意図しない挙動となる場合があります。
+(※1): 異なるカスタムボタンに対して同一の type を指定すると意図しない挙動となる場合がある。<br>
+(※2): カスタムボタンのツールチップの文言の切り替えは、tips に指定する文字列を切り替えてご指定ください。
 
 #### SubViewMenuItem
 
-ツールバー上にアプリケーションから指定したカスタムボタンを表示させる場合に使用します。
+ツールバー上にアプリケーションから指定したカスタムボタンを表示させる場合に使用する。
 
 ```js
 type SubViewMenuItem = {
@@ -243,16 +247,16 @@ type SubViewMenuItem = {
 | targetSubView.type | [MediaTypes](#mediatypes) | メディア種別<br>未指定の場合は全てのメディア種別が対象 |
 | targetSubView.isTheta | boolean | 対象が360映像かどうか<br>未指定の場合はisThetaの値に依らず全てが対象 |
 
-(※1): 異なるカスタムボタンに対して同一のtypeを指定すると意図しない挙動となる場合があります。<br>
-(※2): カスタムボタンの文言の切り替えは、labelに指定する文字列を切り替えてご指定ください。
+(※1): 異なるカスタムボタンに対して同一の type を指定すると意図しない挙動となる場合がある。<br>
+(※2): カスタムボタンの文言の切り替えは、label に指定する文字列を切り替えてご指定ください。
 
 #### VideoSource
 
-Playerの生成時に指定する動画ファイルのソース情報を表します。
+Player の生成時に指定する動画ファイルのソース情報を表す。
 
 ```js
 type VideoSource = {
-    url: string;
+    url: string | Blob;
     connectionId: IDString;
     label: string;
     isTheta: boolean;
@@ -261,25 +265,26 @@ type VideoSource = {
 ```
 |Name|Type|説明|
 |:--|:--|:--|
-| url | string | 動画ファイルのURLの文字列(※) |
+| url | string \| Blob | 動画ファイルのURLの文字列<br>または動画ファイルのBlobデータ(※) |
 | connectionId | IDString | 動画ファイルの取得元の connection_id |
 | label | string | 動画ファイルの表示名 |
 | isTheta | boolean | 360動画として表示するかどうか |
 | metaUrl | string | 動画ファイルのメタデータのURLの文字列(※) |
 
-(※) 指定するファイルについて
-- 再生できる動画のファイル形式（`webm`, `mp4`等）はブラウザの仕様に依存します
-  - 一部のブラウザでは `webm` ファイルの再生をサポートしていない場合があります
-- ファイル名にURIとして使用不可能な文字列（[RFC3986](https://datatracker.ietf.org/doc/html/rfc3986)で定義）が含まれる場合はURLエンコード済の文字列を指定してください
+(※) 指定するファイルについて。
+- 再生できる動画のファイル形式（`webm`, `mp4`等）はブラウザの仕様に依存する
+  - 一部のブラウザでは `webm` ファイルの再生をサポートしていない場合がある
+- ファイル名に URI として使用不可能な文字列（[RFC3986](https://datatracker.ietf.org/doc/html/rfc3986)で定義）が含まれる場合は URL エンコード済の文字列を指定してください
   - NG: `https://example.com/movie/RICOH+THETA+Z1-20220514_152010.webm`
   - OK: `https://example.com/movie/RICOH%2BTHETA%2BZ1-20220514_152010.webm`
-- 指定するファイルは以下のLSConfのURLに対してのCORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要があります
+- 指定するファイルは以下の LSConf の URL に対しての CORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要がある
   - `https://conf.livestreaming.mw.smart-integration.ricoh.com`
-- メタデータのURLが未指定の場合は動画ファイルのURLと同一ディレクトリ内の同名のjsonファイルを参照します
+- メタデータの URL が未指定の場合は動画ファイルの URL と同一ディレクトリ内の同名の json ファイルを参照する
+- Blob データは [File API](https://developer.mozilla.org/ja/docs/Web/API/File_API) により取得した動画の File オブジェクトを Blob として渡す
 
 #### Stroke
 
-SubViewに対して書き込んだストロークの情報を表します。
+SubView に対して書き込んだストロークの情報を表す。
 
 ```ts
 type Stroke {
@@ -295,7 +300,7 @@ type Stroke {
 |isEnded|boolean|ストロークを書き終わったかどうか|
 |option|[StrokeOption](#strokeoption)|ストロークのオプション<br>未指定の場合はデフォルト値となる|
 
-(※1): LSConfから取得したストロークを別クライアント（ClientSDK）側で描画する際は、そのクライアントで描画している映像サイズと同じ大きさに拡大してストロークを表示する必要があります
+(※1): LSConf から取得したストロークを別クライアント（ClientSDK）側で描画する際は、そのクライアントで描画している映像サイズと同じ大きさに拡大してストロークを表示する必要がある。
 
 ##### StrokeOption
 
@@ -311,7 +316,7 @@ type StrokeOption {
 
 #### PlayerState
 
-Playerの再生状態を表します。
+Player の再生状態を表す。
 
 ```js
 type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
@@ -325,7 +330,7 @@ type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
 
 #### ImageSource
 
-SubViewに指定する画像ファイルのソース情報を表します。
+SubView に指定する画像ファイルのソース情報を表す。
 
 ```js
 type ImageSource = {
@@ -342,17 +347,17 @@ type ImageSource = {
 | label | string | 画像ファイルの表示名 |
 | isTheta | boolean | 360画像として表示するかどうか |
 
-(※) 指定するファイルについて
-- 表示できる画像のファイル形式（`jpeg`, `png`等）はブラウザの仕様に依存します
-- ファイル名にURIとして使用不可能な文字列（[RFC3986](https://datatracker.ietf.org/doc/html/rfc3986)で定義）が含まれる場合はURLエンコード済の文字列を指定してください
+(※) 指定するファイルについて。
+- 表示できる画像のファイル形式（`jpeg`, `png`等）はブラウザの仕様に依存する
+- ファイル名に URI として使用不可能な文字列（[RFC3986](https://datatracker.ietf.org/doc/html/rfc3986)で定義）が含まれる場合は URL エンコード済の文字列を指定してください
   - NG: `https://example.com/image/RICOH+THETA+Z1-20220514_152010.jpeg`
   - OK: `https://example.com/image/RICOH%2BTHETA%2BZ1-20220514_152010.jpeg`
-- 指定するファイルは以下のLSConfのURLに対してのCORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要があります
+- 指定するファイルは以下の LSConf の URL に対しての CORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要がある
   - `https://conf.livestreaming.mw.smart-integration.ricoh.com`
 
 #### LogCategory
 
-ログの種別を表します。
+ログの種別を表す。
 
 ```js
 type LogCategory = 'environment' | 'setting' | 'recording' | 'device' | 'member' | 'analysis' | 'clientSdk';
@@ -371,9 +376,9 @@ type LogCategory = 'environment' | 'setting' | 'recording' | 'device' | 'member'
 
 #### CreateParameters
 
-create時、createPlayer時に指定する `CreateParameters` の一覧です。<br>
-全てのパラメータが `optional` で未指定時は、デフォルトの値に設定されます。<br>
-`theme` によるLSConfのデザインの詳細なカスタマイズ方法については[RICOH Live Streaming Conference デザインカスタマイズガイド](https://api.livestreaming.ricoh/document/ricoh-live-streaming-conference-%e3%83%87%e3%82%b6%e3%82%a4%e3%83%b3%e3%82%ab%e3%82%b9%e3%82%bf%e3%83%9e%e3%82%a4%e3%82%ba%e3%82%ac%e3%82%a4%e3%83%89/)を参照ください。
+create 時、createPlayer 時に指定する `CreateParameters` の一覧である。<br>
+全てのパラメータが `optional` で未指定時は、デフォルトの値に設定される。<br>
+`theme` による LSConf のデザインの詳細なカスタマイズ方法については[RICOH Live Streaming Conference デザインカスタマイズガイド](https://api.livestreaming.ricoh/document/ricoh-live-streaming-conference-%e3%83%87%e3%82%b6%e3%82%a4%e3%83%b3%e3%82%ab%e3%82%b9%e3%82%bf%e3%83%9e%e3%82%a4%e3%82%ba%e3%82%ac%e3%82%a4%e3%83%89/)を参照ください。
 
 |Name|Type|Default|Player(※1)|説明|
 |:--|:--|:--|:--:|:--|
@@ -411,27 +416,30 @@ create時、createPlayer時に指定する `CreateParameters` の一覧です。
 | `subView.menu.customItems` | [SubViewMenuItem](#SubViewMenuItem)[] | [] | ◯ | SubViewMenuのリストに追加するカスタムボタンの配列<br>表示順は上から `既定のメニュー`, `SubViewMenuItem[]` の順となる |
 | `theme` | Object | | ◯ | テーマ設定のオブジェクト |
 
-(※1): Playerコンポーネント利用時は一部のカスタマイズのみ対応しています。
+(※1): Player コンポーネント利用時は一部のカスタマイズのみ対応している。
 
-(※2): 各設定時の挙動は以下の通りです。
+(※2): 各設定時の挙動は以下の通りである。
 - `false` の場合
-  - 常に全てのSubViewの映像を受信します
+  - 常に全ての SubView の映像を受信する
 - `true` の場合
-  - レイアウト変更やスクロールでSubViewが画面上から非表示になった際に映像受信を停止します
-    - 受信停止時のSubView上の表示は黒画面となります
-  - 再度画面上に表示されたタイミングで映像受信を再開します
-    - 映像受信の再開時に映像が流れ始めるまでに時間がかかる場合があります
-  - 録画中のSubViewは非表示になっていても映像は受信停止しません
-  - 受信停止/受信開始のAPIが叩かれた場合は、レイアウトや表示の状態に依らず処理を行います
-    - 再度受信停止/再開する状態にレイアウトが変化した場合は自動的に上書きで停止/再開の処理が実行されます
+  - レイアウト変更やスクロールで SubView が画面上から非表示になった際、映像受信を停止する
+    - 受信停止時の SubView 上の表示は黒画面となる
+  - 再度画面上に表示されたタイミングで映像受信を再開する
+    - 映像受信の再開時に映像が流れ始めるまでに時間を要する場合がある
+  - 録画中の SubView は非表示になっていても映像は受信停止しません
+  - 受信停止/受信開始の API が叩かれた場合は、レイアウトや表示の状態に依らず処理を行う
+    - 再度受信停止/再開する状態にレイアウトが変化した場合は自動的に上書きで停止/再開の処理が実行される
 
-(※3): THETAプラグイン側で取得した各パラメータをTrackMetadataに `pitch`, `roll` のキー名で追加した上でClientSDKの `updateTrackMeta` を呼ぶ必要があります。LSConf側ではTrackMetadataの更新のたびに天頂補正処理が実行されます。
 
-(※4): 書き込みボタンを非表示にしても `updateStroke` を実行するとストロークが表示されます
+<!-- textlint-disable ja-technical-writing/sentence-length -->
+(※3): THETA プラグイン側で取得した各パラメータを TrackMetadata に `pitch`, `roll` のキー名を追加した上で ClientSDK の `updateTrackMeta` を呼ぶ必要がある。LSConf 側では TrackMetadata の更新のたびに天頂補正処理が実行される。
+<!-- textlint-enable ja-technical-writing/sentence-length -->
+
+(※4): 書き込みボタンを非表示にしても `updateStroke` を実行するとストロークが表示される。
 
 #### ConnectOptions
 
-join時に指定する `ConnectOptions` の一覧です。
+join 時に指定する `ConnectOptions` の一覧を示す。
 
 |Name|Type|区分|Default|説明|
 |:--|:--|:--|:--|:--|
@@ -449,9 +457,9 @@ join時に指定する `ConnectOptions` の一覧です。
 | `screenShareConstraints` | [MediaStreamConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) | optional | `{ "video": true, "audio": true }` | 画面共有時のディスプレイ映像と音声に対する制約（[MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints)）を指定する(※2) |
 | `iceServersProtocol` | [IceServersProtocolType](#iceserversprotocoltype) | optional | "all" | iceServers に使用する TURN Protocol(※3) |
   
-(※1): "hard" にした場合、 MobileSafari でマイク/スピーカーが効かなくなる問題が発生する可能性があります
+(※1): Safari では正常に動作しない問題が発生するため、"hard" にした場合も自動的に "soft" となる。
 
-(※2): 実際に利用可能な制約はブラウザによって異なります。未対応の制約は無視されます。詳細は[こちら](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints#browser_compatibility)をご参照ください。  
+(※2): 実際に利用可能な制約はブラウザによって異なる。未対応の制約は無視される。詳細は[こちら](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints#browser_compatibility)をご参照ください。  
 
 (※3): 詳細については[こちら](https://api.livestreaming.ricoh/docs/introduction-ice-servers-protocol/)を参照ください。
 
@@ -459,7 +467,7 @@ join時に指定する `ConnectOptions` の一覧です。
 
 #### create(parentElement, parameters)
 
-RICOH Live Streamingを利用した、Roomコンポーネントのiframeを生成する。
+RICOH Live Streaming を利用した、Room コンポーネントの iframe を生成する。
 
 - 引数
   - require
@@ -477,20 +485,22 @@ RICOH Live Streamingを利用した、Roomコンポーネントのiframeを生�
 |parentElement|HTMLElement|iframeが指定されたElementの子として追加される|
 |parameters|`Partial<CreateParameters>`|[`CreateParameters`](#CreateParameters)を設定する|
 
-createで生成されたインスタンスに対しては、Playerで利用する以下のメソッドは利用できません。
+create で生成されたインスタンスに対しては、Player で利用する以下のメソッドは利用できません。
 - 再生状態の変更: `changePlayerState`
 - スピーカー音量の設定： `setSpeakerVolume`
 - 再生位置の変更: `setSeekPosition`
 
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
 #### createPlayer(parentElement, sources, parameters?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
 
-RICOH Live Streamingで録画した動画を利用した、Playerコンポーネントのiframeを生成する。
+RICOH Live Streaming で録画した動画を利用した、Player コンポーネントの iframe を生成する。
 
 - 引数
   - require
     - parentElement
     - sources
-  - optioinal
+  - optional
     - parameters
 - 返り値
   - `Promise<LSConferenceIframe>`
@@ -505,17 +515,19 @@ RICOH Live Streamingで録画した動画を利用した、Playerコンポーネ
 |sources|VideoSource[] \| string |Playerに追加したい [VideoSource](#VideoSource) の配列<br>または動画ファイルのソース情報が定義されたjsonファイルのURL(※)|
 |parameters|`Partial<CreateParameters>`|[`CreateParameters`](#CreateParameters) を設定する|
 
-createPlayerで生成されたインスタンスに対しては、Roomで利用する以下のメソッドは利用できません。
+createPlayer で生成されたインスタンスに対しては、Room で利用する以下のメソッドは利用できません。
 - 接続/切断: `join`, `leave`
+<!-- textlint-disable ja-technical-writing/sentence-length -->
 - デバイス: `getMediaDevices`, `setCameraMute`, `setCameraDevice`, `setMicMute`, `setMicDevice`, `setVideoAudioConstraints`
+<!-- textlint-enable ja-technical-writing/sentence-length -->
 - 画面共有: `onShareRequested`
 - 統計ログ: `getVideoAudioStats`, `getScreenShareStats`, `getStats`
 - 録画: `addRecordingMember`, `removeRecordingMember`
 - 映像受信: `startReceiveVideo`, `stopReceiveVideo`
 - 映像送信: `setVideoSendBitrate`, `setVideoSendFramerate`
 
-(※) 指定するファイルについて
-- Playerに追加したい [VideoSource](#VideoSource) の配列が定義されているjsonファイルを指定します
+(※) 指定するファイルについて。
+- Player に追加したい [VideoSource](#VideoSource) の配列が定義されている json ファイルを指定する
 
   例: sources.json
   ```json
@@ -537,14 +549,14 @@ createPlayerで生成されたインスタンスに対しては、Roomで利用�
   }
   ```
 
-- 指定するファイルは以下のLSConfのURLに対してのCORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要があります
+- 指定するファイルは以下の LSConf の URL に対しての CORS（Cross-Origin Resource Sharing）設定でアクセスを許可する必要がある
   - `https://conf.livestreaming.mw.smart-integration.ricoh.com`
 
 ### Instance Methods
 
 #### join(clientId, accessToken, connectOptions)
 
-Room に 接続（入室）する。
+Room に接続（入室）する。
 
 - 引数
   - require
@@ -564,13 +576,13 @@ Room に 接続（入室）する。
 
 |Name|Type|説明|
 |:--|:--|:--|
-| clientId | string | LS PFを利用するためのClientID |
-| accessToken | string | LS Signalingに接続するためのAccessToken |
+| clientId | string | Live Streaming を利用するための ClientID |
+| accessToken | string | Live Streaming に接続するための [AccessToken](https://api.livestreaming.ricoh/docs/access-token/) |
 | connectOptions | ConnectOptions | [`ConnectOptions`](#ConnectOptions)を設定する |
 
 #### leave()
 
-Room から 切断（退室）する。
+Room から切断（退室）する。
 
 - 引数
   - なし
@@ -581,7 +593,7 @@ Room から 切断（退室）する。
 
 #### onShareRequested(callback)
 
-画面共有ボタンの押下時にaccessTokenをreturnするコールバック関数を指定する。
+画面共有ボタンの押下時に accessToken を return するコールバック関数を指定する。
 
 - 引数
   - require
@@ -609,9 +621,9 @@ Room から 切断（退室）する。
 
 #### setCameraMute(isEnabled)
 
-join後のカメラミュートの有効/無効を変更する。<br>
-join前に実行しても値は反映されない。<br>
-通話開始時のミュート状態を設定したい場合は、join時に[connectOptions.enableVideo](#join-parameters)を指定する。
+join 後のカメラミュートの有効/無効を変更する。<br>
+join 前に実行しても値は反映されない。<br>
+通話開始時のミュート状態を設定したい場合は、join 時に[connectOptions.enableVideo](#join-parameters)を指定する。
 
 - 引数
   - require
@@ -628,7 +640,7 @@ join前に実行しても値は反映されない。<br>
 #### setCameraDevice(deviceId)
 
 カメラデバイスを変更する。<br>
-ローカル録画時に実行した場合は録画は継続されるが録画映像は変更後に停止する。<br>
+ローカル録画時に実行した場合は録画が継続されるが録画映像は変更後に停止する。<br>
 
 - 引数
   - require
@@ -644,9 +656,9 @@ join前に実行しても値は反映されない。<br>
 
 #### setMicMute(isEnabled)
 
-join後のマイクミュートの有効/無効を変更する。<br>
-join前に実行しても値は反映されない。<br>
-通話開始時のミュート状態を設定したい場合は、join時に[connectOptions.enableAudio](#join-parameters)を指定する。
+join 後のマイクミュートの有効/無効を変更する。<br>
+join 前に実行しても値は反映されない。<br>
+通話開始時のミュート状態を設定したい場合は、join 時に[connectOptions.enableAudio](#join-parameters)を指定する。
 
 - 引数
   - require
@@ -700,9 +712,12 @@ join前に実行しても値は反映されない。<br>
   - GetReportFailed
   - GetReportError
 
-#### getStats(subView, kind?)
 
-指定したSubViewの接続の統計ログを取得する。
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
+#### getStats(subView, kind?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
+
+指定した SubView の接続の統計ログを取得する。
 
 - 引数
   - require
@@ -721,8 +736,8 @@ join前に実行しても値は反映されない。<br>
 | subView | SubView | 対象となるSubView |
 | kind | 'video' \| 'audio' | 取得したいトラックの種別<br>未指定の場合は両方の情報が結合した文字列が返却される |
 
-接続の統計ログは以下のような構造の JSON 文字列で返却されます。  
-引数の `kind` でトラック種別を指定した場合は、指定したもの (`"audio"`, `"video"`)のみ出力されます。
+接続の統計ログは以下のような構造の JSON 文字列で返却される。  
+引数の `kind` でトラック種別を指定した場合は、指定したもの (`"audio"`, `"video"`)のみ出力される。
 
 ```json
 {
@@ -773,16 +788,16 @@ join前に実行しても値は反映されない。<br>
 }
 ```
 
-音声や映像を送信していない場合は、`"send"`の統計は省略されます。  
-音声や映像を受信していない場合は、`"receive"`の統計は省略されます。  
-音声や映像を送信していない(カメラやマイクがハードミュート)の場合には、そのトラックの種別に対する統計は省略されます。  
-以下のように返却する統計が存在しない場合、空の JSON ( `{}` )が返却されます。
+音声や映像を送信していない場合は、`"send"`の統計は省略される。  
+音声や映像を受信していない場合は、`"receive"`の統計は省略される。  
+音声や映像を送信していない(カメラやマイクがハードミュート)の場合には、そのトラックの種別に対する統計は省略される。  
+以下のように返却する統計が存在しない場合、空の JSON ( `{}` )が返却される。
 - 自分自身の音声と映像を送信していない状態で、自分自身の SubView を引数に指定した場合
 - 自分自身の音声（映像）を送信していない状態で、自分自身の SubView と kind に audio(video) を引数に指定した場合
 
 #### getLSConfLog()
 
-LSConfの問い合わせ用のログ情報を取得する。
+LSConf の問い合わせ用のログ情報を取得する。
 
 - 引数
   - なし
@@ -790,9 +805,10 @@ LSConfの問い合わせ用のログ情報を取得する。
   - `Promise<string>`
 - エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
   - GetLSConfLogFailed
-  - GetLSConfLogError
 
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
 #### changeLayout(layout, subViews?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
 
 レイアウトを変更する。
 
@@ -812,9 +828,46 @@ LSConfの問い合わせ用のログ情報を取得する。
 | layout | [LayoutType](#layouttype) | `gallery`: Galleryレイアウトに変更する<br>`presentation`: Presentationレイアウトに変更する<br>`fullscreen`: FullScreenレイアウトに変更する |
 | subViews | SubView[] | 特定のSubViewを指定してレイアウトを変更する<br>未指定の場合は任意のSubViewが選択される<br>いずれの場合も不正なSubViewが指定された場合は無視される<br>`gallery`: 指定しても無視される<br>`presentation`: 指定された配列の全てのSubViewを拡大表示領域に表示する<br>`fullscreen`: 指定された配列の一番初めのSubViewを全画面表示する |
 
+#### moveSubView(to, subView)
+
+SubView の配置先を移動する。
+
+- 引数
+  - require
+    - to
+    - subView
+- 返り値
+  - `Promise<void>`
+- エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
+  - MoveSubViewFailed
+  - MoveSubViewError
+  - MoveSubViewArgsInvalid
+
+
+|Name|Type|説明|
+|:--|:--|:--|
+| to | 'presentation_main' \| 'presentation_sub' \| 'fullscreen' | SubViewの配置先 (※)<br>`presentation_main`: Presentationレイアウトの拡大表示領域<br>`presentation_sub`: Presentationレイアウトの通常表示領域<br>`fullscreen`: FullScreenレイアウトの全画面表示 |
+| subView | [SubView](#subview) | 配置先を変更するSubView |
+
+※ 現在のレイアウトの状態により、以下の条件で変更される。
+  - 配置先に `presentation_main` を指定した場合
+    - 現在のレイアウトが Gallery の場合、Presentation レイアウトに変更され、指定した SubView が拡大表示領域に表示される
+    - 現在のレイアウトが Presentation の場合、拡大表示領域に指定した SubView が追加される
+    - 現在のレイアウトが FullScreen の場合、Presentation レイアウトに変更され、全画面表示していた SubView と指定した SubView が拡大表示領域に表示される
+  - 配置先に `presentation_sub` を指定した場合
+    - 現在のレイアウトが Gallery の場合、無視される
+    - 現在のレイアウトが Presentation の場合
+      - 通常表示領域に指定した SubView が移動する
+      - 拡大表示領域に SubView が 1 つもなくなった場合は Gallery レイアウトに変更される
+    - 現在のレイアウトが FullScreen の場合、無視される
+  - 配置先に `fullscreen` を指定した場合
+    - 現在のレイアウトが Gallery の場合、FullScreen レイアウトに変更され、指定した SubView が全画面表示される
+    - 現在のレイアウトが Presentation の場合、FullScreen レイアウトに変更され、指定した SubView が全画面表示される
+    - 現在のレイアウトが FullScreen の場合、指定した SubView が全画面表示される
+
 #### getSubViews()
 
-SubViewの一覧を取得する。
+SubView の一覧を取得する。
 
 - 引数
   - なし
@@ -822,11 +875,10 @@ SubViewの一覧を取得する。
   - `Promise<SubView[]>`
 - エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
   - GetSubViewsFailed
-  - GetSubViewsError
 
 #### highlight(subView)
 
-指定されたSubViewを一定時間強調表示する。
+指定された SubView を一定時間強調表示する。
 
 - 引数
   - require
@@ -882,8 +934,8 @@ SubViewの一覧を取得する。
 
 #### enablePointer(isEnabled)
 
-360映像SubView内に自拠点の視点ポインタ表示を切り替える。<br>
-本機能はβ機能であり、今後機能の削除や仕様変更等発生する可能性があります。ご利用の際はご注意ください。
+360 映像 SubView 内に自拠点の視点ポインタ表示を切り替える。<br>
+本機能はβ機能であり、今後機能の削除や仕様変更等発生する可能性がある。ご利用の際はご注意ください。
 
 - 引数
   - require
@@ -897,10 +949,12 @@ SubViewの一覧を取得する。
 |:--|:--|:--|
 | isEnabled | boolean | `true`: 自拠点の視点ポインタ表示が有効<br>`false`: 自拠点の視点ポインタ表示が無効 |
 
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
 #### updatePointer(subView, connectionId, poV, username?, color?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
 
-360映像SubView内の相手視点ポインタの位置を更新する。<br>
-本機能はβ機能であり、今後機能の削除や仕様変更等発生する可能性があります。ご利用の際はご注意ください。
+360 映像 SubView 内の相手視点ポインタの位置を更新する。<br>
+本機能はβ機能であり、今後機能の削除や仕様変更等発生する可能性がある。ご利用の際はご注意ください。
 
 - 引数
   - require
@@ -965,7 +1019,7 @@ SubViewの一覧を取得する。
 
 #### getCaptureImage(subView, options)
 
-指定したSubViewの静止画をBlob形式で取得する。
+指定した SubView の静止画を Blob 形式で取得する。
 
 - 引数
   - require
@@ -1002,9 +1056,11 @@ type CaptureImageOptions = {
 - 返り値
   - iframe
 
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
 #### addEventListener(type, callback, options?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
 
-LSConf既定のイベントリスナーを追加する。
+LSConf 既定のイベントリスナーを追加する。
 
 - 引数
   - require
@@ -1021,11 +1077,13 @@ LSConf既定のイベントリスナーを追加する。
 | callback | Function | 指定された型のイベントが発生するときに通知を受け取るオブジェクト |
 | options | AddEventListenerOptions | [EventTarget.addEventListener()](https://developer.mozilla.org/ja/docs/Web/API/EventTarget/addEventListener)のoptionsを参照 |
 
-※ disconnect後に再接続を行う場合などに、前回のイベントリスナーが残ったまま重複して登録することのないようご注意ください
+※ disconnect 後に再接続する場合などに、前回のイベントリスナーが残ったまま重複して登録することのないようご注意ください。
 
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
 #### removeEventListener(type, callback, _options?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
 
-LSConf既定のイベントリスナーを削除する。
+LSConf 既定のイベントリスナーを削除する。
 
 - 引数
   - require
@@ -1042,7 +1100,9 @@ LSConf既定のイベントリスナーを削除する。
 | callback | Function | 指定された型のイベントが発生するときに通知を受け取るオブジェクト |
 | options | AddEventListenerOptions | [EventTarget.addEventListener()](https://developer.mozilla.org/ja/docs/Web/API/EventTarget/addEventListener)のoptionsを参照 |
 
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
 #### addApplicationEventListener(type, callback, options?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
 
 アプリケーションから追加したカスタムボタンのイベントリスナーを追加する。
 
@@ -1061,7 +1121,9 @@ LSConf既定のイベントリスナーを削除する。
 | callback | Function | 指定されたtypeのイベントが発生したときに通知を受け取るオブジェクト |
 | options | AddEventListenerOptions | [EventTarget.addEventListener()](https://developer.mozilla.org/ja/docs/Web/API/EventTarget/addEventListener)のoptionsを参照 |
 
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
 #### removeApplicationEventListener(type, callback, _options?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
 
 アプリケーションから追加したカスタムボタンのイベントリスナーを削除する。
 
@@ -1082,7 +1144,7 @@ LSConf既定のイベントリスナーを削除する。
 
 #### stopReceiveVideo(subView)
 
-指定したSubViewの映像受信を停止する。
+指定した SubView の映像受信を停止する。
 
 - 引数
   - require
@@ -1098,11 +1160,11 @@ LSConf既定のイベントリスナーを削除する。
 |:--|:--|:--|
 | subView | SubView | 映像受信を停止する対象のSubView |
 
-※ 録画中のSubViewの映像受信を停止した場合、停止したフレームが記録されます
+※ 録画中の SubView の映像受信を停止した場合、停止したフレームが記録される。
 
 #### startReceiveVideo(subView)
 
-指定したSubViewの映像受信を開始する。
+指定した SubView の映像受信を開始する。
 
 - 引数
   - subView
@@ -1119,7 +1181,7 @@ LSConf既定のイベントリスナーを削除する。
 
 #### enableZoom(subView, isEnabled)
 
-UI操作やポインティングデバイスによるSubViewの拡大機能の有効/無効を切り替える。
+UI 操作やポインティングデバイスによる SubView の拡大機能の有効/無効を切り替える。
 
 - 引数
   - require
@@ -1139,7 +1201,7 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
 
 #### setRotationVector(subview, rotationVector)
 
-360映像のSubViewに対して天頂補正を行い、正立の状態で表示する。
+360 映像の SubView に対して天頂補正し、正立の状態で表示する。
 
 - 引数
   - subView
@@ -1156,7 +1218,9 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
 | subView | SubView | 天頂補正を行う対象のSubView<br>360映像でないSubViewが指定された場合はエラーとなる |
 | rotationVector | RotationVector | THETA（Android標準の[SensorManager](https://developer.android.com/reference/android/hardware/SensorManager)）から取得できる[回転ベクトルセンサー](https://developer.android.com/guide/topics/sensors/sensors_position?hl=ja)の値 |
 
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
 #### updateStroke(subView, connectionId, stroke, username?, color?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
 
 ストローク情報を更新する。
 
@@ -1171,12 +1235,11 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
 - 返り値
   - `Promise<void>`
 - エラー（[LSConfError](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#%E3%82%A8%E3%83%A9%E3%83%BC%E4%B8%80%E8%A6%A7)）
-  - UpdateStrokeFailed
   - UpdateStrokeArgsInvalid
 
 |Name|Type|説明|
 |:--|:--|:--|
-| subView | SubView | 対象となるSubView<br>360映像以外のSubViewのみ指定可能 |
+| subView | SubView | 対象となるSubView |
 | connectionId | IDString | ストローク情報の元となるconnection_id<br>同じconnection_idが再リクエストされた場合はストロークを更新する |
 | stroke | [Stroke](#stroke) | 反映するストローク情報 |
 | username | string | ストロークに付随して表示されるラベル<br>未指定の場合はjoin時に指定したusernameを表示<br>空文字列を指定した場合はusernameが非表示となる |
@@ -1184,9 +1247,11 @@ UI操作やポインティングデバイスによるSubViewの拡大機能の�
 
 #### addVideoSource(source)
 
-Playerで指定する動画ファイルのソース情報を追加する。<br>
+Player で指定する動画ファイルのソース情報を追加する。<br>
+<!-- textlint-disable ja-technical-writing/sentence-length -->
 `VideoSource.connectionId` がすでに存在する場合は情報を上書きする。<br>
-追加したソース情報内のURLの期限切れなどで [`MediaSourceError`](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#mediasourceerror) が発生した場合は、同一の connectionId に対してURLを更新後のものに差し替えて再度実行することで SubView が更新されます。
+追加したソース情報内の URL の期限切れなどで [`MediaSourceError`](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#mediasourceerror) が発生した場合は、同一の connectionId に対して URL を更新後のものに差し替えて再度実行することで SubView が更新される。
+<!-- textlint-enable ja-technical-writing/sentence-length -->
 
 - 引数
   - source
@@ -1200,18 +1265,22 @@ Playerで指定する動画ファイルのソース情報を追加する。<br>
 |:--|:--|:--|
 | source | [VideoSource](#videosource) | 動画ファイルのソース情報 |
 
-※ 同期再生中にメタデータの無い動画やメタデータ内のroomIdが他と異なる動画を追加した場合は、以下の挙動になります。
+※ 同期再生中にメタデータの無い動画やメタデータ内の roomId が他と異なる動画を追加した場合は、以下の挙動になる。
 - 動画を追加した時点で SubView として追加される
 - 追加された動画の再生位置は VideoControlBar のシークバーとは同期されず、シークできない
 - 追加された動画の再生/一時停止は VideoControlBar の再生/一時停止ボタンと連動する
 
-※ 同期再生中に現在の全ての動画の開始時刻より前の時刻を含む動画を追加した場合はその時間の差分だけ再生位置が前に移動します。
+※ 同期再生中に現在の全ての動画の開始時刻より前の時刻を含む動画を追加した場合はその時間の差分だけ再生位置が前に移動する。
 
+<!-- textlint-disable ja-technical-writing/no-exclamation-question-mark -->
 #### addImageSource(source, parentConnectionId?)
+<!-- textlint-enable ja-technical-writing/no-exclamation-question-mark -->
 
-画像ファイルを指定してSubViewに追加する。<br>
+画像ファイルを指定して SubView に追加する。<br>
+<!-- textlint-disable ja-technical-writing/sentence-length -->
 `ImageSource.connectionId` がすでに存在する場合は情報を上書きする。<br>
-追加したソース情報内のURLの期限切れなどで [`MediaSourceError`](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#mediasourceerror) が発生した場合は、同一の connectionId に対してURLを更新後のものに差し替えて再度実行することで SubView が更新されます。
+追加したソース情報内の URL の期限切れなどで [`MediaSourceError`](https://api.livestreaming.ricoh/docs/lsconf-error-specification/#mediasourceerror) が発生した場合は、同一の connectionId に対して URL を更新後のものに差し替えて再度実行することで SubView が更新される。
+<!-- textlint-enable ja-technical-writing/sentence-length -->
 
 - 引数
   - require
@@ -1230,11 +1299,11 @@ Playerで指定する動画ファイルのソース情報を追加する。<br>
 | source | [ImageSource](#imagesource) | 画像ファイルのソース情報 |
 | parentConnectionId | IDString | このSubViewの親のconnection_id(※)<br>未指定の場合は以下となります<br> - [Roomの場合] 自拠点が親となる<br> - [Playerの場合] null となる |
 
-(※) 切断等で親のSubViewが非表示となる場合に子のSubViewも一緒に非表示となります
+(※) 切断等で親の SubView が非表示となる場合に子の SubView も一緒に非表示となる。
 
 #### removeImageSource(connectionId)
 
-画像のSubViewを削除する。
+画像の SubView を削除する。
 
 - 引数
   - connectionId
@@ -1251,8 +1320,8 @@ Playerで指定する動画ファイルのソース情報を追加する。<br>
 
 #### changePlayerState(state)
 
-Player時の再生状態を変更する。<br>
-Room時に実行した場合は無視される。
+Player 時の再生状態を変更する。<br>
+Room 時に実行した場合は無視される。
 
 - 引数
   - require
@@ -1269,8 +1338,8 @@ Room時に実行した場合は無視される。
 
 #### setSpeakerVolume(volume)
 
-Player時のスピーカーの音量を設定する。<br>
-Room時に実行しても値は反映されない。
+Player 時のスピーカーの音量を設定する。<br>
+Room 時に実行しても値は反映されない。
 
 - 引数
   - require
@@ -1285,13 +1354,13 @@ Room時に実行しても値は反映されない。
 |:--|:--|:--|
 | volume | number | 設定できる範囲は `0` - `100` で範囲を超える場合は上限/下限に設定される <br> 0（または0以下）を指定するとミュート、0より大きい値を指定するとアンミュートとなる(※) |
 
-(※) 浮動小数点を指定した場合、小数点以下を切り捨てた整数値とみなされます。
+(※) 浮動小数点を指定した場合、小数点以下を切り捨てた整数値とみなされる。
 
 #### setSeekPosition(currentTime)
 
-Player時の再生位置を設定する。<br>
-Room時に実行しても値は反映されない。<br>
-createPlayerを実行してから動画ファイルのロード完了後（最初の [playerStateChanged](#playerstatechanged) で pause 状態になった以降）に実行が可能となる。
+Player 時の再生位置を設定する。<br>
+Room 時に実行しても値は反映されない。<br>
+createPlayer を実行してから動画ファイルのロード完了後（最初の [playerStateChanged](#playerstatechanged) で pause 状態になった以降）に実行が可能となる。
 
 - 引数
   - require
@@ -1306,13 +1375,13 @@ createPlayerを実行してから動画ファイルのロード完了後（最�
 |:--|:--|:--|
 | currentTime | number | 移動したい再生位置の [playerStateChanged](#playerstatechanged).currentTime の値<br>設定できる範囲は `0` - [`playerStateChanged.duration`](#playerstatechanged) の値(※)で範囲を超える場合は上限/下限に設定される |
 
-(※) 浮動小数点を指定した場合、小数点以下を切り捨てた整数値とみなされます。
+(※) 浮動小数点を指定した場合、小数点以下を切り捨てた整数値とみなされる。
 
 #### setVideoSendBitrate(bitrateKbps)
 
 カメラ映像の送信ビットレートを変更する。<br>
-join完了後に実行が可能となり、join完了前に実行した場合はエラーが返される。<br>
-Player時に実行した場合は無視される。
+join 完了後に実行が可能となり、join 完了前に実行した場合はエラーが返される。<br>
+Player 時に実行した場合は無視される。
 
 - 引数
   - require
@@ -1327,14 +1396,13 @@ Player時に実行した場合は無視される。
 |:--|:--|:--|
 | bitrateKbps | number | カメラ映像の送信ビットレートの値[kbps]<br>設定できる範囲は `100` - [`ConnectOptions.maxVideoBitrate`](#connectoptions)(未指定時はデフォルト) の値(※)で範囲を超える場合は上限/下限に設定される |
 
-(※) 浮動小数点を指定した場合、小数点以下を切り捨てた整数値とみなされます。
+(※) 浮動小数点を指定した場合、小数点以下を切り捨てた整数値とみなされる。
 
 #### setVideoSendFramerate(framerate)
 
 カメラ映像の送信フレームレートを変更する。<br>
-join完了後に実行が可能となり、join完了前に実行した場合はエラーが返される。<br>
-Player時に実行した場合は無視される。<br>
-本APIは Google Chrome のみ有効。
+join 完了後に実行が可能となり、join 完了前に実行した場合はエラーが返される。<br>
+Player 時に実行した場合は無視される。
 
 - 引数
   - require
@@ -1350,13 +1418,15 @@ Player時に実行した場合は無視される。<br>
 |:--|:--|:--|
 | framerate | number | カメラ映像の送信フレームレートの値[fps]<br>設定できる範囲は `0` - `10000` の値(※) |
 
-(※) [`ConnectOptions.videoAudioConstraints`](#connectoptions) で指定されたフレームレート（または カメラの出力フレームレート）を超えた値を設定しても実効フレームレートはその値を上限/下限として制限されます。
+<!-- textlint-disable ja-technical-writing/sentence-length -->
+(※) [`ConnectOptions.videoAudioConstraints`](#connectoptions) で指定されたフレームレート（またはカメラの出力フレームレート）を超えた値を設定しても実効フレームレートはその値を上限/下限として制限される。
+<!-- textlint-enable ja-technical-writing/sentence-length -->
 
 #### setVideoAudioConstraints(constraints)
 
 接続時に指定した [`ConnectOptions.videoAudioConstraints`](#connectoptions) のパラメータを変更する(※1)。<br>
-join完了後に実行が可能となり、join完了前に実行した場合はエラーが返される。<br>
-Player時に実行した場合は無視される。<br>
+join 完了後に実行が可能となり、join 完了前に実行した場合はエラーが返される。<br>
+Player 時に実行した場合は無視される。<br>
 自拠点のローカル録画中に実行した場合、録画は停止される。<br>
 
 - 引数
@@ -1373,13 +1443,12 @@ Player時に実行した場合は無視される。<br>
 |:--|:--|:--|
 | constraints | [MediaStreamConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia) | 自拠点の映像と音声の [MediaTrackConstraints](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints)(※2) を指定する<br>`video` および `audio` に `false` が指定された場合はダミーデバイスを使用する |
 
-(※1): 変更の際に映像や音声が一時的に途切れることがあります。<br>
-(※2): 利用可能なパラメータはブラウザによって異なります。未対応や未指定の場合はブラウザ側の仕様に従います。各ブラウザのサポート状況は[こちら](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints#browser_compatibility)をご参照ください。
-(※3): ブラウザがFirefoxの場合、指定したパラメータが正しく反映されない場合があります。
+(※1): 変更の際に映像や音声が一時的に途切れることがある。<br>
+(※2): 利用可能なパラメータはブラウザによって異なる。未対応や未指定の場合はブラウザ側の仕様に従う。各ブラウザのサポート状況は[こちら](https://developer.mozilla.org/en-US/docs/Web/API/MediaTrackConstraints#browser_compatibility)をご参照ください。
 
 ### Events
 
-LSConfの既定のイベントに対するイベントハンドラーは `addEventListener()` を介して登録します。<br>
+LSConf の既定のイベントに対するイベントハンドラーは `addEventListener()` を介して登録する。<br>
 パラメータが含まれるイベントは `CustomEvent.detail` から値を取得してください。
 
 #### connected
@@ -1483,22 +1552,22 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 | subView | SubView | 追加されたトラックが含まれるSubView |
 | kind | [TrackKind](#trackkind) | トラック種別 |
 
-※ `detail.subView` の各パラメータは、そのトラック種別のトラックが追加されるまではデフォルト値となります。
+※ `detail.subView` の各パラメータは、そのトラック種別のトラックが追加されるまではデフォルト値となる。
 
-例：音声 → 映像 の順でトラックが追加された場合
+例：音声 → 映像の順でトラックが追加された場合。
 - 音声のトラックの `remoteTrackAdded` に含まれる値は以下の通り
-  - `detail.subView.isTheta`: 対象拠点が360映像であるかどうかに関わらず常に `false`
+  - `detail.subView.isTheta`: 対象拠点が 360 映像であるかどうかに関わらず常に `false`
   - `detail.subView.enableVideo`: 対象拠点のカメラのミュート状態に関わらず常に `false`
   - `detail.subView.enableAudio`: 対象拠点のマイクの実際のミュート状態と同じ値
 - 映像のトラックの `remoteTrackAdded` に含まれる値は以下の通り
-  - `detail.subView.isTheta`: 対象拠点が360映像であれば `true` そうでなければ `false`
+  - `detail.subView.isTheta`: 対象拠点が 360 映像であれば `true`、そうでなければ `false`
   - `detail.subView.enableVideo`: 対象拠点のカメラの実際のミュート状態と同じ値
   - `detail.subView.enableAudio`: 対象拠点のマイクの実際のミュート状態と同じ値
 
 #### mediaDeviceChanged
 
 デバイス設定が変更された。<br>
-ダミーデバイスに設定された状態でミュートを解除しようとした場合は変更がなくともこちらのイベントが発火します。
+ダミーデバイスに設定された状態でミュートを解除しようとした場合は変更がなくともこちらのイベントが発火する。
 
 ```js
 {
@@ -1579,7 +1648,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 #### strokeUpdated
 
 ストロークの書き込みが更新された。<br>
-イベントの発火タイミングについては以下の通りです。
+イベントの発火タイミングについては以下の通りである。
 
 - 書き始めに一度
 - 書き終わりに一度
@@ -1602,7 +1671,7 @@ LSConfの既定のイベントに対するイベントハンドラーは `addEve
 
 #### playerStateChanged
 
-Playerの再生状態が変化した。
+Player の再生状態が変化した。
 
 ```js
 {
@@ -1627,13 +1696,116 @@ Playerの再生状態が変化した。
 | endedAt | number | [同期再生] 動画全体の終了時刻のUnixTime（単位はms）<br>[一括再生] detailに含まれない |
 | currentDate | number | 現在の再生位置の時刻のUnixTime （単位はms）<br>一括再生の場合はdetailに含まれない |
 
-(※1): 総再生時間の定義は以下の通りです。
+(※1): 総再生時間の定義は以下の通りである。
 - 同期再生の場合: 指定された全ての動画の `started_at` と `ended_at` から計算した全体の再生時間
 - 一括再生の場合: 指定された全ての動画の中で一番長い動画の再生時間
 
-(※2): 取りうる値の範囲は以下の通りです。
+(※2): 取りうる値の範囲は以下の通りである。
 - 同期再生の場合: `0` から `指定された全ての動画の started_at と ended_at から計算した全体の再生時間`
 - 一括再生の場合: `0` から `指定された動画の中で一番長い動画の再生時間`
+
+#### changeMediaStability
+
+通信の安定性が変化した。
+
+```js
+{
+  type: 'changeMediaStability',
+  detail: {
+    kind: 'VideoAudioClient' | 'ScreenShareClient',
+    stability: 'stable' | 'unstable',
+  }
+}
+```
+
+| Name | Type | 説明 |
+|:--|:--|:--|
+| kind | 'VideoAudioClient' \| 'ScreenShareClient' | イベントが発生したクライアント種別 | 
+| stability | stable \| unstable | `stable`: ネットワーク帯域が安定(復帰), `unstable`: ネットワーク帯域が不安定 | 
+
+#### userOperation
+
+ユーザによって UI 操作が行われた。
+
+```js
+{
+  type: 'userOperation',
+  detail: {
+    type: string,
+    detail: any,
+  }
+}
+```
+
+|Name|Type|説明|
+|:--|:--|:--|
+| type | string | ユーザによって行われた UI 操作の識別子 |
+| detail | any | ユーザによって行われた UI 操作に対して付随する情報 |
+
+- SubView の操作
+  | type | 操作 | detail |
+  |:--|:--|:--|
+  | subView.menu | メニューボタン押下,<br>（表示中に）領域外押下 | `{ subView: SubView, enabled: boolean }`<br>`SubView`: 操作対象のSubView<br>`true`: 表示, `false`: 非表示 |
+  | subView.drawingButton | 書き込みボタン押下 | `{ subView: SubView, enabled: boolean }`<br>`SubView`: 操作対象のSubView<br>`true`: 開始, `false`: 終了 |
+  | subView.normal.zoom | （通常映像に対して）<br>拡大/縮小ボタン押下,<br>マウスホイール操作,<br>ピンチイン/ピンチアウト | `{ subView: SubView, type: 'in' \| 'out' }`<br>`SubView`: 操作対象のSubView<br>`'in'`: 拡大, `'out'`: 縮小 |
+  | subView.theta.pov | （360映像に対して）<br>視点操作,<br>拡大/縮小ボタン押下,<br>マウスホイール操作,<br>ピンチイン/ピンチアウト | `{ subView: SubView, pov: PoV }`<br>`SubView`: 操作対象のSubView<br>`PoV`: 操作終了時点の視点情報(※) |
+
+  (※) 視点操作後は映像を滑らかに見せるため、移動を即座に止めるのではなく、慣性で徐々に動きを抑えていくようにしている。そのため、イベント発火時点の視点情報と視点の移動が完全に止まった後の視点情報が一致するとは限らない。
+- SubViewMenu の操作
+  | type | 操作 | detail |
+  |:--|:--|:--|
+  | subView.menu.galleryButton | 一覧表示ボタン押下 | `{}` |
+  | subView.menu.presentationButton | 拡大表示ボタン押下 | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
+  | subView.menu.fullScreenButton | 全画面表示ボタン押下 | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
+  | subView.menu.exitFullscreenButton | 全画面解除ボタン押下 | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
+  | subView.menu.sharePoVButton | 視点共有ボタン押下 | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
+  | subView.menu.startRecordingButton | ローカル録画開始ボタン押下 | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
+  | subView.menu.stopRecordingButton | ローカル録画停止ボタン押下 | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
+- 録画設定ダイアログの操作
+  | type | 操作 | detail |
+  |:--|:--|:--|
+  | dialog.recordSetting.mimeType | MIME Type の値を変更 | `{ mimeType: string }`<br>`mimeType`: 選択した MIME Type の値 |
+  | dialog.recordSetting.audioMixing | Audio Mixing の値を変更 | `{ audioMixing: string }`<br>`audioMixing`: 選択した Audio Mixing の値 |
+  | dialog.recordSetting.audioBitrate | Audio Bitrate の値を変更 | `{ audioBitrate: string }`<br>`audioBitrate`: 選択した Audio Bitrate の値 |
+  | dialog.recordSetting.videoBitrate | Video Bitrate の値を変更 | `{ videoBitrate: string }`<br>`videoBitrate`: 選択した Video Bitrate の値 |
+  | dialog.recordSetting.cancelButton | キャンセルボタン押下 | `{}` |
+  | dialog.recordSetting.startButton | 開始ボタン押下 | `{ mimeType: string, audioMixing: string, audioBitrate: string, videoBitrate: string }`<br>録画開始時に選択されている各パラメータの値 |
+- Toolbar の操作
+  | type | 操作 | detail |
+  |:--|:--|:--|
+  | toolbar.cameraButton | カメラボタン押下 | `{ enabled: boolean }`<br>`true`: ON, `false`: OFF |
+  | toolbar.micButton  | マイクボタン押下 | `{ enabled: boolean }`<br>`true`: ON, `false`: OFF |
+  | toolbar.screenShareButton | 画面共有ボタン押下 | `{ enabled: boolean }`<br>`true`: 開始, `false`: 終了 |
+  | toolbar.participantsButton | 参加者一覧ボタン押下 | `{}` |
+  | toolbar.deviceSetting | デバイス設定ボタン押下 | `{}` |
+  | toolbar.exitButton| 切断ボタン押下 | `{}` |
+- デバイス設定ダイアログの操作
+  | type | 操作 | detail |
+  |:--|:--|:--|
+  | dialog.deviceSetting.camera | カメラデバイスの変更 | `{ label: string }`<br>`label`: 選択したカメラデバイス名 |
+  | dialog.deviceSetting.mic | マイクデバイスの変更 | `{ label: string }`<br>`label`: 選択したマイクデバイス名 |
+  | dialog.deviceSetting.speaker | スピーカーデバイスの変更 | `{ label: string }`<br>`label`: 選択したスピーカーデバイス名 |
+  | dialog.deviceSetting.speakerTestButton | スピーカーテストボタン押下 | `{}` |
+  | dialog.deviceSetting.cancelButton | キャンセルボタン押下 | `{}` |
+  | dialog.deviceSetting.applyButton | 適用ボタン押下 | `{ camera: string, mic: string, speaker: string }`<br>適用時に選択されている各デバイス名 |
+- VideoControlBar の操作
+  | type | 操作 | detail |
+  |:--|:--|:--|
+  | videoControlBar.playButton | 再生ボタン押下,<br>一時停止ボタン押下 | `{ playerState: 'play' \| 'pause' }`<br>`'play'`: 再生開始, `'pause'`: 一時停止 |
+  | videoControlBar.volumeButton | 音量ボタン押下 | `{ enabled: boolean }`<br>`true`: スピーカーON, `false`: スピーカーOFF |
+  | videoControlBar.volumeBar | 音量バー移動 | `{ volume: number }`<br>`volume`: 変更後の音量（0 - 100） |
+  | videoControlBar.seekBar | シークバー移動 | `{ currentTime: number }`<br>`currentTime`: 変更後のシークバーの時間 |
+- GalleryLayout の操作
+  | type | 操作 | detail |
+  |:--|:--|:--|
+  | galleryLayout.doubleClick | SubViewをダブルクリック | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
+- PresentationLayout の操作
+  | type | 操作 | detail |
+  |:--|:--|:--|
+  | presentationLayout.horizontalButton | 横並びに切替ボタン押下 | `{}` |
+  | presentationLayout.verticalButton | 縦並びに切替ボタン押下 | `{}` |
+  | presentationLayout.main.doubleClick | 拡大表示領域のSubViewをダブルクリック | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
+  | presentationLayout.sub.doubleClick | 通常表示領域のSubViewをダブルクリック | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
 
 #### log
 
@@ -1675,13 +1847,13 @@ Playerの再生状態が変化した。
 
 ### ApplicationEvents
 
-アプリケーションからcreate時にカスタムボタンを追加した場合、そのボタンに対するイベントが発生します。<br>
-イベントハンドラーは `addApplicationEventListener()` を介して登録します。<br>
+アプリケーションから create 時にカスタムボタンを追加した場合、そのボタンに対するイベントが発生する。<br>
+イベントハンドラーは `addApplicationEventListener()` を介して登録する。<br>
 パラメータが含まれるイベントは `CustomEvent.detail` から値を取得してください。
 
 #### ToolbarItem
 
-ツールバー上のカスタムボタンが押された際にイベントが発生します。
+ツールバー上のカスタムボタンが押された際にイベントが発生する。
 
 ```js
 {
@@ -1698,7 +1870,7 @@ Playerの再生状態が変化した。
 
 #### SubViewMenuItem
 
-SubViewMenu上のカスタムボタンが押された際にイベントが発生します。
+SubViewMenu 上のカスタムボタンが押された際にイベントが発生する。
 
 ```js
 {

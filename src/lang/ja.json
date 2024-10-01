@@ -36,6 +36,23 @@
     "startRecording": "ローカル録画開始",
     "stopRecording": "ローカル録画停止"
   },
+  "toolbar": {
+    "cameraButtonTips": {
+      "turnOn": "カメラをオンにする",
+      "turnOff": "カメラをオフにする"
+    },
+    "micButtonTips": {
+      "turnOn": "マイクをオンにする",
+      "turnOff": "マイクをオフにする"
+    },
+    "screenShareButtonTips": {
+      "start": "画面共有を開始する",
+      "end": "画面共有を終了する"
+    },
+    "participantsButtonTips": "参加者一覧を表示する",
+    "deviceSettingButtonTips": "デバイス設定を表示する",
+    "exitButtonTips": "退室する"
+  },
   "presentationLayout": {
     "horizontalButtonTips": "横並びに切替",
     "verticalButtonTips": "縦並びに切替"

@@ -23,6 +23,7 @@ export type AccessTokenSetting = {
 interface ToolbarItem {
   type: string;
   iconName: string;
+  tips?: string;
 }
 
 interface SubViewMenuItem {

@@ -1,12 +1,14 @@
 # RICOH Live Streaming Conference
 
-株式会社リコーが提供するRICOH Live Streaming Serviceを利用するためのRICOH Live Streaming Conference (Web Application Component) です。
+<!-- textlint-disable ja-technical-writing/sentence-length -->
+株式会社リコーが提供する RICOH Live Streaming Service を利用するための RICOH Live Streaming Conference (Web Application Component) である。
+<!-- textlint-enable ja-technical-writing/sentence-length -->
 
-RICOH Live Streaming Serviceは、映像/音声などのメディアデータやテキストデータなどを
-複数の拠点間で双方向かつリアルタイムにやりとりできるプラットフォームです。
+RICOH Live Streaming Service は、映像/音声などのメディアデータやテキストデータなどを
+複数の拠点間で双方向かつリアルタイムにやりとりできるプラットフォームである。
 
-サービスのご利用には、API利用規約への同意とアカウントの登録、ソフトウェア利用許諾書への同意が必要です。
-詳細は下記Webサイトをご確認ください。
+サービスのご利用には、API 利用規約への同意とアカウントの登録、ソフトウェア利用許諾書への同意が必要である。
+詳細は下記 Web サイトをご確認ください。
 
 * サービスサイト: https://livestreaming.ricoh/
   * ソフトウェア開発者向けサイト: https://api.livestreaming.ricoh/
@@ -17,23 +19,25 @@ At this moment, we provide API license agreement / software license agreement on
 
 ## はじめに
 
-RICOH Live Streaming Conference は RICOH Live Streaming Service を使った様々な機能をiframeコンポーネントとしてWebアプリケーションへ簡単に組み込むためのWebアプリケーション用コンポーネントです。
+<!-- textlint-disable ja-technical-writing/sentence-length -->
+RICOH Live Streaming Conference は RICOH Live Streaming Service を使った様々な機能を iframe コンポーネントとして Web アプリケーションへ簡単に組み込むための Web アプリケーション用コンポーネントである。
+<!-- textlint-enable ja-technical-writing/sentence-length -->
 
 ## 配布パッケージ構成
 
 * `README.md`: 本文書
-* `CHANGELOG.md`: LSConfおよびLSConfSDKの変更履歴
+* `CHANGELOG.md`: LSConf および LSConfSDK の変更履歴
 * `SoftwareLicenseAgreement.txt`: ソフトウェア使用許諾契約書
 * `doc/`
-  * `APIReference.md`: LSConfSDKのAPI仕様
+  * `APIReference.md`: LSConfSDK の API 仕様
 * `src/`
-  * `ls-conf-sdk.d.ts`: TypeScriptで必要となる型定義ファイル
-  * `ls-conf-sdk.js`: LSConfSDK本体
+  * `ls-conf-sdk.d.ts`: TypeScript で必要となる型定義ファイル
+  * `ls-conf-sdk.js`: LSConfSDK 本体
   * `lang/`: 言語設定（本ディレクトリを `ls-conf-sdk.js` と同じ場所に配置してください）
 * `sample/`
-  * `README.md`: LSConfを利用したサンプルアプリの説明
-  * `frontend/`: サンプルアプリのfrontend
-  * `backend/`: サンプルアプリのbackend
+  * `README.md`: LSConf を利用したサンプルアプリの説明
+  * `frontend/`: サンプルアプリの frontend
+  * `backend/`: サンプルアプリの backend
 
 ## アプリケーションからの利用例
 
@@ -103,9 +107,9 @@ async function createAndJoin() {
   try {
     await frame.join({
       clientId: 'hoge',
-      acccessToken: accessToken,
+      accessToken: accessToken,
       connectOptions: {
-        username: 'huga'
+        username: 'fuga'
         enableVideo: true,
         enableAudio: true,
       }
@@ -144,4 +148,4 @@ async function leave() {
 ...
 ```
 
-※ `createAccessToken()` はアプリ側で実装すべきメソッドのため、ここでは詳細は割愛する
+※ `createAccessToken()` はアプリ側で実装すべきメソッドのため、ここでは詳細は割愛する。

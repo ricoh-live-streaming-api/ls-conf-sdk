@@ -70,7 +70,7 @@ const IframePage: React.FC<Record<string, never>> = () => {
       log += `${e.error.toReportString()}\n`;
     }
     log += `********** ApplicationLog *********\n`;
-    log += `LSConfURL: ${LS_CONF_URL || 'default'}\n`;
+    log += `LSConfURL: ${LS_CONF_URL != null && LS_CONF_URL != '' ? LS_CONF_URL : 'default'}\n`;
     log += `LSClientID: ${LS_CLIENT_ID || 'unknown'}\n`;
     log += `SignalingURL: ${SIGNALING_URL || 'default'}\n`;
     log += `UserAgent: ${window.navigator.userAgent}\n\n`;
@@ -136,6 +136,13 @@ const IframePage: React.FC<Record<string, never>> = () => {
     }
     return log;
   };
+  /**
+   * 処理の一時停止
+   * @param time 停止する時間(ms)
+   */
+  const sleep = async (time: number): Promise<void> => {
+    return new Promise((resolve) => window.setTimeout(resolve, time));
+  };
   const createAndConnectRoom = async (): Promise<void> => {
     if (!username || !roomId || typeof username !== 'string') {
       setErrorMessage('入室パラメータが不正です');
@@ -191,20 +198,11 @@ const IframePage: React.FC<Record<string, never>> = () => {
       iceServersProtocol,
     };
     iframe.addEventListener('error', async (e: LSConfErrorEvent) => {
-      // TODO(hase): ChromeのMediaRecorderのバグの暫定対応
-      // 既知の問題のNo.23の現象を検知した時にエラー表示を行う。回避方法などの詳細は以下のリンクをご覧ください。
-      // cf: https://api.livestreaming.ricoh/document/ricoh-live-streaming-conference-%e6%97%a2%e7%9f%a5%e3%81%ae%e5%95%8f%e9%a1%8c/
-      if (e.error.detail.code === 4351) {
-        setErrorMessage(
-          '録画に失敗している可能性があります。一度録画を停止して正常に録画できているかを確認し、映像が黒くなっている場合は `chrome://flags` から `Out-of-process 2D canvas rasterization` の項目を `Disable` にして再度録画してください。正常に録画できている環境でこのメッセージが表示される場合は無視しても問題ありません。'
-        );
-      } else {
-        setErrorMessage(e.message);
-        try {
-          await downloadLog(iframe, e);
-        } catch {
-          console.warn('Failed to download log.');
-        }
+      setErrorMessage(e.message);
+      try {
+        await downloadLog(iframe, e);
+      } catch {
+        console.warn('Failed to download log.');
       }
     });
     iframe.addEventListener('connected', () => {
@@ -267,6 +265,9 @@ const IframePage: React.FC<Record<string, never>> = () => {
     iframe.addApplicationEventListener('log', async () => {
       try {
         await downloadLog(iframe);
+        // TODO(okada): Mobile Safari において複数のファイルをダウンロードに失敗することを避けるため、ダウンロードの間隔を空ける
+        // 複数ファイルをダウンロードさせる場合は 1 ファイルに圧縮することを検討する
+        await sleep(200);
         await downloadStats(iframe);
       } catch {
         console.warn('Failed to download log.');

@@ -36,6 +36,23 @@
     "startRecording": "Start Local Recording",
     "stopRecording": "Stop Local Recording"
   },
+  "toolbar": {
+    "cameraButtonTips": {
+      "turnOn": "Turn camera on",
+      "turnOff": "Turn camera off"
+    },
+    "micButtonTips": {
+      "turnOn": "Turn mic on",
+      "turnOff": "Turn mic off"
+    },
+    "screenShareButtonTips": {
+      "start": "Start screen sharing",
+      "end": "End screen sharing"
+    },
+    "participantsButtonTips": "Show participants",
+    "deviceSettingButtonTips": "Show device settings",
+    "exitButtonTips": "Leave room"
+  },
   "presentationLayout": {
     "horizontalButtonTips": "Switch to Horizontal",
     "verticalButtonTips": "Switch to Vertical"

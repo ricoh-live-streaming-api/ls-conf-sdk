@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 5.7.0
+ * @version: 5.8.0
  **/
 
 (function (global, factory) {
@@ -18,224 +18,220 @@
   }
   // エラー内容
   class ErrorData {
+      detail;
+      data;
       constructor(errorName, data) {
-          this.getErrorCode = (errorName) => {
-              switch (errorName) {
-                  // RequestError
-                  case 'CreateArgsInvalid':
-                      return 4010;
-                  case 'JoinArgsInvalid':
-                      return 4020;
-                  case 'SetArgsInvalid':
-                      return 4030;
-                  case 'CreateFailed':
-                      return 4040;
-                  case 'CreateTimeout':
-                      return 4041;
-                  case 'JoinFailed':
-                      return 4050;
-                  case 'JoinFailedTimeout':
-                      return 4051;
-                  case 'CloseFailed':
-                      return 4060;
-                  case 'CameraMuteFailed':
-                      return 4070;
-                  case 'MicMuteFailed':
-                      return 4080;
-                  case 'ShareRequestFailed':
-                      return 4090;
-                  case 'GetReportFailed':
-                      return 4100;
-                  case 'GetReportError':
-                      return 4101;
-                  case 'ChangeLayoutFailed':
-                      return 4110;
-                  case 'GetDeviceFailed':
-                      return 4120;
-                  case 'GetSubViewsFailed':
-                      return 4130;
-                  case 'GetSubViewsError':
-                      return 4131;
-                  case 'GetPoVFailed':
-                      return 4140;
-                  case 'GetPoVError':
-                      return 4141;
-                  case 'GetPoVArgsInvalid':
-                      return 4150;
-                  case 'SetPoVFailed':
-                      return 4160;
-                  case 'SetPoVError':
-                      return 4161;
-                  case 'SetPoVArgsInvalid':
-                      return 4170;
-                  case 'ShareRequestArgsInvalid':
-                      return 4180;
-                  case 'HighlightArgsInvalid':
-                      return 4190;
-                  case 'HighlightFailed':
-                      return 4200;
-                  case 'HighlightError':
-                      return 4210;
-                  case 'AddRecordingMemberArgsInvalid':
-                      return 4220;
-                  case 'AddRecordingMemberFailed':
-                      return 4230;
-                  case 'AddRecordingMemberError':
-                      return 4240;
-                  case 'RemoveRecordingMemberArgsInvalid':
-                      return 4250;
-                  case 'RemoveRecordingMemberFailed':
-                      return 4260;
-                  case 'RemoveRecordingMemberError':
-                      return 4270;
-                  case 'SetCameraDeviceFailed':
-                      return 4280;
-                  case 'SetMicDeviceFailed':
-                      return 4290;
-                  case 'GetMediaDevicesFailed':
-                      return 4300;
-                  case 'GetMediaDevicesError':
-                      return 4310;
-                  case 'GetCaptureImageFailed':
-                      return 4320;
-                  case 'GetCaptureImageError':
-                      return 4330;
-                  case 'GetCaptureImageErrorCameraMuted':
-                      return 4331;
-                  case 'GetCaptureImageArgsInvalid':
-                      return 4340;
-                  case 'StartRecordingFailed':
-                      return 4350;
-                  case 'RecordingErrorBlackScreen':
-                      return 4351;
-                  case 'StartReceiveVideoFailed':
-                      return 4360;
-                  case 'StartReceiveVideoError':
-                      return 4370;
-                  case 'StartReceiveVideoArgsInvalid':
-                      return 4380;
-                  case 'StopReceiveVideoFailed':
-                      return 4390;
-                  case 'StopReceiveVideoError':
-                      return 4400;
-                  case 'StopReceiveVideoArgsInvalid':
-                      return 4410;
-                  case 'GetLSConfLogFailed':
-                      return 4420;
-                  case 'GetLSConfLogError':
-                      return 4430;
-                  case 'EnablePointerFailed':
-                      return 4440;
-                  case 'UpdatePointerArgsInvalid':
-                      return 4450;
-                  case 'UpdatePointerFailed':
-                      return 4460;
-                  case 'UpdatePointerError':
-                      return 4470;
-                  case 'ModeInvalid':
-                      return 4480;
-                  case 'ChangeLayoutArgsInvalid':
-                      return 4490;
-                  case 'EnableZoomFailed':
-                      return 4500;
-                  case 'EnableZoomError':
-                      return 4510;
-                  case 'EnableZoomArgsInvalid':
-                      return 4520;
-                  case 'GetStatsArgsInvalid':
-                      return 4530;
-                  case 'GetStatsFailed':
-                      return 4540;
-                  case 'GetStatsError':
-                      return 4550;
-                  case 'SetRotationVectorFailed':
-                      return 4560;
-                  case 'SetRotationVectorError':
-                      return 4570;
-                  case 'SetRotationVectorArgsInvalid':
-                      return 4580;
-                  case 'CreateTypeInvalid':
-                      return 4590;
-                  case 'UpdateStrokeArgsInvalid':
-                      return 4600;
-                  case 'UpdateStrokeFailed':
-                      return 4610;
-                  case 'AddVideoSourceFailed':
-                      return 4620;
-                  case 'AddVideoSourceArgsInvalid':
-                      return 4640;
-                  case 'MediaSourceError':
-                      return 4650;
-                  case 'AddImageSourceFailed':
-                      return 4660;
-                  case 'AddImageSourceError':
-                      return 4670;
-                  case 'AddImageSourceArgsInvalid':
-                      return 4680;
-                  case 'RemoveImageSourceFailed':
-                      return 4690;
-                  case 'RemoveImageSourceError':
-                      return 4700;
-                  case 'RemoveImageSourceArgsInvalid':
-                      return 4710;
-                  case 'ChangePlayerStateFailed':
-                      return 4720;
-                  case 'ChangePlayerStateArgsInvalid':
-                      return 4730;
-                  case 'SetSpeakerVolumeFailed':
-                      return 4740;
-                  case 'SetSpeakerVolumeArgsInvalid':
-                      return 4750;
-                  case 'SetSeekPositionFailed':
-                      return 4760;
-                  case 'SetSeekPositionArgsInvalid':
-                      return 4770;
-                  case 'SetVideoSendBitrateFailed':
-                      return 4780;
-                  case 'SetVideoSendBitrateArgsInvalid':
-                      return 4800;
-                  case 'SetVideoSendFramerateFailed':
-                      return 4810;
-                  case 'SetVideoSendFramerateError':
-                      return 4820;
-                  case 'SetVideoSendFramerateArgsInvalid':
-                      return 4830;
-                  case 'SetVideoAudioConstraintsFailed':
-                      return 4840;
-                  case 'SetVideoAudioConstraintsError':
-                      return 4850;
-                  case 'SetVideoAudioConstraintsArgsInvalid':
-                      return 4860;
-                  // InternalError
-                  case 'InternalError5001':
-                      return 5001;
-                  case 'InternalError5002':
-                      return 5002;
-                  case 'InternalError5003':
-                      return 5003;
-                  case 'InternalError5004':
-                      return 5004;
-                  // エラーコードが存在しない場合は 5000 で返す
-                  default:
-                      return 5000;
-              }
-          };
-          this.toReportString = () => {
-              // dataが設定されている場合はdataの内容を返す
-              if (this.data) {
-                  // インデント(半角スペース4桁)と改行で整形
-                  return `${JSON.stringify(this.data, null, 4)}`;
-              }
-              else {
-                  return `code: ${this.detail.code}, type: ${this.detail.type}, error: ${this.detail.error}`;
-              }
-          };
           const code = this.getErrorCode(errorName);
           const category = Math.floor(code / 1000);
           const type = category === 4 ? 'RequestError' : 'InternalError';
           this.detail = { code, type, error: errorName };
           this.data = data;
       }
+      getErrorCode = (errorName) => {
+          switch (errorName) {
+              // RequestError
+              case 'CreateArgsInvalid':
+                  return 4010;
+              case 'JoinArgsInvalid':
+                  return 4020;
+              case 'SetArgsInvalid':
+                  return 4030;
+              case 'CreateFailed':
+                  return 4040;
+              case 'CreateTimeout':
+                  return 4041;
+              case 'JoinFailed':
+                  return 4050;
+              case 'JoinFailedTimeout':
+                  return 4051;
+              case 'CloseFailed':
+                  return 4060;
+              case 'CameraMuteFailed':
+                  return 4070;
+              case 'MicMuteFailed':
+                  return 4080;
+              case 'ShareRequestFailed':
+                  return 4090;
+              case 'GetReportFailed':
+                  return 4100;
+              case 'GetReportError':
+                  return 4101;
+              case 'ChangeLayoutFailed':
+                  return 4110;
+              case 'GetDeviceFailed':
+                  return 4120;
+              case 'GetSubViewsFailed':
+                  return 4130;
+              case 'GetPoVFailed':
+                  return 4140;
+              case 'GetPoVError':
+                  return 4141;
+              case 'GetPoVArgsInvalid':
+                  return 4150;
+              case 'SetPoVFailed':
+                  return 4160;
+              case 'SetPoVError':
+                  return 4161;
+              case 'SetPoVArgsInvalid':
+                  return 4170;
+              case 'ShareRequestArgsInvalid':
+                  return 4180;
+              case 'HighlightArgsInvalid':
+                  return 4190;
+              case 'HighlightFailed':
+                  return 4200;
+              case 'HighlightError':
+                  return 4210;
+              case 'AddRecordingMemberArgsInvalid':
+                  return 4220;
+              case 'AddRecordingMemberFailed':
+                  return 4230;
+              case 'AddRecordingMemberError':
+                  return 4240;
+              case 'RemoveRecordingMemberArgsInvalid':
+                  return 4250;
+              case 'RemoveRecordingMemberFailed':
+                  return 4260;
+              case 'RemoveRecordingMemberError':
+                  return 4270;
+              case 'SetCameraDeviceFailed':
+                  return 4280;
+              case 'SetMicDeviceFailed':
+                  return 4290;
+              case 'GetMediaDevicesFailed':
+                  return 4300;
+              case 'GetMediaDevicesError':
+                  return 4310;
+              case 'GetCaptureImageFailed':
+                  return 4320;
+              case 'GetCaptureImageError':
+                  return 4330;
+              case 'GetCaptureImageErrorCameraMuted':
+                  return 4331;
+              case 'GetCaptureImageArgsInvalid':
+                  return 4340;
+              case 'StartRecordingFailed':
+                  return 4350;
+              case 'StartReceiveVideoFailed':
+                  return 4360;
+              case 'StartReceiveVideoError':
+                  return 4370;
+              case 'StartReceiveVideoArgsInvalid':
+                  return 4380;
+              case 'StopReceiveVideoFailed':
+                  return 4390;
+              case 'StopReceiveVideoError':
+                  return 4400;
+              case 'StopReceiveVideoArgsInvalid':
+                  return 4410;
+              case 'GetLSConfLogFailed':
+                  return 4420;
+              case 'EnablePointerFailed':
+                  return 4440;
+              case 'UpdatePointerArgsInvalid':
+                  return 4450;
+              case 'ModeInvalid':
+                  return 4480;
+              case 'ChangeLayoutArgsInvalid':
+                  return 4490;
+              case 'EnableZoomFailed':
+                  return 4500;
+              case 'EnableZoomError':
+                  return 4510;
+              case 'EnableZoomArgsInvalid':
+                  return 4520;
+              case 'GetStatsArgsInvalid':
+                  return 4530;
+              case 'GetStatsFailed':
+                  return 4540;
+              case 'GetStatsError':
+                  return 4550;
+              case 'SetRotationVectorFailed':
+                  return 4560;
+              case 'SetRotationVectorError':
+                  return 4570;
+              case 'SetRotationVectorArgsInvalid':
+                  return 4580;
+              case 'CreateTypeInvalid':
+                  return 4590;
+              case 'UpdateStrokeArgsInvalid':
+                  return 4600;
+              case 'AddVideoSourceFailed':
+                  return 4620;
+              case 'AddVideoSourceArgsInvalid':
+                  return 4640;
+              case 'MediaSourceError':
+                  return 4650;
+              case 'AddImageSourceFailed':
+                  return 4660;
+              case 'AddImageSourceError':
+                  return 4670;
+              case 'AddImageSourceArgsInvalid':
+                  return 4680;
+              case 'RemoveImageSourceFailed':
+                  return 4690;
+              case 'RemoveImageSourceError':
+                  return 4700;
+              case 'RemoveImageSourceArgsInvalid':
+                  return 4710;
+              case 'ChangePlayerStateFailed':
+                  return 4720;
+              case 'ChangePlayerStateArgsInvalid':
+                  return 4730;
+              case 'SetSpeakerVolumeFailed':
+                  return 4740;
+              case 'SetSpeakerVolumeArgsInvalid':
+                  return 4750;
+              case 'SetSeekPositionFailed':
+                  return 4760;
+              case 'SetSeekPositionArgsInvalid':
+                  return 4770;
+              case 'SetVideoSendBitrateFailed':
+                  return 4780;
+              case 'SetVideoSendBitrateArgsInvalid':
+                  return 4800;
+              case 'SetVideoSendFramerateFailed':
+                  return 4810;
+              case 'SetVideoSendFramerateError':
+                  return 4820;
+              case 'SetVideoSendFramerateArgsInvalid':
+                  return 4830;
+              case 'SetVideoAudioConstraintsFailed':
+                  return 4840;
+              case 'SetVideoAudioConstraintsError':
+                  return 4850;
+              case 'SetVideoAudioConstraintsArgsInvalid':
+                  return 4860;
+              case 'MoveSubViewFailed':
+                  return 4870;
+              case 'MoveSubViewError':
+                  return 4880;
+              case 'MoveSubViewArgsInvalid':
+                  return 4890;
+              // InternalError
+              case 'InternalError5001':
+                  return 5001;
+              case 'InternalError5002':
+                  return 5002;
+              case 'InternalError5003':
+                  return 5003;
+              case 'InternalError5004':
+                  return 5004;
+              // エラーコードが存在しない場合は 5000 で返す
+              default:
+                  return 5000;
+          }
+      };
+      toReportString = () => {
+          // dataが設定されている場合はdataの内容を返す
+          if (this.data) {
+              // インデント(半角スペース4桁)と改行で整形
+              return `${JSON.stringify(this.data, null, 4)}`;
+          }
+          else {
+              return `code: ${this.detail.code}, type: ${this.detail.type}, error: ${this.detail.error}`;
+          }
+      };
   }
   // SDKエラー内容
   class SDKErrorData extends ErrorData {
@@ -249,6 +245,7 @@
   }
   // LSConfのエラーイベント
   class LSConfErrorEvent extends ErrorEvent {
+      toReportString;
       constructor(errorData) {
           const message = `code: ${errorData.detail.code}, type: ${errorData.detail.type}, error: ${errorData.detail.error}`;
           super('error', { error: errorData, message: message });
@@ -259,6 +256,9 @@
   }
   // LSConfのエラーオブジェクト
   class LSConfError extends Error {
+      detail;
+      data;
+      toReportString;
       constructor(errorData) {
           const message = `code: ${errorData.detail.code}, type: ${errorData.detail.type}, error: ${errorData.detail.error}`;
           super(message);
@@ -270,7 +270,7 @@
       }
   }
   // ls-conf-sdk のバージョン
-  const LS_CONF_SDK_VERSION = '5.7.0';
+  const LS_CONF_SDK_VERSION = '5.8.0';
   const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
   const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
   const DEFAULT_MAX_BITRATE = 2000;
@@ -283,8 +283,45 @@
   const DEFAULT_MESSAGE_QUEUE_TIMEOUT_MSEC = 100;
   const DEFAULT_ICE_SERVERS_PROTOCOL = 'all';
   class LSConferenceIframe {
+      parentElement;
+      iframeElement;
+      lsConfURL;
+      clientId;
+      connectOptions;
+      eventListeners;
+      applicationEventListeners;
+      state;
+      shareRequestedCallback;
+      joinCallback;
+      getSubViewsCallback;
+      highlightCallback;
+      getPoVCallback;
+      setPoVCallback;
+      setRotationVectorCallback;
+      addRecordingMemberCallback;
+      removeRecordingMemberCallback;
+      getReportCallbacks = new Map();
+      getMediaDevicesCallback;
+      getCaptureImageCallback;
+      updateCurrentTimeCallback;
+      getLSConfLogCallback;
+      getStatsCallback;
+      startReceiveVideoCallback;
+      stopReceiveVideoCallback;
+      enableZoomCallback;
+      addVideoSourceCallback;
+      addImageSourceCallback;
+      removeImageSourceCallback;
+      changePlayerStateCallback;
+      setSeekPositionCallback;
+      setSpeakerVolumeCallback;
+      setVideoSendBitrateCallback;
+      setVideoSendFramerateCallback;
+      setVideoAudioConstraintsCallback;
+      moveSubViewCallback;
+      static _handleWindowMessage;
+      parametersQueue;
       constructor(parentElement) {
-          this.getReportCallbacks = new Map();
           this.parentElement = parentElement;
           this.iframeElement = document.createElement('iframe');
           this.lsConfURL = DEFAULT_LS_CONF_URL;
@@ -318,6 +355,7 @@
           this.setVideoSendBitrateCallback = { success: () => { }, error: () => { } };
           this.setVideoSendFramerateCallback = { success: () => { }, error: () => { } };
           this.setVideoAudioConstraintsCallback = { success: () => { }, error: () => { } };
+          this.moveSubViewCallback = { success: () => { }, error: () => { } };
           this.eventListeners = new Map();
           this.applicationEventListeners = new Map();
           this.parametersQueue = new Map();
@@ -379,12 +417,7 @@
           }
           else if (data.type === 'recording') {
               if (data.error) {
-                  if (data.errorType === 'RecordingErrorBlackScreen') {
-                      this.dispatchEvent(new LSConfErrorEvent(new ErrorData('RecordingErrorBlackScreen')));
-                  }
-                  else {
-                      throw new LSConfError(new ErrorData('InternalError5002'));
-                  }
+                  throw new LSConfError(new ErrorData('InternalError5002'));
               }
           }
           else if (data.type === 'startRecording') {
@@ -470,6 +503,24 @@
               });
               this.dispatchEvent(event);
           }
+          else if (data.type === 'changeMediaStability') {
+              const event = new LSConfEvent('changeMediaStability', {
+                  detail: {
+                      kind: data.kind,
+                      stability: data.stability,
+                  },
+              });
+              this.dispatchEvent(event);
+          }
+          else if (data.type === 'userOperation') {
+              const event = new LSConfEvent('userOperation', {
+                  detail: {
+                      type: data.detail.type,
+                      detail: data.detail.detail,
+                  },
+              });
+              this.dispatchEvent(event);
+          }
           else if (data.type === 'remoteConnectionRemoved') {
               const event = new LSConfEvent('remoteConnectionRemoved', {
                   detail: {
@@ -498,13 +549,7 @@
               this.joinCallback.error(error);
           }
           else if (data.type === 'getSubViews') {
-              if (data.error) {
-                  const error = new LSConfError(new ErrorData('GetSubViewsError'));
-                  this.getSubViewsCallback.error(error);
-              }
-              else {
-                  this.getSubViewsCallback.success(data.subViews);
-              }
+              this.getSubViewsCallback.success(data.subViews);
           }
           else if (data.type === 'getSelfSubViewFailed') {
               if (data.error) {
@@ -600,13 +645,7 @@
               this.dispatchApplicationEvent(new CustomEvent(data.eventId, { detail: data.args }));
           }
           else if (data.type === 'getLSConfLog') {
-              if (data.error) {
-                  const error = new LSConfError(new ErrorData('GetLSConfLogError'));
-                  this.getLSConfLogCallback.error(error);
-              }
-              else {
-                  this.getLSConfLogCallback.success(data.lsConfLog);
-              }
+              this.getLSConfLogCallback.success(data.lsConfLog);
           }
           else if (data.type === 'getStats') {
               if (data.error) {
@@ -737,6 +776,15 @@
                   this.setVideoAudioConstraintsCallback.success();
               }
           }
+          else if (data.type === 'moveSubView') {
+              if (data.error) {
+                  const error = new LSConfError(new ErrorData('MoveSubViewError'));
+                  this.moveSubViewCallback.error(error);
+              }
+              else {
+                  this.moveSubViewCallback.success();
+              }
+          }
           else if (data.type === 'createPlayer') {
               if (data.error) {
                   this.dispatchEvent(new LSConfErrorEvent(new ErrorData('CreateFailed')));
@@ -788,12 +836,12 @@
               return false;
           }
           if (parameters.room !== undefined) {
-              if (typeof parameters.room.entranceScreen !== undefined && parameters.room.entranceScreen !== 'none' && parameters.room.entranceScreen !== 'click') {
+              if (parameters.room.entranceScreen !== null && parameters.room.entranceScreen !== 'none' && parameters.room.entranceScreen !== 'click') {
                   return false;
               }
           }
           if (parameters.player !== undefined) {
-              if (typeof parameters.player.isHiddenVideoControlBar !== undefined && typeof parameters.player.isHiddenVideoControlBar !== 'boolean') {
+              if (parameters.player.isHiddenVideoControlBar !== null && typeof parameters.player.isHiddenVideoControlBar !== 'boolean') {
                   return false;
               }
           }
@@ -832,6 +880,9 @@
                           isValid = false;
                       }
                       if (item.type !== undefined && typeof item.type !== 'string') {
+                          isValid = false;
+                      }
+                      if (item.tips !== undefined && typeof item.tips !== 'string') {
                           isValid = false;
                       }
                   });
@@ -897,7 +948,11 @@
                               if (typeof item.targetSubView !== 'object') {
                                   isValid = false;
                               }
-                              if (item.targetSubView.type !== undefined && item.targetSubView.type !== 'VIDEO_AUDIO' && item.targetSubView.type !== 'SCREEN_SHARE' && item.targetSubView.type !== 'VIDEO_FILE') {
+                              if (item.targetSubView.type !== undefined &&
+                                  item.targetSubView.type !== 'VIDEO_AUDIO' &&
+                                  item.targetSubView.type !== 'SCREEN_SHARE' &&
+                                  item.targetSubView.type !== 'VIDEO_FILE' &&
+                                  item.targetSubView.type !== 'IMAGE_FILE') {
                                   isValid = false;
                               }
                               if (item.targetSubView.isTheta !== undefined && typeof item.targetSubView.isTheta !== 'boolean') {
@@ -1236,16 +1291,18 @@
                   if (typeof src.label !== 'string') {
                       isValid = false;
                   }
-                  if (typeof src.url !== 'string') {
+                  if (typeof src.url !== 'string' && !(src.url instanceof Blob)) {
                       isValid = false;
                   }
                   if (src.metaUrl && typeof src.metaUrl !== 'string') {
                       isValid = false;
                   }
                   try {
-                      new URL(src.url);
-                      if (src.metaUrl) {
-                          new URL(src.metaUrl);
+                      if (typeof src.url === 'string') {
+                          new URL(src.url);
+                          if (src.metaUrl) {
+                              new URL(src.metaUrl);
+                          }
                       }
                   }
                   catch (e) {
@@ -1327,7 +1384,7 @@
               // allow =  "display-capture" は Chrome だと unknown parameter の warning が出るが
               // MDN の仕様では getDM する場合設定する必要があるので記載している
               // cf: https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API/Using_Screen_Capture
-              this.iframeElement.allow = 'camera *; microphone *; autoplay *; display-capture *; fullscreen *';
+              this.iframeElement.allow = 'camera *; microphone *; autoplay *; display-capture *; fullscreen *; compute-pressure';
               this.parentElement.appendChild(this.iframeElement);
               this.iframeElement.onload = () => {
                   // Safari では onload 時に即時に postMessage することができないため、500 ms 遅延させて postMessage を実行する
@@ -1401,7 +1458,7 @@
               }
               const createTimeoutId = this.setRequestTimer(reject, new LSConfError(new ErrorData('CreateTimeout')), DEFAULT_CREATE_TIMEOUT_MSEC);
               // 動画の再生プレイヤーで利用する権限を追加
-              this.iframeElement.allow = 'autoplay *; fullscreen *';
+              this.iframeElement.allow = 'autoplay *; fullscreen *; compute-pressure';
               this.parentElement.appendChild(this.iframeElement);
               this.iframeElement.onload = () => {
                   // Safari では onload 時に即時に postMessage することができないため、500 ms 遅延させて postMessage を実行する
@@ -2016,6 +2073,33 @@
               return resolve();
           });
       }
+      moveSubView(to, subView) {
+          return new Promise((resolve, reject) => {
+              if (!this.iframeElement.contentWindow) {
+                  return reject(new LSConfError(new ErrorData('InternalError5001')));
+              }
+              let isValidSubViews = true;
+              if (!this.validateSubViewType(subView)) {
+                  isValidSubViews = false;
+              }
+              if ((to !== 'presentation_main' && to !== 'presentation_sub' && to !== 'fullscreen') || !isValidSubViews) {
+                  return reject(new LSConfError(new ErrorData('MoveSubViewArgsInvalid')));
+              }
+              const postMessageParameters = {
+                  type: 'moveSubView',
+                  to,
+                  subView,
+              };
+              this.moveSubViewCallback = { success: () => resolve(), error: (err) => reject(err) };
+              try {
+                  this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+              }
+              catch (e) {
+                  const error = new LSConfError(new ErrorData('MoveSubViewFailed'));
+                  return reject(error);
+              }
+          });
+      }
       addRecordingMember(subView, connectionId) {
           return new Promise((resolve, reject) => {
               if (!this.iframeElement.contentWindow) {
@@ -2529,7 +2613,9 @@
                   locales.languages[key] = json;
               }
               catch (e) {
-                  console.warn(`Could not read '${key}' key language file : ${e.message}`);
+                  if (e instanceof Error) {
+                      console.warn(`Could not read '${key}' key language file : ${e.message}`);
+                  }
               }
           }
           // 第二言語以降の設定をfallback用言語とする(window.navigator.languagesの内{言語コード}.jsonが存在する言語を対象とする)

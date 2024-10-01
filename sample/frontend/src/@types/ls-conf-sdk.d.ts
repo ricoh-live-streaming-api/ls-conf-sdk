@@ -1,8 +1,9 @@
-export declare type ToolbarItem = {
+export type ToolbarItem = {
     type: string;
     iconName: string;
+    tips?: string;
 };
-export declare type SubViewMenuItem = {
+export type SubViewMenuItem = {
     type: string;
     label: string;
     targetSubView?: {
@@ -10,7 +11,7 @@ export declare type SubViewMenuItem = {
         isTheta?: boolean;
     };
 };
-export declare type CreateParameters = {
+export type CreateParameters = {
     thetaZoomMaxRange?: number;
     defaultLayout?: LayoutType;
     room?: {
@@ -97,18 +98,18 @@ export declare type CreateParameters = {
 export declare type LayoutType = 'gallery' | 'presentation' | 'fullscreen';
 export declare type EntranceType = 'none' | 'click';
 /** ストロークの設定オプション */
-export declare type StrokeOption = {
+export type StrokeOption = {
     /** ストロークの太さ */
     size?: number;
 };
-export declare type VideoSource = {
-    url: string;
+export type VideoSource = {
+    url: string | Blob;
     connectionId: string;
     label: string;
     isTheta: boolean;
     metaUrl?: string;
 };
-export declare type ImageSource = {
+export type ImageSource = {
     url: string;
     connectionId: string;
     label: string;
@@ -118,7 +119,7 @@ export declare type VideoCodecType = 'h264' | 'vp8' | 'vp9' | 'h265' | 'av1';
 export declare type IceServersProtocolType = 'all' | 'udp' | 'tcp' | 'tls' | 'tcp_tls';
 export declare type MuteType = 'hard' | 'soft';
 export declare type ModeType = 'normal' | 'viewer';
-export declare type ConnectOptions = {
+export type ConnectOptions = {
     username: string;
     enableVideo: boolean;
     enableAudio: boolean;
@@ -133,9 +134,9 @@ export declare type ConnectOptions = {
     screenShareConstraints?: MediaStreamConstraints;
     iceServersProtocol?: IceServersProtocolType;
 };
-export declare type MediaTypes = 'VIDEO_AUDIO' | 'SCREEN_SHARE' | 'VIDEO_FILE' | 'IMAGE_FILE';
-export declare type TrackKind = 'video' | 'audio';
-export declare type DeviceInfo = {
+export type MediaTypes = 'VIDEO_AUDIO' | 'SCREEN_SHARE' | 'VIDEO_FILE' | 'IMAGE_FILE';
+export type TrackKind = 'video' | 'audio';
+export type DeviceInfo = {
     deviceId: string;
     groupId: string;
     kind: string;
@@ -143,20 +144,20 @@ export declare type DeviceInfo = {
     isSelected: boolean;
     capabilities?: MediaTrackCapabilities;
 };
-export declare type SubView = {
+export type SubView = {
     connectionId: string;
     type: MediaTypes;
     isTheta: boolean;
     enableVideo: boolean;
     enableAudio: boolean;
 };
-export declare type PoV = {
+export type PoV = {
     pan: number;
     tilt: number;
     fov: number;
 };
 /** ストローク情報 */
-export declare type Stroke = {
+export type Stroke = {
     /** ストロークの座標情報 */
     points: number[][];
     /** ストロークを書き終わったかどうか*/
@@ -165,19 +166,19 @@ export declare type Stroke = {
     option?: StrokeOption;
 };
 export declare type ImageMimeType = 'image/png' | 'image/jpeg';
-export declare type RotationVector = {
+export type RotationVector = {
     pitch: number;
     roll: number;
 };
-export declare type CaptureImageOptions = {
+export type CaptureImageOptions = {
     mimeType?: ImageMimeType;
     qualityArgument?: number;
 };
-export declare type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
-export declare type LogCategory = 'environment' | 'setting' | 'recording' | 'device' | 'member' | 'analysis' | 'clientSdk';
-export declare type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'log' | 'error';
-export declare type ErrorType = 'RequestError' | 'InternalError';
-export declare type ErrorDetail = {
+export type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
+export type LogCategory = 'environment' | 'setting' | 'recording' | 'device' | 'member' | 'analysis' | 'clientSdk';
+export type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'changeMediaStability' | 'userOperation' | 'log' | 'error';
+export type ErrorType = 'RequestError' | 'InternalError';
+export type ErrorDetail = {
     code: number;
     type: ErrorType;
     error: string;
@@ -241,6 +242,7 @@ declare class LSConferenceIframe {
     private setVideoSendBitrateCallback;
     private setVideoSendFramerateCallback;
     private setVideoAudioConstraintsCallback;
+    private moveSubViewCallback;
     private static _handleWindowMessage;
     private parametersQueue;
     constructor(parentElement: HTMLElement);
@@ -287,6 +289,7 @@ declare class LSConferenceIframe {
     getScreenShareStats(): Promise<string>;
     getStats(subView: SubView, kind?: TrackKind): Promise<string>;
     changeLayout(layout: LayoutType, subViews?: SubView[]): Promise<void>;
+    moveSubView(to: 'presentation_main' | 'presentation_sub' | 'fullscreen', subView: SubView): Promise<void>;
     addRecordingMember(subView: SubView, connectionId: string): Promise<void>;
     removeRecordingMember(subView: SubView, connectionId: string): Promise<void>;
     getCaptureImage(subView: SubView, options: CaptureImageOptions): Promise<Blob>;

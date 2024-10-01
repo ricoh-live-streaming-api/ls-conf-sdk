@@ -11,7 +11,7 @@ $ yarn -v
 
 ```shell
 $ node -v
-v16.18.1
+v20.13.0
 ```
 
 ## ローカル実行手順
@@ -63,7 +63,7 @@ Api Server listening on port 4000!
 |:--|:--|
 |apiBase|backendのAPIリクエスト先のURL|
 |clientId|発行されたClientIDを指定してください|
-|上記以外のパラメータ|LSConfのcreate時のカスタマイズ設定を記載します<br>詳細は「RICOH Live Streaming Conference SDK API仕様」をご覧ください|
+|上記以外のパラメータ|LSConfのcreate時のカスタマイズ設定を記載します<br>詳細は [RICOH Live Streaming Conference SDK API仕様](https://github.com/ricoh-live-streaming-api/ls-conf-sdk/blob/main/doc/APIReference.md) をご覧ください|
 
 #### Step2. 実行
 
