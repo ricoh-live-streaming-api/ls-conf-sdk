@@ -11,7 +11,6 @@ RICOH Live Streaming Service は、映像/音声などのメディアデータ�
 詳細は下記 Web サイトをご確認ください。
 
 * サービスサイト: https://livestreaming.ricoh/
-  * ソフトウェア開発者向けサイト: https://api.livestreaming.ricoh/
 * ソフトウェア使用許諾契約書 : [Software License Agreement](SoftwareLicenseAgreement.txt)
 
 * NOTICE: This package includes SDK and sample application(s) for "RICOH Live Streaming Service".
