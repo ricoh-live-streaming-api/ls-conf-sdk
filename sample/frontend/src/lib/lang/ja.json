@@ -45,6 +45,10 @@
       "turnOn": "マイクをオンにする",
       "turnOff": "マイクをオフにする"
     },
+    "speakerButtonTips": {
+      "turnOn": "スピーカーをオンにする",
+      "turnOff": "スピーカーをオフにする"
+    },
     "screenShareButtonTips": {
       "start": "画面共有を開始する",
       "end": "画面共有を終了する"

@@ -45,6 +45,10 @@
       "turnOn": "Turn mic on",
       "turnOff": "Turn mic off"
     },
+    "speakerButtonTips": {
+      "turnOn": "Turn speaker on",
+      "turnOff": "Turn speaker off"
+    },
     "screenShareButtonTips": {
       "start": "Start screen sharing",
       "end": "End screen sharing"

@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createAccessTokenSetting, fetchAccessToken } from '@/api';
 import ErrorDialog from '@/components/ErrorDialog';
 import { DEFAULT_LAYOUT, LS_CLIENT_ID, LS_CONF_URL, ROOM_CONFIG, SIGNALING_URL, SUBVIEW_CONFIG, THEME_CONFIG, THETA_ZOOM_MAX_RANGE, TOOLBAR_CONFIG } from '@/constants';
-import LSConferenceIframe, { ConnectOptions, CreateParameters, LSConfError, LSConfErrorEvent } from '@/lib/ls-conf-sdk';
+import LSConferenceIframe, { ConnectOptions, CreateParameters, GetDeviceFailedData, GetDisplayMediaErrorData, LSConfError, LSConfErrorEvent } from '@/lib/ls-conf-sdk';
 
 const CREATE_PARAMETERS: CreateParameters = {
   defaultLayout: (DEFAULT_LAYOUT as 'gallery' | 'presentation' | 'fullscreen') || undefined,
@@ -198,7 +198,19 @@ const IframePage: React.FC<Record<string, never>> = () => {
       iceServersProtocol,
     };
     iframe.addEventListener('error', async (e: LSConfErrorEvent) => {
-      setErrorMessage(e.message);
+      const errorData = e.error.data;
+      const code = e.error.detail.code;
+      if (code === 4900 && 'reason' in errorData && 'constraints' in errorData) {
+        const data = errorData as GetDisplayMediaErrorData;
+        const errorType = data.reason.name;
+        if (errorType === 'NotAllowedError') {
+          setErrorMessage('共有対象へのアクセスが許可されていないため、画面共有の開始に失敗しました。画面共有が許可されているかどうかをご確認ください。');
+        } else {
+          setErrorMessage(`画面共有の開始に失敗しました。再度お試しください。エラー理由: ${errorType ?? 'Unknown'}`);
+        }
+      } else {
+        setErrorMessage(e.message);
+      }
       try {
         await downloadLog(iframe, e);
       } catch {
@@ -305,8 +317,23 @@ const IframePage: React.FC<Record<string, never>> = () => {
       await iframe.join(LS_CLIENT_ID, accessToken, connectOptions);
     } catch (e) {
       if (e instanceof LSConfError) {
-        if (e.detail.code === 4120) {
-          setErrorMessage('デバイスの取得に失敗したため、カメラとマイクを使用せずに参加します。マイクデバイスへのアクセス許可がない場合、スピーカーから音が出ない場合があります。');
+        if (e.detail.code === 4120 && e.data) {
+          const data = e.data as GetDeviceFailedData;
+          if (data.reason.name === 'NotAllowedError') {
+            setErrorMessage(
+              'デバイスへのアクセスが許可されておらず、デバイスの取得に失敗したため、カメラとマイクを使用せずに参加します。マイクデバイスへのアクセス許可がない場合、スピーカーから音が出ない場合があります。'
+            );
+          } else if (data.reason.name === 'NotReadableError' || data.reason.name === 'NotFoundError') {
+            const reasonMessage = data.reason.name === 'NotReadableError' ? 'デバイスが他のアプリで使用されており' : 'デバイスが見つからず';
+            if (data.deviceInfo?.label) {
+              const cautionMessage = data.deviceInfo?.kind === 'audioinput' ? 'スピーカーから音が出ない場合があります。' : '';
+              setErrorMessage(`${reasonMessage}、${data.deviceInfo?.label}デバイスの取得に失敗したため、カメラとマイクを使用せずに参加します。${cautionMessage}`);
+            } else {
+              const deviceMessage = data.constraints.video !== undefined ? '既定のカメラ' : '既定のマイク';
+              const cautionMessage = data.constraints.audio !== undefined ? 'スピーカーから音が出ない場合があります。' : '';
+              setErrorMessage(`${reasonMessage}、${deviceMessage}デバイスの取得に失敗したため、カメラとマイクを使用せずに参加します。${cautionMessage}`);
+            }
+          }
         } else {
           setErrorMessage(e.message);
           try {

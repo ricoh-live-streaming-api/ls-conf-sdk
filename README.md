@@ -57,6 +57,7 @@ async function createAndJoin() {
           isHidden: false,
           isHiddenCameraButton: false,
           isHiddenMicButton: false,
+          isHiddenSpeakerButton: true,
           isHiddenScreenShareButton: false,
           isHiddenDeviceSettingButton: false,
           isHiddenExitButton: false

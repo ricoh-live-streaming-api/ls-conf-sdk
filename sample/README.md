@@ -30,7 +30,7 @@ v20.13.0
 |bitrateReservationMbps|Room毎に利用可能な帯域幅の最大値(※)<br>backendが発行するAccessTokenに含まれる `RoomSpec.media_control.bitrate_reservation_mbps` の値|
 
 <!-- textlint-disable ja-technical-writing/sentence-length -->
-※ 設定値の決め方については [RICOH Live Streaming Client APP for THETA SenderとRICOH Live Streaming Conferenceを組み合わせて動作確認したい](https://api.livestreaming.ricoh/document/ricoh-live-streaming-client-app-for-theta-sender%e3%81%a8ricoh-live-streaming-conference%e3%82%92%e7%b5%84%e3%81%bf%e5%90%88%e3%82%8f%e3%81%9b%e3%81%a6%e5%8b%95%e4%bd%9c%e7%a2%ba%e8%aa%8d%e3%81%97/) をご参照ください。
+※ 設定値の決め方については [RICOH Live Streaming Client APP for THETA SenderとRICOH Live Streaming Conferenceを組み合わせて動作確認したい](https://livestreaming.ricoh/docs/combined-operation-check/) をご参照ください。
 <!-- textlint-enable ja-technical-writing/sentence-length -->
 
 #### Step2. 環境変数の設定
@@ -63,7 +63,7 @@ Api Server listening on port 4000!
 |:--|:--|
 |apiBase|backendのAPIリクエスト先のURL|
 |clientId|発行されたClientIDを指定してください|
-|上記以外のパラメータ|LSConfのcreate時のカスタマイズ設定を記載します<br>詳細は [RICOH Live Streaming Conference SDK API仕様](https://github.com/ricoh-live-streaming-api/ls-conf-sdk/blob/main/doc/APIReference.md) をご覧ください|
+|上記以外のパラメータ|LSConfのcreate時のカスタマイズ設定を記載します<br>詳細は [RICOH Live Streaming Conference SDK API仕様](https://github.com/ricoh-live-streaming-api/ls-conf-sdk/blob/main/doc/APIReference.md)　をご覧ください|
 
 #### Step2. 実行
 

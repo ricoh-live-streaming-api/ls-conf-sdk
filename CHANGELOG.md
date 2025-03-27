@@ -1,5 +1,46 @@
 # CHANGE LOG
 
+## v5.9.0
+- Added
+  - [LSConf]静止画 SubView の非表示ボタンの表示オプションを追加
+  - [SDK,LSConf]WebRTC の通信が不安定な場合にインジケーターの表示を追加
+  - [SDK,LSConf]クラウド録画のメディア関連のメタデータの情報を Player の表示に反映する機能を追加
+  - [SDK,LSConf]ツールバーにスピーカーミュート表示オプションを追加
+- Changed
+  - [LSConf]WebGL の Shader 周りの例外を捕捉するように変更
+  - [LSConf]ツールバーでボタン押下時にツールチップを非表示にするように変更
+  - [SDK,LSConf]Window オブジェクトのエラー発生時にエラーイベントを発火するように変更
+  - [SDK,LSConf]デバイス取得時のエラーにエラーが発生したデバイスの情報を追加
+  - [SDK,LSConf]web-sdk からのエラーイベントにエラーの詳細情報を追加
+  - [SDK,LSConf]画面共有の開始失敗時にエラーとエラー理由を返すように変更
+- Fixed
+  - [LSConf]PresentationLayout の縦横を入れ替えると 360 映像の視点が一瞬リセットされる問題を修正
+  - [LSConf]モバイル端末で SubViewMenu のボタン押下時にメニューを閉じる処理が 2 度呼ばれる問題を修正
+  - [LSConf]createPlayer で指定する動画の配列に空の配列を指定すると読み込み中のまま処理が進まなくなる問題を修正
+  - [LSConf]SubView の拡大縮小ボタンをダブルタップするとレイアウトが切り替わってしまう問題を修正
+  - [LSConf]Player で先頭から再生し続けた場合とシークバー操作後に再生した場合で映像・音声のタイミングが異なる問題を修正
+  - [SDK,LSConf]createPlayer で指定されたメタデータに started_at が含まれない場合、再生開始日時が意図しない値になる問題を修正
+  - [SDK,LSConf]依存ライブラリの更新
+- Refactored
+  - [LSConf]LSConf 側から postMessage している内容をログに追加
+  - [LSConf]webglcontextlost, webglcontextrestored のイベント発火時に不要なログが出ないように変更
+
+## v5.8.3
+- Changed
+  - [SDK]API の同時実行を防ぐため排他制御を行うように変更
+  - [SDK]addImageSource, addVideoSource のタイムアウトを待てるよう排他制御のロック処理を変更
+  - [LSConf]特定のファイルのダウンロードが発生するレスポンスをデータ取得まで待つように変更
+
+## v5.8.2
+- Added
+  - [SDK,LSConf]特定のファイルのダウンロード時にタイムアウト時間を設定できるオプションを追加
+- Fixed
+  - [LSConf]360 映像へのマーカーを複数同時に書き込むとラベルの色やストロークがちらつく問題を修正
+
+## v5.8.1
+- Fixed
+  - [LSConf]getPoV の実行時に対象となる SubView が非表示の場合にレスポンスがなくなる問題を修正
+
 ## v5.8.0
 - Added
   - [SDK]メディア送受信の通信の安定性が変化した `changeMediaStability` イベントを追加
@@ -177,7 +218,7 @@
 ### 破壊的な変更による修正内容
 #### join時とonShareRequested時にconnectionIdの指定が不要に変更
 <!-- textlint-disable ja-technical-writing/sentence-length -->
-これまで join 時や onShareRequested 時に connectionId を指定していましたが、[AccessToken](https://api.livestreaming.ricoh/docs/access-token-specification) の connection_id を参照することになったため、指定が不要になりました。
+これまで join 時や onShareRequested 時に connectionId を指定していましたが、[AccessToken](https://livestreaming.ricoh/docs/access-token/) の connection_id を参照することになったため、指定が不要になりました。
 <!-- textlint-enable ja-technical-writing/sentence-length -->
 
 ##### join 時

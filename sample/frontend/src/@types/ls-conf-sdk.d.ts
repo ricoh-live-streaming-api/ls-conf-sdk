@@ -13,6 +13,7 @@ export type SubViewMenuItem = {
 };
 export type CreateParameters = {
     thetaZoomMaxRange?: number;
+    getFileTimeout?: number;
     defaultLayout?: LayoutType;
     room?: {
         entranceScreen?: EntranceType;
@@ -24,6 +25,7 @@ export type CreateParameters = {
         isHidden?: boolean;
         isHiddenCameraButton?: boolean;
         isHiddenMicButton?: boolean;
+        isHiddenSpeakerButton?: boolean;
         isHiddenScreenShareButton?: boolean;
         isHiddenParticipantsButton?: boolean;
         isHiddenDeviceSettingButton?: boolean;
@@ -49,6 +51,9 @@ export type CreateParameters = {
         theta?: {
             isHiddenFramerate?: boolean;
             enableZenithCorrection?: boolean;
+        };
+        image?: {
+            isHiddenCloseButton?: boolean;
         };
         menu?: {
             isHidden?: boolean;
@@ -102,12 +107,21 @@ export type StrokeOption = {
     /** ストロークの太さ */
     size?: number;
 };
-export type VideoSource = {
-    url: string | Blob;
-    connectionId: string;
-    label: string;
-    isTheta: boolean;
+export type VideoSource = URLVideoSource | BlobVideoSource;
+export type URLVideoSource = {
+    url: string;
+} & VideoSourceCommon;
+export type BlobVideoSource = {
+    blob: Blob;
+} & VideoSourceCommon;
+export type VideoSourceCommon = {
+    connectionId?: string;
+    label?: string;
+    isTheta?: boolean;
     metaUrl?: string;
+    connectionHistoryUrl?: string;
+    videoTrackHistoryUrl?: string;
+    audioTrackHistoryUrl?: string;
 };
 export type ImageSource = {
     url: string;
@@ -123,6 +137,7 @@ export type ConnectOptions = {
     username: string;
     enableVideo: boolean;
     enableAudio: boolean;
+    enableSpeaker?: boolean;
     audioMuteType?: MuteType;
     mode?: ModeType;
     maxVideoBitrate?: number;
@@ -176,17 +191,51 @@ export type CaptureImageOptions = {
 };
 export type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
 export type LogCategory = 'environment' | 'setting' | 'recording' | 'device' | 'member' | 'analysis' | 'clientSdk';
-export type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'changeMediaStability' | 'userOperation' | 'log' | 'error';
+export type EventType = 'connected' | 'mediaOpen' | 'disconnected' | 'screenShareConnected' | 'screenShareMediaOpen' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'mediaSourceAdded' | 'mediaSourceRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'changeMediaStability' | 'userOperation' | 'log' | 'error';
 export type ErrorType = 'RequestError' | 'InternalError';
 export type ErrorDetail = {
     code: number;
     type: ErrorType;
     error: string;
 };
+export type WebSdkErrorData = {
+    client: 'VideoAudioClient' | 'ScreenShareClient';
+    withDisconnection: boolean;
+};
+/**
+ * MediaSourceError のエラーデータ
+ */
+export type MediaSourceErrorData = {
+    connectionId: string;
+    url: string;
+};
+/**
+ * GetDeviceFailed のエラーデータ
+ */
+export type GetDeviceFailedData = {
+    reason: DOMException | TypeError;
+    constraints: MediaStreamConstraints;
+    deviceInfo?: DeviceInfo;
+};
+/**
+ * GetMediaDevicesError のエラーデータ
+ */
+export type GetMediaDevicesErrorData = {
+    reason: DOMException | TypeError;
+    constraints: MediaStreamConstraints;
+    deviceInfo?: DeviceInfo;
+};
+/**
+ * GetDisplayMediaError のエラーデータ
+ */
+export type GetDisplayMediaErrorData = {
+    reason: DOMException | TypeError;
+    constraints: MediaStreamConstraints;
+};
 export declare class ErrorData {
     detail: ErrorDetail;
-    data?: unknown;
-    constructor(errorName: string, data?: unknown);
+    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData;
+    constructor(errorName: string, data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData);
     private getErrorCode;
     toReportString: () => string;
 }
@@ -196,7 +245,7 @@ export declare class LSConfErrorEvent extends ErrorEvent {
 }
 export declare class LSConfError extends Error {
     detail: ErrorDetail;
-    data?: unknown;
+    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData;
     toReportString: () => string;
     constructor(errorData: ErrorData);
 }
@@ -245,6 +294,8 @@ declare class LSConferenceIframe {
     private moveSubViewCallback;
     private static _handleWindowMessage;
     private parametersQueue;
+    private static asyncLock;
+    private static useFetchAsyncLock;
     constructor(parentElement: HTMLElement);
     private handleWindowMessage;
     private setWindowMessageCallback;
@@ -280,6 +331,7 @@ declare class LSConferenceIframe {
     setCameraDevice(deviceId: string): Promise<void>;
     setMicMute(isEnabled: boolean): Promise<void>;
     setMicDevice(deviceId: string): Promise<void>;
+    setSpeakerMute(isEnabled: boolean): Promise<void>;
     enablePointer(isEnabled: boolean): Promise<void>;
     updatePointer(subView: SubView, connectionId: string, poV: PoV | null, username?: string, color?: string): Promise<void>;
     updateStroke(subView: SubView, connectionId: string, stroke: Stroke, username?: string, color?: string): Promise<void>;
