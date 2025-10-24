@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 5.9.0
+ * @version: 5.10.0
  **/
 
 (function (global, factory) {
@@ -527,6 +527,8 @@
 	                return 4900;
 	            case 'GetFileTimeout':
 	                return 4910;
+	            case 'SharePoVErrorCameraMuted':
+	                return 4920;
 	            // InternalError
 	            case 'InternalError5001':
 	                return 5001;
@@ -598,7 +600,7 @@
 	    }
 	}
 	// ls-conf-sdk のバージョン
-	const LS_CONF_SDK_VERSION = '5.9.0';
+	const LS_CONF_SDK_VERSION = '5.10.0';
 	const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
 	const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
 	const DEFAULT_MAX_BITRATE = 2000;
@@ -928,8 +930,13 @@
 	            }
 	        }
 	        else if (data.type === 'sharePoV') {
-	            const { subView, poV } = data;
-	            this.dispatchEvent(new LSConfEvent('sharePoV', { detail: { subView, poV } }));
+	            if (data.error) {
+	                this.dispatchEvent(new LSConfErrorEvent(new ErrorData('SharePoVErrorCameraMuted', data.data)));
+	            }
+	            else {
+	                const { subView, poV } = data;
+	                this.dispatchEvent(new LSConfEvent('sharePoV', { detail: { subView, poV } }));
+	            }
 	        }
 	        else if (data.type === 'getPoV') {
 	            if (data.error) {
@@ -1177,6 +1184,12 @@
 	                    this.dispatchEvent(new LSConfErrorEvent(new ErrorData('CreateFailed')));
 	                }
 	            }
+	        }
+	        else if (data.type === 'startCloudRecording') {
+	            this.dispatchEvent(new LSConfEvent('startCloudRecording'));
+	        }
+	        else if (data.type === 'stopCloudRecording') {
+	            this.dispatchEvent(new LSConfEvent('stopCloudRecording'));
 	        }
 	        else if (data.type === 'log') {
 	            const event = new LSConfEvent('log', {
@@ -1705,6 +1718,9 @@
 	                if (src.metaUrl != null && typeof src.metaUrl !== 'string') {
 	                    isValid = false;
 	                }
+	                if (src.meta != null && !this.validatePlayerMetadataType(src.meta)) {
+	                    isValid = false;
+	                }
 	                if (src.connectionHistoryUrl != null && typeof src.connectionHistoryUrl !== 'string') {
 	                    isValid = false;
 	                }
@@ -1787,6 +1803,18 @@
 	        }
 	        return true;
 	    }
+	    validatePlayerMetadataType(meta) {
+	        if (typeof meta !== 'object') {
+	            return false;
+	        }
+	        if (meta.roomId != null && typeof meta.roomId !== 'string') {
+	            return false;
+	        }
+	        if (meta.startedAt != null && typeof meta.startedAt !== 'string') {
+	            return false;
+	        }
+	        return true;
+	    }
 	    // eslint-disable-next-line @typescript-eslint/no-explicit-any
 	    setRequestTimer(reject, error, time) {
 	        return window.setTimeout(() => {
@@ -1810,7 +1838,7 @@
 	            // allow =  "display-capture" は Chrome だと unknown parameter の warning が出るが
 	            // MDN の仕様では getDM する場合設定する必要があるので記載している
 	            // cf: https://developer.mozilla.org/en-US/docs/Web/API/Screen_Capture_API/Using_Screen_Capture
-	            this.iframeElement.allow = 'camera *; microphone *; autoplay *; display-capture *; fullscreen *; compute-pressure';
+	            this.iframeElement.allow = 'camera *; microphone *; autoplay *; display-capture *; fullscreen *; compute-pressure; cross-origin-isolated';
 	            this.parentElement.appendChild(this.iframeElement);
 	            this.iframeElement.onload = () => {
 	                // Safari では onload 時に即時に postMessage することができないため、500 ms 遅延させて postMessage を実行する
@@ -1891,7 +1919,7 @@
 	            }
 	            const createTimeoutId = this.setRequestTimer(reject, new LSConfError(new ErrorData('CreateTimeout')), DEFAULT_CREATE_TIMEOUT_MSEC);
 	            // 動画の再生プレイヤーで利用する権限を追加
-	            this.iframeElement.allow = 'autoplay *; fullscreen *; compute-pressure';
+	            this.iframeElement.allow = 'autoplay *; fullscreen *; compute-pressure; cross-origin-isolated';
 	            this.parentElement.appendChild(this.iframeElement);
 	            this.iframeElement.onload = () => {
 	                // Safari では onload 時に即時に postMessage することができないため、500 ms 遅延させて postMessage を実行する
@@ -1920,6 +1948,12 @@
 	                        customParameters.theme = parameters.theme;
 	                        customParameters.locales = parameters.locales;
 	                        if (customParameters.subView && parameters.subView) {
+	                            if (parameters.subView.speakingThreshold !== undefined) {
+	                                customParameters.subView.speakingThreshold = parameters.subView.speakingThreshold;
+	                            }
+	                            if (parameters.subView.speakingIndicatorDuration !== undefined) {
+	                                customParameters.subView.speakingIndicatorDuration = parameters.subView.speakingIndicatorDuration;
+	                            }
 	                            if (parameters.subView.isHiddenDrawingButton !== undefined) {
 	                                customParameters.subView.isHiddenDrawingButton = parameters.subView.isHiddenDrawingButton;
 	                            }

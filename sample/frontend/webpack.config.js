@@ -314,6 +314,13 @@ module.exports = (env, argv) => {
           pathRewrite: { '^/api': '' },
         },
       },
+      headers: {
+        // メモリ使用量の取得で performance.measureUserAgentSpecificMemory() を使用するため Cross-Origin 系のヘッダを設定
+        // cf: https://developer.mozilla.org/ja/docs/Web/API/Performance/measureUserAgentSpecificMemory
+        // Cross-Origin 系のヘッダが設定されていない LSConf を参照する場合は以下の Cross-Origin 系のヘッダを削除（コメントアウト）する
+        'Cross-Origin-Opener-Policy': 'same-origin',
+        'Cross-Origin-Embedder-Policy': 'require-corp',
+      },
     },
     resolve: {
       alias: {

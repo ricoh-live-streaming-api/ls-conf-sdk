@@ -114,10 +114,15 @@ export type URLVideoSource = {
 export type BlobVideoSource = {
     blob: Blob;
 } & VideoSourceCommon;
+export type PlayerMetadata = {
+    roomId: string;
+    startedAt: string;
+};
 export type VideoSourceCommon = {
     connectionId?: string;
     label?: string;
     isTheta?: boolean;
+    meta?: PlayerMetadata;
     metaUrl?: string;
     connectionHistoryUrl?: string;
     videoTrackHistoryUrl?: string;
@@ -191,7 +196,7 @@ export type CaptureImageOptions = {
 };
 export type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
 export type LogCategory = 'environment' | 'setting' | 'recording' | 'device' | 'member' | 'analysis' | 'clientSdk';
-export type EventType = 'connected' | 'mediaOpen' | 'disconnected' | 'screenShareConnected' | 'screenShareMediaOpen' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'mediaSourceAdded' | 'mediaSourceRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'changeMediaStability' | 'userOperation' | 'log' | 'error';
+export type EventType = 'connected' | 'mediaOpen' | 'disconnected' | 'screenShareConnected' | 'screenShareMediaOpen' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'mediaSourceAdded' | 'mediaSourceRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'changeMediaStability' | 'userOperation' | 'startCloudRecording' | 'stopCloudRecording' | 'log' | 'error';
 export type ErrorType = 'RequestError' | 'InternalError';
 export type ErrorDetail = {
     code: number;
@@ -232,10 +237,16 @@ export type GetDisplayMediaErrorData = {
     reason: DOMException | TypeError;
     constraints: MediaStreamConstraints;
 };
+/**
+ * SharePoVError のエラーデータ
+ */
+export type SharePoVErrorData = {
+    subView: SubView;
+};
 export declare class ErrorData {
     detail: ErrorDetail;
-    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData;
-    constructor(errorName: string, data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData);
+    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData | SharePoVErrorData;
+    constructor(errorName: string, data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData | SharePoVErrorData);
     private getErrorCode;
     toReportString: () => string;
 }
@@ -245,7 +256,7 @@ export declare class LSConfErrorEvent extends ErrorEvent {
 }
 export declare class LSConfError extends Error {
     detail: ErrorDetail;
-    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData;
+    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData | SharePoVErrorData;
     toReportString: () => string;
     constructor(errorData: ErrorData);
 }
@@ -313,6 +324,7 @@ declare class LSConferenceIframe {
     private validatePlayerStateType;
     private validateMediaStreamConstraintsType;
     private validateUrl;
+    private validatePlayerMetadataType;
     private setRequestTimer;
     private __create;
     static create(parentElement: HTMLElement, parameters: Partial<CreateParameters>): Promise<LSConferenceIframe>;

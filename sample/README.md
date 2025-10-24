@@ -77,6 +77,26 @@ $ yarn start  # ローカル実行(webpackを利用)
  ｢wdm｣: Compiled successfully.
 ```
 
+※) Cross-Origin 系のヘッダについて。
+
+メモリ使用量の取得に [performance.measureUserAgentSpecificMemory()](https://developer.mozilla.org/ja/docs/Web/API/Performance/measureUserAgentSpecificMemory) を使用するため Cross-Origin 系のヘッダを設定している。
+
+そのため Cross-Origin 系のヘッダを設定していない LSConf は開くことができない。
+
+`frontend/webpack.config.js` の devserver の設定から Cross-Origin 系のヘッダを削除することで、そのような LSConf も表示できる。
+
+（この場合メモリ使用量の取得には [performance.memory](https://developer.mozilla.org/ja/docs/Web/API/Performance/memory) が使用される）
+
+```javascript
+      headers: {
+        // メモリ使用量の取得で performance.measureUserAgentSpecificMemory() を使用するため Cross-Origin 系のヘッダを追加
+        // cf: https://developer.mozilla.org/ja/docs/Web/API/Performance/measureUserAgentSpecificMemory
+        // Cross-Origin 系のヘッダが設定されていない LSConf を参照する場合は以下の Cross-Origin 系のヘッダを削除（コメントアウト）する
+        'Cross-Origin-Opener-Policy': 'same-origin',
+        'Cross-Origin-Embedder-Policy': 'require-corp',
+      },
+```
+
 ## 静的ファイルの生成
 
 以下の手順で frontend の静的ファイルを生成できる。

@@ -211,7 +211,7 @@ type RotationVector = {
 [LSConfの規定のイベント](#Events)の種類を表す文字列で、各イベントリスナーの登録・削除の API で使用する。
 
 ```ts
-type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'mediaDeviceChanged' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'playerStateChanged' | 'changeMediaStability' | 'userOperation' | 'log' | 'error';
+type EventType = 'connected' | 'disconnected' | 'screenShareConnected' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'remoteTrackAdded' | 'mediaDeviceChanged' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'playerStateChanged' | 'changeMediaStability' | 'userOperation' | 'startCloudRecording' | 'stopCloudRecording' | 'log' | 'error';
 ```
 
 #### ToolbarItem
@@ -322,6 +322,7 @@ type VideoSourceCommon = {
     connectionId?: IDString;
     label?: string;
     isTheta?: boolean;
+    meta?: PlayerMetadata;
     metaUrl?: string;
     connectionHistoryUrl?: string;
     videoTrackHistoryUrl?: string;
@@ -333,10 +334,11 @@ type VideoSourceCommon = {
 | connectionId | IDString | 動画ファイルの取得元の connection_id(※1) |
 | label | string | 動画ファイルの表示名(※2) |
 | isTheta | boolean | 360動画として表示するかどうか(※3) |
-| metaUrl | string | 動画ファイルのメタデータ（単一拠点録画メタデータファイル）のURLの文字列(※4) |
-| connectionHistoryUrl | string | 動画ファイルの履歴データ（Connection 履歴ファイル）のURLの文字列(※4) |
-| videoTrackHistoryUrl | string | 動画ファイルの履歴データ（Video Track 履歴ファイル）のURLの文字列(※4) |
-| audioTrackHistoryUrl | string | 動画ファイルの履歴データ（Audio Track 履歴ファイル）のURLの文字列(※4) |
+| meta | [PlayerMetadata](#PlayerMetadata) | Playerで利用するメタデータ情報（ローカル録画などの動画ファイルを同期再生モードで再生したい場合に使用）(※4) |
+| metaUrl | string | 動画ファイルのメタデータ（単一拠点録画メタデータファイル）のURLの文字列(※5) |
+| connectionHistoryUrl | string | 動画ファイルの履歴データ（Connection 履歴ファイル）のURLの文字列(※5) |
+| videoTrackHistoryUrl | string | 動画ファイルの履歴データ（Video Track 履歴ファイル）のURLの文字列(※5) |
+| audioTrackHistoryUrl | string | 動画ファイルの履歴データ（Audio Track 履歴ファイル）のURLの文字列(※5) |
 
 (※1) 動画ファイルの取得元の connection_id について。
 - 実際に使用する ID は以下の通り
@@ -365,7 +367,12 @@ type VideoSourceCommon = {
   - VideoSource.isTheta の指定がなく、Video Track 履歴ファイルから isTheta が取得できない場合
     - デフォルト値（false：360 動画として表示しない）
 
-(※4) 指定するファイルについて。
+(※4) metaUrl と meta の指定について。
+- meta が指定されている場合は meta の値が適用される
+- meta が指定されてなく metaUrl が指定されている場合は metaUrl で指定されているメタデータファイルが適用される
+- meta また metaUrl も指定されていない場合は動画ファイルと同じ場所に配置されているメタデータファイルが適用される
+
+(※5) 指定するファイルについて。
 - ファイル名に URI として使用不可能な文字列（[RFC3986](https://datatracker.ietf.org/doc/html/rfc3986)で定義）が含まれる場合は URL エンコード済の文字列を指定する
   - NG: `https://example.com/movie/RICOH+THETA+Z1-20220514_152010.json`
   - OK: `https://example.com/movie/RICOH%2BTHETA%2BZ1-20220514_152010.json`
@@ -383,6 +390,23 @@ type VideoSourceCommon = {
       - 動画ファイルと同一ディレクトリ内の、動画ファイル名（拡張子除く）＋ `-audio-track-history.jsonl`
   - BlobVideoSource の場合はメタデータおよび履歴データなしで再生する
 - メタデータファイルおよび履歴ファイルの仕様については[こちら](https://livestreaming.ricoh/docs/api-v1-recording/)をご参照ください
+
+
+#### PlayerMetadata
+
+動画ファイルのメタデータを指定する場合に使用する。
+
+```js
+type PlayerMetadata = {
+  roomId: string;
+  startedAt: string;
+};
+```
+
+|Name|Type|説明|
+|:--|:--|:--|
+| roomId | string | room の id |
+| startedAt | string | 動画の開始時刻（ISO 8601形式による時刻情報） |
 
 #### Stroke
 
@@ -591,8 +615,8 @@ create 時、createPlayer 時に指定する `CreateParameters` の一覧であ�
 | `toolbar.customItems` | ToolbarItem[] | [] | - | ツールバーに表示するカスタムボタンの配列<br>表示順は左から `切断以外の既定のボタン`, `ToolbarItem[]`, `切断ボタン` の順となる |
 | `subView` | Object | | ◯ | SubView設定のオブジェクト |
 | `subView.enableAutoVideoReceiving` | boolean | true | - | SubViewの非表示時/表示時に自動的に映像を受信停止/再開するかどうか(※2) |
-| `subView.speakingThreshold` | number | 10 | - | 発話判定となる音声ボリュームの閾値<br>設定できる範囲は `1-100` で範囲を超える場合は上限/下限に設定される|
-| `subView.speakingIndicatorDuration` | number | 500 | - | 発話判定時にマイクアイコンを継続的に光らせる時間（単位はms）<br>設定できる範囲は `0-5000` で範囲を超える場合は上限/下限に設定される<br>`0`の場合は一瞬光るのみ|
+| `subView.speakingThreshold` | number | 10 | ◯ | 発話判定となる音声ボリュームの閾値<br>設定できる範囲は `1-100` で範囲を超える場合は上限/下限に設定される|
+| `subView.speakingIndicatorDuration` | number | 500 | ◯ | 発話判定時にマイクアイコンを継続的に光らせる時間（単位はms）<br>設定できる範囲は `0-5000` で範囲を超える場合は上限/下限に設定される<br>`0`の場合は一瞬光るのみ|
 | `subView.isHiddenDrawingButton` | boolean | true | ◯ | SubViewの書き込みボタンを非表示にするかどうか(※4) |
 | `subView.drawingInterval` | number | 500 | ◯ | 書き込み中の `strokeUpdated` イベントの発火間隔（単位はms）<br>設定できる範囲は `100-3000` で範囲を超える場合は上限/下限に設定される |
 | `subView.drawingColor` | string | "#661FFF" | ◯ | 書き込み時のストロークの色<br>[CSSのColor定義](https://developer.mozilla.org/ja/docs/Web/CSS/color)に準拠した値とする<br>未指定や不正な値の場合はデフォルト値となる |
@@ -1878,7 +1902,7 @@ LSConf の既定のイベントに対するイベントハンドラーは `addEv
 
 #### startRecording
 
-録画が開始された。
+ローカル録画が開始された。
 
 ```js
 {
@@ -1895,7 +1919,7 @@ LSConf の既定のイベントに対するイベントハンドラーは `addEv
 
 #### stopRecording
 
-録画が停止された。
+ローカル録画が停止された。
 
 ```js
 {
@@ -2092,6 +2116,35 @@ Player の再生状態が変化した。
   | presentationLayout.verticalButton | 縦並びに切替ボタン押下 | `{}` |
   | presentationLayout.main.doubleClick | 拡大表示領域のSubViewをダブルクリック | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
   | presentationLayout.sub.doubleClick | 通常表示領域のSubViewをダブルクリック | `{ subView: SubView }`<br>`SubView`: 操作対象のSubView |
+
+#### startCloudRecording
+
+クラウド録画が開始した。<br>
+イベントの発火タイミングについては以下の通りである。
+
+- [RICOH Live Streaming REST API: 録画API](https://livestreaming.ricoh/docs/api-v1-recording/)の Room の録画開始 API 実行時
+  - ※すでにクラウド録画が開始されている状態で Room の録画開始 API を実行した場合は発火しない
+- [アクセストークン](https://livestreaming.ricoh/docs/access-token/)で `recording_on_start` が `true` に設定されている状態でのルームへの入室時
+
+```js
+{
+  type: 'startCloudRecording'
+}
+```
+
+#### stopCloudRecording
+
+クラウド録画が停止した。<br>
+イベントの発火タイミングについては以下の通りである。
+
+- [RICOH Live Streaming REST API: 録画API](https://livestreaming.ricoh/docs/api-v1-recording/)の Room の録画停止 API 実行時
+  - ※すでにクラウド録画が停止されている状態で Room の録画停止 API を実行した場合は発火しない
+
+```js
+{
+  type: 'stopCloudRecording'
+}
+```
 
 #### log
 

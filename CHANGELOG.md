@@ -1,5 +1,26 @@
 # CHANGE LOG
 
+## v5.10.0
+- Added
+  - [SDK,LSConf]クラウド録画の開始時（`startCloudRecording`）と停止時（`stopCloudRecording`）のイベントを追加
+- Changed
+  - [SDK,LSConf]`web-sdk` を `v1.10.0` に更新
+  - [SDK,LSConf]VideoSource に meta の optional パラメータを追加
+  - [LSConf]入室時のデバイス取得に失敗した場合、ダミーデバイスに切り替えて入室するように変更
+- Fixed
+  - [SDK]createPlayer の CreateParameter の一部が反映されない問題を修正
+  - [SDK,LSConf]360 映像の SubView のカメラミュート時に getPoV を実行するとレスポンスが返らない問題を修正
+  - [SDK,LSConf]360 映像の SubView のカメラミュート時に sharePoV を実行するとエラーを返すように修正
+  - [LSConf]Mobile Safari において `changePlayerState()` で 'play' を指定しても音声が出ない問題を修正
+  - [LSConf]ペンでの UI 操作時において、意図しない挙動になる問題を修正
+  - [LSConf]複数の AudioContext によりリソースが逼迫すると音声が聞こえなくなる問題を修正
+  - [LSConf]マーカーの線とラベルの位置がズレる問題を修正
+  - [LSConf]デバイス変更時に別デバイスが設定されてしまうことがある問題を修正
+- Refactored
+  - [SDK,LSConf]依存ライブラリの更新
+  - [SDK,LSConf]メモリ使用量をログに追加
+  - [LSConf]端末のディスプレイサイズをログに追加
+
 ## v5.9.0
 - Added
   - [LSConf]静止画 SubView の非表示ボタンの表示オプションを追加
