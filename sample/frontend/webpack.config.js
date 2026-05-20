@@ -271,6 +271,21 @@ const configSchema = {
           }
         }
       }
+    },
+    "cloudRecording": {
+      "type": "object",
+      "required": ["isEnabled"],
+      "properties": {
+        "isEnabled": {
+          "type": "boolean"
+        },
+        "enableComposition": {
+          "type": "boolean"
+        },
+        "enableStoreRaw": {
+          "type": "boolean"
+        }
+      }
     }
   }
 }
@@ -294,7 +309,7 @@ module.exports = (env, argv) => {
   // production とそれ以外で読み込む JSON を変える
   const configFileName = isProduction ? 'production.json' : 'local.json';
   const configPath = path.resolve(__dirname, `config/${configFileName}`);
-  const { lsConfURL, clientId, apiBase, signalingURL, thetaZoomMaxRange, defaultLayout, toolbar, podCoordinates, theme, subView, room } = validateConfig(configPath);
+  const { lsConfURL, clientId, apiBase, signalingURL, thetaZoomMaxRange, defaultLayout, toolbar, podCoordinates, theme, subView, room, cloudRecording } = validateConfig(configPath);
   return {
     mode: mode,
     entry: path.resolve(__dirname, 'src/index.tsx'),
@@ -343,6 +358,7 @@ module.exports = (env, argv) => {
         'config.POD_COORDINATES': JSON.stringify(podCoordinates),
         'config.SUBVIEW_CONFIG': JSON.stringify(subView),
         'config.THEME_CONFIG': JSON.stringify(theme),
+        'config.CLOUD_RECORDING': JSON.stringify(cloudRecording),
       }),
       new MiniCssExtractPlugin({
         filename: 'css/[name].css',

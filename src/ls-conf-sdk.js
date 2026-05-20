@@ -1,7 +1,7 @@
 /**
  * ls-conf-sdk
  * ls-conf-sdk
- * @version: 5.10.0
+ * @version: 5.13.0
  **/
 
 (function (global, factory) {
@@ -529,6 +529,14 @@
 	                return 4910;
 	            case 'SharePoVErrorCameraMuted':
 	                return 4920;
+	            case 'PlayerFileFormatInvalid':
+	                return 4930;
+	            case 'CheckH265SupportFailed':
+	                return 4940;
+	            case 'CheckH265SupportError':
+	                return 4950;
+	            case 'ReceiveUnsupportedCodec':
+	                return 4960;
 	            // InternalError
 	            case 'InternalError5001':
 	                return 5001;
@@ -600,7 +608,7 @@
 	    }
 	}
 	// ls-conf-sdk のバージョン
-	const LS_CONF_SDK_VERSION = '5.10.0';
+	const LS_CONF_SDK_VERSION = '5.13.0';
 	const DEFAULT_LS_CONF_URL = `https://conf.livestreaming.mw.smart-integration.ricoh.com/${LS_CONF_SDK_VERSION}/index.html`;
 	const DEFAULT_SIGNALING_URL = 'wss://signaling.livestreaming.mw.smart-integration.ricoh.com/v1/room';
 	const DEFAULT_MAX_BITRATE = 2000;
@@ -653,6 +661,7 @@
 	    setVideoSendBitrateCallback;
 	    setVideoSendFramerateCallback;
 	    setVideoAudioConstraintsCallback;
+	    checkH265SupportCallback;
 	    moveSubViewCallback;
 	    static _handleWindowMessage;
 	    parametersQueue;
@@ -692,6 +701,7 @@
 	        this.setVideoSendBitrateCallback = { success: () => { }, error: () => { } };
 	        this.setVideoSendFramerateCallback = { success: () => { }, error: () => { } };
 	        this.setVideoAudioConstraintsCallback = { success: () => { }, error: () => { } };
+	        this.checkH265SupportCallback = { success: () => { }, error: () => { } };
 	        this.moveSubViewCallback = { success: () => { }, error: () => { } };
 	        this.eventListeners = new Map();
 	        this.applicationEventListeners = new Map();
@@ -1007,7 +1017,10 @@
 	                }
 	            }
 	            else {
-	                this.getCaptureImageCallback.success(data.blob);
+	                this.getCaptureImageCallback.success({
+	                    blob: data.blob,
+	                    rotationVector: data.rotationVector,
+	                });
 	            }
 	        }
 	        else if (data.type === 'applicationEvent') {
@@ -1166,6 +1179,15 @@
 	                this.setVideoAudioConstraintsCallback.success();
 	            }
 	        }
+	        else if (data.type === 'checkH265Support') {
+	            if (data.error) {
+	                const error = new LSConfError(new ErrorData('CheckH265SupportError'));
+	                this.checkH265SupportCallback.error(error);
+	            }
+	            else {
+	                this.checkH265SupportCallback.success(data.result);
+	            }
+	        }
 	        else if (data.type === 'moveSubView') {
 	            if (data.error) {
 	                const error = new LSConfError(new ErrorData('MoveSubViewError'));
@@ -1184,6 +1206,9 @@
 	                    this.dispatchEvent(new LSConfErrorEvent(new ErrorData('CreateFailed')));
 	                }
 	            }
+	        }
+	        else if (data.type === 'PlayerFileFormatInvalid') {
+	            this.dispatchEvent(new LSConfErrorEvent(new ErrorData('PlayerFileFormatInvalid')));
 	        }
 	        else if (data.type === 'startCloudRecording') {
 	            this.dispatchEvent(new LSConfEvent('startCloudRecording'));
@@ -1242,8 +1267,19 @@
 	            }
 	        }
 	        if (parameters.player !== undefined) {
-	            if (parameters.player.isHiddenVideoControlBar !== null && typeof parameters.player.isHiddenVideoControlBar !== 'boolean') {
+	            if (typeof parameters.player !== 'object') {
 	                return false;
+	            }
+	            if (parameters.player.isHiddenVideoControlBar !== undefined && typeof parameters.player.isHiddenVideoControlBar !== 'boolean') {
+	                return false;
+	            }
+	            if (parameters.player.localFileHeader !== undefined) {
+	                if (typeof parameters.player.localFileHeader !== 'object') {
+	                    return false;
+	                }
+	                if (parameters.player.localFileHeader.title !== undefined && typeof parameters.player.localFileHeader.title !== 'string') {
+	                    return false;
+	                }
 	            }
 	        }
 	        if (parameters.getFileTimeout !== undefined && typeof parameters.getFileTimeout !== 'number') {
@@ -1759,7 +1795,13 @@
 	        if (typeof source !== 'object') {
 	            return false;
 	        }
-	        if (source.url && typeof source.url !== 'string') {
+	        if (!('url' in source) && !('blob' in source)) {
+	            return false;
+	        }
+	        if ('url' in source && typeof source.url !== 'string') {
+	            return false;
+	        }
+	        if ('blob' in source && !(source.blob instanceof Blob)) {
 	            return false;
 	        }
 	        if (source.connectionId && typeof source.connectionId !== 'string') {
@@ -2029,11 +2071,11 @@
 	                    const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
 	                    return reject(error);
 	                }
-	                if (sources !== undefined && typeof sources !== 'string' && !instance.validateVideoSourceType(sources)) {
+	                if (sources !== null && sources !== undefined && typeof sources !== 'string' && !instance.validateVideoSourceType(sources)) {
 	                    const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
 	                    return reject(error);
 	                }
-	                if (sources !== undefined && typeof sources === 'string' && !instance.validateUrl(sources)) {
+	                if (sources !== null && sources !== undefined && typeof sources === 'string' && !instance.validateUrl(sources)) {
 	                    const error = new LSConfError(new ErrorData('CreateArgsInvalid'));
 	                    return reject(error);
 	                }
@@ -2655,7 +2697,7 @@
 	                if (!this.iframeElement.contentWindow) {
 	                    return reject(new LSConfError(new ErrorData('InternalError5001')));
 	                }
-	                if (typeof connectionId !== 'string') {
+	                if (connectionId !== undefined && typeof connectionId !== 'string') {
 	                    return reject(new LSConfError(new ErrorData('AddRecordingMemberArgsInvalid')));
 	                }
 	                if (!this.validateSubViewType(subView)) {
@@ -2683,7 +2725,7 @@
 	                if (!this.iframeElement.contentWindow) {
 	                    return reject(new LSConfError(new ErrorData('InternalError5001')));
 	                }
-	                if (typeof connectionId !== 'string') {
+	                if (connectionId !== undefined && typeof connectionId !== 'string') {
 	                    return reject(new LSConfError(new ErrorData('RemoveRecordingMemberArgsInvalid')));
 	                }
 	                if (!this.validateSubViewType(subView)) {
@@ -2722,7 +2764,7 @@
 	                    subView,
 	                    options,
 	                };
-	                this.getCaptureImageCallback = { success: (blob) => resolve(blob), error: (err) => reject(err) };
+	                this.getCaptureImageCallback = { success: (result) => resolve(result), error: (err) => reject(err) };
 	                try {
 	                    this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
 	                }
@@ -3047,6 +3089,29 @@
 	                }
 	                catch (e) {
 	                    const error = new LSConfError(new ErrorData('SetVideoAudioConstraintsFailed'));
+	                    return reject(error);
+	                }
+	            });
+	        });
+	    }
+	    checkH265Support() {
+	        return LSConferenceIframe.asyncLock.acquire('apiLock', () => {
+	            return new Promise((resolve, reject) => {
+	                if (!this.iframeElement.contentWindow) {
+	                    return reject(new LSConfError(new ErrorData('InternalError5001')));
+	                }
+	                const postMessageParameters = {
+	                    type: 'checkH265Support',
+	                };
+	                this.checkH265SupportCallback = {
+	                    success: (result) => resolve(result),
+	                    error: (err) => reject(err),
+	                };
+	                try {
+	                    this.iframeElement.contentWindow.postMessage(postMessageParameters, this.lsConfURL);
+	                }
+	                catch (e) {
+	                    const error = new LSConfError(new ErrorData('CheckH265SupportFailed'));
 	                    return reject(error);
 	                }
 	            });

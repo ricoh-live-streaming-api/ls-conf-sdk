@@ -20,6 +20,9 @@ export type CreateParameters = {
     };
     player?: {
         isHiddenVideoControlBar?: boolean;
+        localFileHeader?: {
+            title?: string;
+        };
     };
     toolbar?: {
         isHidden?: boolean;
@@ -128,8 +131,14 @@ export type VideoSourceCommon = {
     videoTrackHistoryUrl?: string;
     audioTrackHistoryUrl?: string;
 };
-export type ImageSource = {
+export type ImageSource = URLImageSource | BlobImageSource;
+export type URLImageSource = {
     url: string;
+} & ImageSourceCommon;
+export type BlobImageSource = {
+    blob: Blob;
+} & ImageSourceCommon;
+export type ImageSourceCommon = {
     connectionId: string;
     label: string;
     isTheta: boolean;
@@ -197,6 +206,10 @@ export type CaptureImageOptions = {
 export type PlayerState = 'loading' | 'playing' | 'pause' | 'ended';
 export type LogCategory = 'environment' | 'setting' | 'recording' | 'device' | 'member' | 'analysis' | 'clientSdk';
 export type EventType = 'connected' | 'mediaOpen' | 'disconnected' | 'screenShareConnected' | 'screenShareMediaOpen' | 'screenShareDisconnected' | 'remoteConnectionAdded' | 'remoteConnectionRemoved' | 'mediaSourceAdded' | 'mediaSourceRemoved' | 'remoteTrackAdded' | 'startRecording' | 'stopRecording' | 'sharePoV' | 'strokeUpdated' | 'mediaDeviceChanged' | 'playerStateChanged' | 'changeMediaStability' | 'userOperation' | 'startCloudRecording' | 'stopCloudRecording' | 'log' | 'error';
+export type UnsupportedCodecConnection = {
+    connectionId: string;
+    codec: string;
+};
 export type ErrorType = 'RequestError' | 'InternalError';
 export type ErrorDetail = {
     code: number;
@@ -243,10 +256,17 @@ export type GetDisplayMediaErrorData = {
 export type SharePoVErrorData = {
     subView: SubView;
 };
+/**
+ * ReceiveUnsupportedCodec のエラーデータ
+ */
+export type ReceiveUnsupportedCodecData = {
+    unsupportedCodecConnections: UnsupportedCodecConnection[];
+    mySupportedCodecs: string[];
+};
 export declare class ErrorData {
     detail: ErrorDetail;
-    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData | SharePoVErrorData;
-    constructor(errorName: string, data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData | SharePoVErrorData);
+    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData | SharePoVErrorData | ReceiveUnsupportedCodecData;
+    constructor(errorName: string, data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData | SharePoVErrorData | ReceiveUnsupportedCodecData);
     private getErrorCode;
     toReportString: () => string;
 }
@@ -256,7 +276,7 @@ export declare class LSConfErrorEvent extends ErrorEvent {
 }
 export declare class LSConfError extends Error {
     detail: ErrorDetail;
-    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData | SharePoVErrorData;
+    data?: MediaSourceErrorData | GetDeviceFailedData | GetMediaDevicesErrorData | WebSdkErrorData | GetDisplayMediaErrorData | SharePoVErrorData | ReceiveUnsupportedCodecData;
     toReportString: () => string;
     constructor(errorData: ErrorData);
 }
@@ -302,6 +322,7 @@ declare class LSConferenceIframe {
     private setVideoSendBitrateCallback;
     private setVideoSendFramerateCallback;
     private setVideoAudioConstraintsCallback;
+    private checkH265SupportCallback;
     private moveSubViewCallback;
     private static _handleWindowMessage;
     private parametersQueue;
@@ -329,7 +350,7 @@ declare class LSConferenceIframe {
     private __create;
     static create(parentElement: HTMLElement, parameters: Partial<CreateParameters>): Promise<LSConferenceIframe>;
     private __createPlayer;
-    static createPlayer(parentElement: HTMLElement, sources: VideoSource[] | string, parameters?: Partial<CreateParameters>): Promise<LSConferenceIframe>;
+    static createPlayer(parentElement: HTMLElement, sources: VideoSource[] | string | null | undefined, parameters?: Partial<CreateParameters>): Promise<LSConferenceIframe>;
     join(clientId: string, accessToken: string, connectOptions: ConnectOptions): Promise<void>;
     leave(): Promise<void>;
     onShareRequested(callback: Function): void;
@@ -354,9 +375,12 @@ declare class LSConferenceIframe {
     getStats(subView: SubView, kind?: TrackKind): Promise<string>;
     changeLayout(layout: LayoutType, subViews?: SubView[]): Promise<void>;
     moveSubView(to: 'presentation_main' | 'presentation_sub' | 'fullscreen', subView: SubView): Promise<void>;
-    addRecordingMember(subView: SubView, connectionId: string): Promise<void>;
-    removeRecordingMember(subView: SubView, connectionId: string): Promise<void>;
-    getCaptureImage(subView: SubView, options: CaptureImageOptions): Promise<Blob>;
+    addRecordingMember(subView: SubView, connectionId?: string): Promise<void>;
+    removeRecordingMember(subView: SubView, connectionId?: string): Promise<void>;
+    getCaptureImage(subView: SubView, options: CaptureImageOptions): Promise<{
+        blob: Blob;
+        rotationVector: RotationVector | null;
+    }>;
     startReceiveVideo(subView: SubView): Promise<void>;
     stopReceiveVideo(subView: SubView): Promise<void>;
     changePlayerState(state: string): Promise<void>;
@@ -369,6 +393,7 @@ declare class LSConferenceIframe {
     setVideoSendBitrate(bitrateKbps: number): Promise<void>;
     setVideoSendFramerate(framerate: number): Promise<void>;
     setVideoAudioConstraints(constraints: MediaStreamConstraints): Promise<void>;
+    checkH265Support(): Promise<boolean>;
     iframe(): HTMLIFrameElement;
     addEventListener(type: EventType, callback: Function, options?: AddEventListenerOptions): void;
     removeEventListener(type: EventType, callback: Function, _options?: boolean | EventListenerOptions): void;

@@ -22,6 +22,9 @@ const Entrance: React.FC<Record<string, never>> = () => {
     video_codec,
     max_connections,
     ice_servers_protocol,
+    framerate,
+    resolution_width,
+    resolution_height,
   } = qs.parse(window.location.search);
   const [roomId, setRoomId] = useState<string>('');
   const [username, setUsername] = useState<string>('');
@@ -64,6 +67,15 @@ const Entrance: React.FC<Record<string, never>> = () => {
     }
     if (ice_servers_protocol && (ice_servers_protocol === 'all' || ice_servers_protocol === 'udp' || ice_servers_protocol === 'tcp' || ice_servers_protocol === 'tls')) {
       uriPath += `&ice_servers_protocol=${ice_servers_protocol}`;
+    }
+    if (framerate && !isNaN(Number(framerate))) {
+      uriPath += `&framerate=${framerate}`;
+    }
+    if (resolution_width && !isNaN(Number(resolution_width))) {
+      uriPath += `&resolution_width=${resolution_width}`;
+    }
+    if (resolution_height && !isNaN(Number(resolution_height))) {
+      uriPath += `&resolution_height=${resolution_height}`;
     }
     /* eslint-enable @typescript-eslint/naming-convention */
     window.open(uriPath);

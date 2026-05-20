@@ -9,3 +9,4 @@ export const SUBVIEW_CONFIG = config.SUBVIEW_CONFIG;
 export const DEFAULT_LAYOUT = config.DEFAULT_LAYOUT;
 export const POD_COORDINATES = config.POD_COORDINATES;
 export const THEME_CONFIG = config.THEME_CONFIG;
+export const CLOUD_RECORDING = config.CLOUD_RECORDING;

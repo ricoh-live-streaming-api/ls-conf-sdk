@@ -1,5 +1,5 @@
 /* eslint @typescript-eslint/naming-convention: 0 */
-import { API_BASE } from './constants';
+import { API_BASE, CLOUD_RECORDING } from './constants';
 import { AccessTokenSetting } from './types';
 
 const API_HEADERS = { 'Content-Type': 'application/json; charset=utf-8' };
@@ -55,7 +55,7 @@ const fetchPost = async <T>(path: string, body: Record<string, unknown>): Promis
  * @returns AccessTokenSetting
  */
 export const createAccessTokenSetting = (roomId: string, connectionId: string, bitrateReservation: unknown, roomType: unknown, maxConnections: unknown): AccessTokenSetting => {
-  return {
+  const tokenSetting: AccessTokenSetting = {
     room_id: roomId,
     connection_id: connectionId,
     room_spec: {
@@ -67,6 +67,21 @@ export const createAccessTokenSetting = (roomId: string, connectionId: string, b
       max_connections: convertToNumber(maxConnections),
     },
   };
+  if (CLOUD_RECORDING?.isEnabled) {
+    tokenSetting.room_spec.recording = {
+      recording_on_start: true,
+      storage: 'aws_s3',
+      composition_recording: {
+        enabled: CLOUD_RECORDING.enableComposition ?? false,
+      },
+    };
+    tokenSetting.connection_spec = {
+      recording: {
+        store_raw: CLOUD_RECORDING.enableStoreRaw ?? false,
+      },
+    };
+  }
+  return tokenSetting;
 };
 
 /**

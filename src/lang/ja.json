@@ -11,18 +11,8 @@
   },
   "recordingNotification": {
     "recording": "録画中: ",
-    "noName": "No Name"
-  },
-  "recordingSettingsDialog": {
-    "title": "録画設定",
-    "mimeType": "MIME Type",
-    "audioMixing": "Audio Mixing",
-    "mixAll": "Mix All",
-    "targetOnly": "Target Only",
-    "audioBitrate": "Audio Bitrate",
-    "videoBitrate": "Video Bitrate",
-    "start": "開始する",
-    "cancel": "キャンセル"
+    "noName": "No Name",
+    "cloudRecording": "クラウド"
   },
   "subView": {
     "noName": "No Name"
@@ -63,5 +53,13 @@
   },
   "entranceScreen": {
     "click": "クリックして開始"
+  },
+  "player": {
+    "openLocalFileButton": "動画を開く",
+    "draw360Toggle": "360°映像",
+    "localFilePlayerDescription": {
+      "openLocalFile": "このページでは、録画した動画を再生できます。右上の「動画を開く」から動画を選択してください。",
+      "playLocalFile": "選択された動画はクラウドにアップロードされず、端末内でのみ再生されます。"
+    }
   }
 }

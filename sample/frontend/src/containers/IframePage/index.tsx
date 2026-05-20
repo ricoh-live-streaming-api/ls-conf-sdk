@@ -40,6 +40,9 @@ const IframePage: React.FC<Record<string, never>> = () => {
     video_codec,
     max_connections,
     ice_servers_protocol,
+    framerate,
+    resolution_width,
+    resolution_height,
   } = qs.parse(window.location.search);
   const { roomId } = useParams<{ roomId: string }>();
   const iframeContainerRef = useRef<HTMLDivElement>(null);
@@ -197,6 +200,27 @@ const IframePage: React.FC<Record<string, never>> = () => {
       videoCodec: videoCodec,
       iceServersProtocol,
     };
+    const sendFramerate = framerate && !isNaN(Number(framerate)) ? Number(framerate) : undefined;
+    const sendResolutionWidth = resolution_width && !isNaN(Number(resolution_width)) ? Number(resolution_width) : undefined;
+    const sendResolutionHeight = resolution_height && !isNaN(Number(resolution_height)) ? Number(resolution_height) : undefined;
+    if (sendFramerate || sendResolutionWidth || sendResolutionHeight) {
+      const videoTrackConstraints: MediaTrackConstraints = {
+        // MediaStreamConstraints を指定すると width や height が未指定でも環境によってはアスペクト比が 4:3 になってしまうことがあるため、16:9 を明示的に指定
+        // 16:9 にならない width や height を指定すると exact の制約が優先されるため、未指定時や片方だけ指定があった場合にのみ有効となる
+        aspectRatio: 16 / 9,
+      };
+      if (sendFramerate) {
+        // Safari では frameRate を exact で指定するとエラーになるため、条件を ideal に緩和する
+        videoTrackConstraints.frameRate = { ideal: sendFramerate };
+      }
+      if (sendResolutionWidth) {
+        videoTrackConstraints.width = { exact: sendResolutionWidth };
+      }
+      if (sendResolutionHeight) {
+        videoTrackConstraints.height = { exact: sendResolutionHeight };
+      }
+      connectOptions.videoAudioConstraints = { video: videoTrackConstraints };
+    }
     iframe.addEventListener('error', async (e: LSConfErrorEvent) => {
       const errorData = e.error.data;
       const code = e.error.detail.code;

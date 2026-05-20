@@ -11,18 +11,8 @@
   },
   "recordingNotification": {
     "recording": "Recording: ",
-    "noName": "No Name"
-  },
-  "recordingSettingsDialog": {
-    "title": "Recording Settings",
-    "mimeType": "MIME Type",
-    "audioMixing": "Audio Mixing",
-    "mixAll": "Mix All",
-    "targetOnly": "Target Only",
-    "audioBitrate": "Audio Bitrate",
-    "videoBitrate": "Video Bitrate",
-    "start": "Start",
-    "cancel": "Cancel"
+    "noName": "No Name",
+    "cloudRecording": "Cloud"
   },
   "subView": {
     "noName": "No Name"
@@ -63,5 +53,13 @@
   },
   "entranceScreen": {
     "click": "Click to start"
+  },
+  "player": {
+    "openLocalFileButton": "Open Video",
+    "draw360Toggle": "360-degree Video",
+    "localFilePlayerDescription": {
+      "openLocalFile": "On this page, you can play recorded videos. Select a video from the “Open Video” button in the upper right corner.",
+      "playLocalFile": "The selected video will not be uploaded to the cloud and will only be played on the device."
+    }
   }
 }

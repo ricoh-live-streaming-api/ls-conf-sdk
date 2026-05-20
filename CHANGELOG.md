@@ -1,5 +1,42 @@
 # CHANGE LOG
 
+## v5.13.0
+- Added
+  - [SDK,LSConf]H.265 での送受信の対応有無を返す API を追加
+  - [SDK,LSConf]H.265 で他拠点ユーザの映像がコーデック非対応で受信できない場合のエラーイベントを追加
+- Changed
+  - [SDK,LSConf]getCaptureImage() のレスポンスに rotationVector の追加と addImageSource() を Blob 形式にも対応
+  - [LSConf]LocalFilePlayer のヘッダーデザインを変更する
+  - [SDK,LSConf]クラウド録画時のアイコン表示を追加
+- Fixed
+  - [LSConf]addImageSource() と moveSubView() が連続で実施した時に MediaSourceError が発生する問題の修正
+  - [LSConf]Safari で checkH265Support() を実行すると result が false になる問題を修正
+  - [LSConf]getCaptureImage() で例外エラーが発生した場合に InternalError5005 が大量に発生する問題を修正
+
+## v5.12.2
+- Fixed
+  - [LSConf]Player をリロードした場合に音声が再生されない問題を修正
+- Refactored
+  - [LSConf]ローカル録画の録画設定固定化に伴い固定の録画設定値をログから削除
+
+## v5.12.1
+- Fixed
+  - [LSConf]Player でローカルの動画ファイルを再生する時にクラウド録画のメディア関連のメタデータの情報を取得する問題を修正
+
+## v5.12.0
+- Changed
+  - [LSConf]ローカル録画の録画設定の固定化と録画設定ダイアログの削除
+
+## v5.11.0
+- Changed
+  - [SDK,LSConf]VideoSource.sources に null を指定して createPlayer を実行するとローカルファイル指定のヘッダが表示されるように変更
+- Fixed
+  - [LSConf]Compute Pressure API での負荷情報ログが 1 秒間隔で出力される問題を修正
+
+## v5.10.1
+- Fixed
+  - [LSConf]ストロークを左上から書き始められない問題を修正
+
 ## v5.10.0
 - Added
   - [SDK,LSConf]クラウド録画の開始時（`startCloudRecording`）と停止時（`stopCloudRecording`）のイベントを追加

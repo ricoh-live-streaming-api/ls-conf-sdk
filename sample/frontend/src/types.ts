@@ -17,6 +17,38 @@ export type AccessTokenSetting = {
     media_control?: {
       bitrate_reservation_mbps?: number;
     };
+    recording?: {
+      recording_on_start?: boolean;
+      storage: string;
+      composition_recording?: {
+        enabled: boolean;
+        format?: string;
+        video?: {
+          resolution?: string;
+          max_bitrate_kbps?: string | number;
+        };
+        audio?: {
+          codec?: string;
+        };
+      };
+    };
+  };
+  connection_spec?: {
+    recording?: {
+      store?: boolean;
+      format?: string;
+      video?: {
+        codec?: string;
+      };
+      audio?: {
+        codec?: string;
+      };
+      store_raw?: boolean;
+      composition?: {
+        use_video?: boolean;
+        use_audio?: boolean;
+      };
+    };
   };
 };
 
@@ -110,6 +142,11 @@ interface LSConfSampleConfig {
   };
   ROOM_CONFIG: {
     entranceScreen: string;
+  };
+  CLOUD_RECORDING?: {
+    isEnabled: boolean;
+    enableComposition?: boolean;
+    enableStoreRaw?: boolean;
   };
 }
 
